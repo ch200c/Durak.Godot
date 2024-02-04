@@ -1,0 +1,51 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Durak.Godot", "Durak.Godot.csproj", "{9247CECD-2AD7-41C4-87BE-B4BFB3DFC589}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Durak.Gameplay", "src\Durak.Core\Durak.Gameplay.csproj", "{0ABA6175-BE9D-468F-B8A9-9FA3DE806605}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Durak.Gameplay.UnitTests", "tests\Durak.Gameplay.UnitTests\Durak.Gameplay.UnitTests.csproj", "{80F56CB3-280D-4161-991E-509050AB7C6B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		ExportDebug|Any CPU = ExportDebug|Any CPU
+		ExportRelease|Any CPU = ExportRelease|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9247CECD-2AD7-41C4-87BE-B4BFB3DFC589}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9247CECD-2AD7-41C4-87BE-B4BFB3DFC589}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9247CECD-2AD7-41C4-87BE-B4BFB3DFC589}.ExportDebug|Any CPU.ActiveCfg = ExportDebug|Any CPU
+		{9247CECD-2AD7-41C4-87BE-B4BFB3DFC589}.ExportDebug|Any CPU.Build.0 = ExportDebug|Any CPU
+		{9247CECD-2AD7-41C4-87BE-B4BFB3DFC589}.ExportRelease|Any CPU.ActiveCfg = ExportRelease|Any CPU
+		{9247CECD-2AD7-41C4-87BE-B4BFB3DFC589}.ExportRelease|Any CPU.Build.0 = ExportRelease|Any CPU
+		{9247CECD-2AD7-41C4-87BE-B4BFB3DFC589}.Release|Any CPU.ActiveCfg = ExportRelease|Any CPU
+		{9247CECD-2AD7-41C4-87BE-B4BFB3DFC589}.Release|Any CPU.Build.0 = ExportRelease|Any CPU
+		{0ABA6175-BE9D-468F-B8A9-9FA3DE806605}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0ABA6175-BE9D-468F-B8A9-9FA3DE806605}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0ABA6175-BE9D-468F-B8A9-9FA3DE806605}.ExportDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0ABA6175-BE9D-468F-B8A9-9FA3DE806605}.ExportDebug|Any CPU.Build.0 = Debug|Any CPU
+		{0ABA6175-BE9D-468F-B8A9-9FA3DE806605}.ExportRelease|Any CPU.ActiveCfg = Release|Any CPU
+		{0ABA6175-BE9D-468F-B8A9-9FA3DE806605}.ExportRelease|Any CPU.Build.0 = Release|Any CPU
+		{0ABA6175-BE9D-468F-B8A9-9FA3DE806605}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0ABA6175-BE9D-468F-B8A9-9FA3DE806605}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80F56CB3-280D-4161-991E-509050AB7C6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80F56CB3-280D-4161-991E-509050AB7C6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80F56CB3-280D-4161-991E-509050AB7C6B}.ExportDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80F56CB3-280D-4161-991E-509050AB7C6B}.ExportDebug|Any CPU.Build.0 = Debug|Any CPU
+		{80F56CB3-280D-4161-991E-509050AB7C6B}.ExportRelease|Any CPU.ActiveCfg = Release|Any CPU
+		{80F56CB3-280D-4161-991E-509050AB7C6B}.ExportRelease|Any CPU.Build.0 = Release|Any CPU
+		{80F56CB3-280D-4161-991E-509050AB7C6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80F56CB3-280D-4161-991E-509050AB7C6B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7B731620-7D16-4A19-9A37-4291FF90B1AA}
+	EndGlobalSection
+EndGlobal
