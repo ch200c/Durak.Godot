@@ -15,12 +15,12 @@
     <WarningLevel>9999</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="src\Durak.Core\**" />
+    <Compile Remove="src\Durak.Gameplay\**" />
     <Compile Remove="tests\**" />
-    <EmbeddedResource Remove="src\Durak.Core\**" />
+    <EmbeddedResource Remove="src\Durak.Gameplay\**" />
     <EmbeddedResource Remove="tests\**" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="src\Durak.Core\Durak.Gameplay.csproj" />
+    <ProjectReference Include="src\Durak.Gameplay\Durak.Gameplay.csproj" />
   </ItemGroup>
 </Project>

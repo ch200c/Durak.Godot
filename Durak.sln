@@ -5,7 +5,7 @@ VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Durak.Godot", "Durak.Godot.csproj", "{9247CECD-2AD7-41C4-87BE-B4BFB3DFC589}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Durak.Gameplay", "src\Durak.Core\Durak.Gameplay.csproj", "{0ABA6175-BE9D-468F-B8A9-9FA3DE806605}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Durak.Gameplay", "src\Durak.Gameplay\Durak.Gameplay.csproj", "{0ABA6175-BE9D-468F-B8A9-9FA3DE806605}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Durak.Gameplay.UnitTests", "tests\Durak.Gameplay.UnitTests\Durak.Gameplay.UnitTests.csproj", "{80F56CB3-280D-4161-991E-509050AB7C6B}"
 EndProject

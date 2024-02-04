@@ -3,15 +3,15 @@
 public class TurnLogic
 {
     private readonly IDealer _dealer;
-    private readonly Stack<Bout> _bouts;
+    private readonly Stack<IBout> _bouts;
 
     public TurnLogic(IDealer dealer)
     {
         _dealer = dealer;
-        _bouts = new Stack<Bout>();
+        _bouts = new Stack<IBout>();
     }
 
-    public void AddBout(Bout bout)
+    public void AddBout(IBout bout)
     {
         _bouts.Push(bout);
     }
@@ -58,13 +58,13 @@ public class TurnLogic
                 {
                     AttackState.Successful => (i + 2) % _dealer.PlayerCards.Count,
                     AttackState.BeatenOff => (i + 1) % _dealer.PlayerCards.Count,
-                    _ => throw new InvalidOperationException("TODO")
+                    _ => throw new GameplayException("Invalid latest bout attack state")
                 };
 
                 return _dealer.PlayerCards[index].Player;
             }
         }
 
-        throw new NotImplementedException("TODO");
+        throw new GameplayException("Could not find latest bout principal attacker");
     }
 }

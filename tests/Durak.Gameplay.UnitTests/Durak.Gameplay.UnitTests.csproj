@@ -33,7 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Durak.Core\Durak.Gameplay.csproj" />
+    <ProjectReference Include="..\..\src\Durak.Gameplay\Durak.Gameplay.csproj" />
   </ItemGroup>
 
 </Project>
