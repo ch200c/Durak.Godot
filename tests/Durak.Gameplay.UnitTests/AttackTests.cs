@@ -1,6 +1,6 @@
 namespace Durak.Gameplay.UnitTests;
 
-public class BoutTests
+public class AttackTests
 {
     [Fact]
     public void Construct_Attackers_ShouldContainSingleAttackerFromConstructor()
@@ -9,7 +9,7 @@ public class BoutTests
         var principalAttacker = new Player();
 
         // Act
-        var sut = new Bout(principalAttacker, new Player());
+        var sut = new Attack(principalAttacker, new Player());
 
         // Assert
         sut.Attackers.Should().ContainSingle(a => a == principalAttacker);
@@ -22,7 +22,7 @@ public class BoutTests
         var defender = new Player();
 
         // Act
-        var sut = new Bout(new Player(), defender);
+        var sut = new Attack(new Player(), defender);
 
         // Assert
         sut.Defender.Should().Be(defender);
@@ -32,7 +32,7 @@ public class BoutTests
     public void AddAttacker_Attackers_ShouldContainAddedAttacker()
     {
         // Arrange
-        var sut = new Bout(new Player(), new Player());
+        var sut = new Attack(new Player(), new Player());
         var attacker = new Player();
 
         // Act
@@ -40,5 +40,18 @@ public class BoutTests
 
         // Assert
         sut.Attackers.Should().Contain(attacker);
+    }
+
+    [Fact]
+    public void Play_Cards_ShouldContainSinglePlayedCard()
+    {
+        // Arrange
+        var sut = new Attack(new Player(), new Player());
+
+        // Act
+        sut.Play(sut.Attackers[0], new Card(1, ' '));
+
+        // Assert
+        sut.Cards.Should().ContainSingle(c => c.Card.Rank == 1 && c.Card.Suit == ' ');
     }
 }

@@ -3,32 +3,32 @@
 public class TurnLogic
 {
     private readonly IDealer _dealer;
-    private readonly Stack<IBout> _bouts;
+    private readonly Stack<IAttack> _attacks;
 
     public TurnLogic(IDealer dealer)
     {
         _dealer = dealer;
-        _bouts = new Stack<IBout>();
+        _attacks = new Stack<IAttack>();
     }
 
-    public void AddBout(IBout bout)
+    public void AddAttack(IAttack attack)
     {
-        _bouts.Push(bout);
+        _attacks.Push(attack);
     }
 
     public Player Next()
     {
-        if (_bouts.Count == 0)
+        if (_attacks.Count == 0)
         {
-            return FirstBout();
+            return FirstAttack();
         }
         else
         {
-            return ConsecutiveBout();
+            return ConsecutiveAttack();
         }
     }
 
-    private Player FirstBout()
+    private Player FirstAttack()
     {
         var lowestTrumpCard = _dealer.PlayerCards
             .SelectMany(p => p.Cards)
@@ -46,25 +46,25 @@ public class TurnLogic
         return _dealer.PlayerCards.Single(p => p.Cards.Contains(lowestTrumpCard)).Player;
     }
 
-    private Player ConsecutiveBout()
+    private Player ConsecutiveAttack()
     {
-        var latestBout = _bouts.Peek();
+        var latestAttack = _attacks.Peek();
 
         for (var i = 0; i < _dealer.PlayerCards.Count; i++)
         {
-            if (_dealer.PlayerCards[i].Player == latestBout.PrincipalAttacker)
+            if (_dealer.PlayerCards[i].Player == latestAttack.PrincipalAttacker)
             {
-                var index = latestBout.AttackState switch
+                var index = latestAttack.State switch
                 {
                     AttackState.Successful => (i + 2) % _dealer.PlayerCards.Count,
                     AttackState.BeatenOff => (i + 1) % _dealer.PlayerCards.Count,
-                    _ => throw new GameplayException("Invalid latest bout attack state")
+                    _ => throw new GameplayException("Invalid latest attack state")
                 };
 
                 return _dealer.PlayerCards[index].Player;
             }
         }
 
-        throw new GameplayException("Could not find latest bout principal attacker");
+        throw new GameplayException("Could not find latest attack's principal attacker");
     }
 }

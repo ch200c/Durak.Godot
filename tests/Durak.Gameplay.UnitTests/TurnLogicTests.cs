@@ -3,7 +3,7 @@
 public class TurnLogicTests
 {
     [Fact]
-    public void Next_FirstBout_ShouldBePlayerWithLowestTrump()
+    public void Next_FirstAttack_ShouldBePlayerWithLowestTrump()
     {
         // Arrange
         const char trumpSuit = ' ';
@@ -35,7 +35,8 @@ public class TurnLogicTests
     [InlineData(AttackState.Successful, 3, 2)]
     [InlineData(AttackState.BeatenOff, 2, 1)]
     [InlineData(AttackState.BeatenOff, 3, 1)]
-    public void Next_AfterFirstPlayerAttack_ShouldBeNextPlayer(AttackState attackState, int playerCount, int expectedNextIndex)
+    public void Next_AfterFirstPlayerAttack_ShouldBeNextPlayer(
+        AttackState attackState, int playerCount, int expectedNextIndex)
     {
         // Arrange
         var players = new List<Player>();
@@ -54,11 +55,11 @@ public class TurnLogicTests
 
         var sut = new TurnLogic(dealer);
 
-        var bout = Substitute.For<IBout>();
-        bout.AttackState.Returns(attackState);
-        bout.PrincipalAttacker.Returns(players[0]);
+        var attack = Substitute.For<IAttack>();
+        attack.State.Returns(attackState);
+        attack.PrincipalAttacker.Returns(players[0]);
 
-        sut.AddBout(bout);
+        sut.AddAttack(attack);
 
         // Act
         var next = sut.Next();
