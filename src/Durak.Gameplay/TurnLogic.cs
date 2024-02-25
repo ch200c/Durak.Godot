@@ -16,55 +16,86 @@ public class TurnLogic
         _attacks.Push(attack);
     }
 
-    public Player Next()
+    public IAttack? NextAttack()
     {
-        if (_attacks.Count == 0)
+        var attack = _attacks.Count == 0
+            ? FirstAttack()
+            : ConsecutiveAttack();
+
+        if (attack != null)
         {
-            return FirstAttack();
+            AddAttack(attack);
         }
-        else
-        {
-            return ConsecutiveAttack();
-        }
+
+        return attack;
     }
 
-    private Player FirstAttack()
+    private Attack? FirstAttack()
     {
-        var lowestTrumpCard = _dealer.PlayerCards
+        var lowestTrumpCard = _dealer.Players
             .SelectMany(p => p.Cards)
             .Where(c => c.Suit == _dealer.TrumpSuit)
             .OrderBy(c => c.Rank)
             .FirstOrDefault();
 
+        int attackerIndex;
+
         if (lowestTrumpCard == null)
         {
-            var players = _dealer.PlayerCards.Select(p => p.Player);
-            var index = Random.Shared.Next(0, players.Count());
-            return players.ElementAt(index);
+            attackerIndex = Random.Shared.Next(0, _dealer.Players.Count);
+        }
+        else
+        {
+            attackerIndex = _dealer.Players
+                .Select((p, i) => new { Cards = p.Cards, Index = i })
+                .Single(p => p.Cards.Contains(lowestTrumpCard))
+                .Index;
         }
 
-        return _dealer.PlayerCards.Single(p => p.Cards.Contains(lowestTrumpCard)).Player;
+        return CreateAttack(attackerIndex);
     }
 
-    private Player ConsecutiveAttack()
+    private Attack? ConsecutiveAttack()
     {
         var latestAttack = _attacks.Peek();
 
-        for (var i = 0; i < _dealer.PlayerCards.Count; i++)
+        for (var i = 0; i < _dealer.Players.Count; i++)
         {
-            if (_dealer.PlayerCards[i].Player == latestAttack.PrincipalAttacker)
+            if (_dealer.Players[i] == latestAttack.PrincipalAttacker)
             {
-                var index = latestAttack.State switch
+                var attackerIndex = latestAttack.State switch
                 {
-                    AttackState.Successful => (i + 2) % _dealer.PlayerCards.Count,
-                    AttackState.BeatenOff => (i + 1) % _dealer.PlayerCards.Count,
+                    AttackState.Successful => NextIndex(i + 1),
+                    AttackState.BeatenOff => NextIndex(i),
                     _ => throw new GameplayException("Invalid latest attack state")
                 };
 
-                return _dealer.PlayerCards[index].Player;
+                while (_dealer.Players[attackerIndex].Cards.Count == 0)
+                {
+                    attackerIndex = NextIndex(attackerIndex);
+                }
+
+                return CreateAttack(attackerIndex);
             }
         }
 
         throw new GameplayException("Could not find latest attack's principal attacker");
+    }
+
+    private int NextIndex(int index)
+    {
+        return (index + 1) % _dealer.Players.Count;
+    }
+
+    private Attack? CreateAttack(int attackerIndex)
+    {
+        var defenderIndex = NextIndex(attackerIndex);
+        
+        if (_dealer.Players[defenderIndex].Cards.Count == 0)
+        {
+            return null;
+        }
+
+        return new Attack(_dealer.Players[attackerIndex], _dealer.Players[defenderIndex], _dealer.TrumpSuit);
     }
 }

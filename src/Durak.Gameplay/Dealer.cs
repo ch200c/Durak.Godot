@@ -4,47 +4,49 @@ public class Dealer : IDealer
 {
     private readonly int _requiredPlayerCardCount;
     private readonly IDeck _deck;
-    private readonly List<PlayerCards> _playerCards;
-    private bool _isDeckExhausted;
+    private readonly List<Player> _players;
 
-    public IReadOnlyList<PlayerCards> PlayerCards { get => _playerCards.AsReadOnly(); }
+    public IReadOnlyList<Player> Players => _players.AsReadOnly();
 
-    public char TrumpSuit { get => _deck.TrumpSuit; }
+    public char TrumpSuit => _deck.TrumpSuit;
 
     public Dealer(int requiredPlayerCardCount, IEnumerable<Player> players, IDeck deck)
     {
         _requiredPlayerCardCount = requiredPlayerCardCount;
         _deck = deck;
-
-        _playerCards = [];
-
-        foreach (var player in players)
-        {
-            var playerCards = new PlayerCards(player, new List<Card>());
-            _playerCards.Add(playerCards);
-        }
+        _players = players.ToList();
     }
 
-    public void Deal()
+    public bool Deal()
     {
-        foreach (var playerCards in _playerCards)
+        foreach (var player in _players)
         {
-            Replenish(playerCards);
+            if (!Replenish(player))
+            {
+                return false;
+            }
         }
+
+        return true;
     }
 
-    private void Replenish(PlayerCards playerCards)
+    private bool Replenish(Player player)
     {
-        while (playerCards.Cards.Count < _requiredPlayerCardCount && !_isDeckExhausted)
+        var isExhausted = true;
+       
+        while (player.Cards.Count < _requiredPlayerCardCount)
         {
             if (_deck.TryDequeue(out var card))
             {
-                playerCards.Cards.Add(card);
+                player.PickUp([card]);
             }
             else
             {
-                _isDeckExhausted = true;
+                isExhausted = false;
+                break;
             }
         }
+
+        return isExhausted;
     }
 }

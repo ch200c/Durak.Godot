@@ -2,14 +2,32 @@
 
 public class Player
 {
-    private readonly string? _debugId;
+    private readonly List<Card> _cards;
 
-    public Player(string debugId)
+    public string? Id { get; }
+
+    public IReadOnlyList<Card> Cards => _cards.AsReadOnly();
+
+    public Player() : this(null)
     {
-        _debugId = debugId;
     }
 
-    public Player()
+    public Player(string? id)
     {
+        Id = id;
+        _cards = [];
+    }
+
+    public void PickUp(IEnumerable<Card> cards)
+    {
+        _cards.AddRange(cards);
+    }
+
+    public void Shed(Card card)
+    {
+        if (!_cards.Remove(card))
+        {
+            throw new GameplayException("Cannot shed non-player's card");
+        }
     }
 }

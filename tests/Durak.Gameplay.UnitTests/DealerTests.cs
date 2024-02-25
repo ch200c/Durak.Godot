@@ -25,6 +25,6 @@ public class DealerTests
         sut.Deal();
 
         // Assert
-        sut.PlayerCards[0].Cards.Should().HaveCount(requiredPlayerCardCount);
+        sut.Players[0].Cards.Should().HaveCount(requiredPlayerCardCount);
     }
 }

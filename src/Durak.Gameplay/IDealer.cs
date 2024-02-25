@@ -2,9 +2,9 @@
 
 public interface IDealer
 {
-    IReadOnlyList<PlayerCards> PlayerCards { get; }
+    IReadOnlyList<Player> Players { get; }
 
     char TrumpSuit { get; }
 
-    void Deal();
+    bool Deal();
 }

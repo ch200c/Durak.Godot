@@ -3,31 +3,26 @@
 public class TurnLogicTests
 {
     [Fact]
-    public void Next_FirstAttack_ShouldBePlayerWithLowestTrump()
+    public void NextAttack_FirstAttack_PrincipalAttackerShouldBePlayerWithLowestTrump()
     {
         // Arrange
         const char trumpSuit = ' ';
         var players = new List<Player>() { new(), new() };
 
+        players[0].PickUp([new Card(2, trumpSuit)]);
+        players[1].PickUp([new Card(1, trumpSuit)]);
         var dealer = Substitute.For<IDealer>();
 
-        dealer
-            .PlayerCards
-            .Returns(new List<PlayerCards>()
-                {
-                    new(players[0], new List<Card>(){ new(2, trumpSuit) }),
-                    new(players[1], new List<Card>(){ new(1, trumpSuit) })
-                });
-
+        dealer.Players.Returns(players);
         dealer.TrumpSuit.Returns(trumpSuit);
 
         var sut = new TurnLogic(dealer);
 
         // Act
-        var next = sut.Next();
+        var nextAttack = sut.NextAttack();
 
         // Assert
-        next.Should().Be(players[1]);
+        nextAttack!.PrincipalAttacker.Should().Be(players[1]);
     }
 
     [Theory]
@@ -35,23 +30,21 @@ public class TurnLogicTests
     [InlineData(AttackState.Successful, 3, 2)]
     [InlineData(AttackState.BeatenOff, 2, 1)]
     [InlineData(AttackState.BeatenOff, 3, 1)]
-    public void Next_AfterFirstPlayerAttack_ShouldBeNextPlayer(
+    public void NextAttack_AfterFirstPlayerAttack_ShouldBeNextPlayer(
         AttackState attackState, int playerCount, int expectedNextIndex)
     {
         // Arrange
         var players = new List<Player>();
-        var playerCards = new List<PlayerCards>();
 
         for (var i = 0 ; i < playerCount; i++)
         {
             var player = new Player();
+            player.PickUp([new Card(1, ' ')]);
             players.Add(player);
-            playerCards.Add(new PlayerCards(player, new List<Card>()));
         }
 
         var dealer = Substitute.For<IDealer>();
-
-        dealer.PlayerCards.Returns(playerCards);
+        dealer.Players.Returns(players);
 
         var sut = new TurnLogic(dealer);
 
@@ -62,9 +55,9 @@ public class TurnLogicTests
         sut.AddAttack(attack);
 
         // Act
-        var next = sut.Next();
+        var nextAttack = sut.NextAttack();
 
         // Assert
-        next.Should().Be(players[expectedNextIndex]);
+        nextAttack!.PrincipalAttacker.Should().Be(players[expectedNextIndex]);
     }
 }
