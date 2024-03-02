@@ -9,22 +9,13 @@ public class DealerTests
         var requiredPlayerCardCount = 6;
         var players = new List<Player>() { new() };
 
-        var deck = Substitute.For<IDeck>();
-
-        deck
-            .TryDequeue(out Arg.Any<Card?>())
-            .Returns(x =>
-            {
-                x[0] = new Card(1, ' ');
-                return true;
-            });
-
+        var deck = new Deck(new FrenchSuited36CardProvider(), new DefaultCardShuffler());
         var sut = new Dealer(requiredPlayerCardCount, players, deck);
 
         // Act
         sut.Deal();
 
         // Assert
-        sut.Players[0].Cards.Should().HaveCount(requiredPlayerCardCount);
+        players[0].Cards.Should().HaveCount(requiredPlayerCardCount);
     }
 }

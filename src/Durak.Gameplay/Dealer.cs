@@ -4,17 +4,13 @@ public class Dealer : IDealer
 {
     private readonly int _requiredPlayerCardCount;
     private readonly IDeck _deck;
-    private readonly List<Player> _players;
-
-    public IReadOnlyList<Player> Players => _players.AsReadOnly();
-
-    public char TrumpSuit => _deck.TrumpSuit;
+    private readonly IEnumerable<Player> _players;
 
     public Dealer(int requiredPlayerCardCount, IEnumerable<Player> players, IDeck deck)
     {
         _requiredPlayerCardCount = requiredPlayerCardCount;
+        _players = players;
         _deck = deck;
-        _players = players.ToList();
     }
 
     public bool Deal()
@@ -32,7 +28,7 @@ public class Dealer : IDealer
 
     private bool Replenish(Player player)
     {
-        var isExhausted = true;
+        var isReplenished = true;
        
         while (player.Cards.Count < _requiredPlayerCardCount)
         {
@@ -42,11 +38,11 @@ public class Dealer : IDealer
             }
             else
             {
-                isExhausted = false;
+                isReplenished = false;
                 break;
             }
         }
 
-        return isExhausted;
+        return isReplenished;
     }
 }

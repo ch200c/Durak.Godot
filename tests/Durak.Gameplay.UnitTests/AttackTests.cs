@@ -82,7 +82,6 @@ public class AttackTests
         attacker.PickUp([new Card(1, ' ')]);
 
         var defender = new Player();
-        defender.PickUp([]);
 
         var sut = new Attack(attacker, defender, ' ');
 

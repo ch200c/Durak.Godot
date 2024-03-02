@@ -9,14 +9,10 @@ public class TurnLogicTests
         const char trumpSuit = ' ';
         var players = new List<Player>() { new(), new() };
 
-        players[0].PickUp([new Card(2, trumpSuit)]);
-        players[1].PickUp([new Card(1, trumpSuit)]);
-        var dealer = Substitute.For<IDealer>();
+        players[0].PickUp([new Card(4, trumpSuit)]);
+        players[1].PickUp([new Card(3, trumpSuit)]);
 
-        dealer.Players.Returns(players);
-        dealer.TrumpSuit.Returns(trumpSuit);
-
-        var sut = new TurnLogic(dealer);
+        var sut = new TurnLogic(players, trumpSuit);
 
         // Act
         var nextAttack = sut.NextAttack();
@@ -25,39 +21,77 @@ public class TurnLogicTests
         nextAttack!.PrincipalAttacker.Should().Be(players[1]);
     }
 
-    [Theory]
-    [InlineData(AttackState.Successful, 2, 0)]
-    [InlineData(AttackState.Successful, 3, 2)]
-    [InlineData(AttackState.BeatenOff, 2, 1)]
-    [InlineData(AttackState.BeatenOff, 3, 1)]
-    public void NextAttack_AfterFirstPlayerAttack_ShouldBeNextPlayer(
-        AttackState attackState, int playerCount, int expectedNextIndex)
+    [Fact]
+    public void NextAttack_AfterSuccessfulAttack_TwoPlayers_PrincipalAttackerShouldBeNextAfterDefender()
     {
         // Arrange
-        var players = new List<Player>();
+        var players = new List<Player>() { new(), new() };
+        players[0].PickUp([new Card(2, 'd'), new Card(3, 'd')]);
+        players[1].PickUp([new Card(4, 'd'), new Card(5, 'd')]);
 
-        for (var i = 0 ; i < playerCount; i++)
-        {
-            var player = new Player();
-            player.PickUp([new Card(1, ' ')]);
-            players.Add(player);
-        }
+        const char trumpSuit = 'c';
+        var sut = new TurnLogic(players, trumpSuit);
 
-        var dealer = Substitute.For<IDealer>();
-        dealer.Players.Returns(players);
+        var successfulAttack = new Attack(players[0], players[1], trumpSuit);
+        successfulAttack.Play(players[0], players[0].Cards[0]);
+        successfulAttack.End();
 
-        var sut = new TurnLogic(dealer);
-
-        var attack = Substitute.For<IAttack>();
-        attack.State.Returns(attackState);
-        attack.PrincipalAttacker.Returns(players[0]);
-
-        sut.AddAttack(attack);
+        sut.AddAttack(successfulAttack);
 
         // Act
         var nextAttack = sut.NextAttack();
 
         // Assert
-        nextAttack!.PrincipalAttacker.Should().Be(players[expectedNextIndex]);
+        nextAttack!.PrincipalAttacker.Should().Be(successfulAttack.PrincipalAttacker);
+    }
+
+    [Fact]
+    public void NextAttack_AfterSuccessfulAttack_MoreThanTwoPlayers_PrincipalAttackerShouldBeNextAfterDefender()
+    {
+        // Arrange
+        var players = new List<Player>() { new(), new(), new() };
+        players[0].PickUp([new Card(2, 'd'), new Card(3, 'd')]);
+        players[1].PickUp([new Card(4, 'd'), new Card(5, 'd')]);
+        players[2].PickUp([new Card(6, 'd'), new Card(7, 'd')]);
+
+        const char trumpSuit = 'c';
+        var sut = new TurnLogic(players, trumpSuit);
+
+        var successfulAttack = new Attack(players[0], players[1], trumpSuit);
+        successfulAttack.Play(players[0], players[0].Cards[0]);
+        successfulAttack.End();
+
+        sut.AddAttack(successfulAttack);
+
+        // Act
+        var nextAttack = sut.NextAttack();
+
+        // Assert
+        nextAttack!.PrincipalAttacker.Should().Be(players[2]);
+    }
+
+    [Fact]
+    public void NextAttack_AfterBeatenOffAttack_PrincipalAttackerShouldBeDefender()
+    {
+        // Arrange
+        var players = new List<Player>() { new(), new() };
+        players[0].PickUp([new Card(2, 'd'), new Card(3, 'd')]);
+        players[1].PickUp([new Card(4, 'd'), new Card(5, 'd')]);
+
+        const char trumpSuit = 'c';
+        var sut = new TurnLogic(players, trumpSuit);
+
+        var beatenOffAttack = new Attack(players[0], players[1], trumpSuit);
+        beatenOffAttack.Play(players[0], players[0].Cards[0]);
+        beatenOffAttack.Play(players[1], players[1].Cards[0]);
+        beatenOffAttack.End();
+
+        sut.AddAttack(beatenOffAttack);
+
+        // Act
+        var nextAttack = sut.NextAttack();
+
+        // Assert
+        nextAttack!.PrincipalAttacker.Should().Be(beatenOffAttack.Defender);
     }
 }
