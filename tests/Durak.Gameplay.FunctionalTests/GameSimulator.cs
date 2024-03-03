@@ -3,51 +3,25 @@ using Xunit.Abstractions;
 
 namespace Durak.Gameplay.FunctionalTests;
 
-public class TwoPlayerGameTests
+public class GameSimulator(ITestOutputHelper testOutputHelper, IDealer dealer, ITurnLogic turnLogic)
 {
-    private readonly ITestOutputHelper _testOutputHelper;
-
-    public TwoPlayerGameTests(ITestOutputHelper testOutputHelper)
+    public void Simulate()
     {
-        _testOutputHelper = testOutputHelper;
-    }
-
-    [Fact]
-    public void TurnLogic_NextAttackIsNull_ShouldHaveAPlayerWithNoCards()
-    {
-        var player1 = new Player("P1");
-        var player2 = new Player("P2");
-        var players = new List<Player>() { player1, player2 };
-        var deck = new Deck(new FrenchSuited36CardProvider(), new DefaultCardShuffler());
-        var dealer = new Dealer(6, players, deck);
-        var turnLogic = new TurnLogic(players, deck.TrumpSuit);
-
-        try
+        while (dealer.Deal())
         {
-            while (dealer.Deal())
+            if (!Attack())
             {
-                if (!Attack(turnLogic))
-                {
-                    throw new NotImplementedException("TODO3");
-                }
-            }
-
-            while (Attack(turnLogic))
-            {
-                // Do nothing
+                throw new NotImplementedException("TODO3");
             }
         }
-        catch (Exception ex) when (ex is not GameplayException)
-        {
-            _testOutputHelper.WriteLine(ex.Message);
-            _testOutputHelper.WriteLine(ex.StackTrace);
-            _testOutputHelper.WriteLine(string.Join(',', players.Select(p => p.Cards.Count)));
-        }
 
-        players.Should().Contain(p => p.Cards.Count == 0);
+        while (Attack())
+        {
+            // Do nothing
+        }
     }
 
-    private bool Attack(TurnLogic turnLogic)
+    private bool Attack()
     {
         var attack = turnLogic.NextAttack();
 
@@ -55,6 +29,16 @@ public class TwoPlayerGameTests
         {
             return false;
         }
+
+        foreach (var attacker in attack.Attackers)
+        {
+            var cards = string.Join(',', attacker.Cards.Select(c => c.ToString()));
+            testOutputHelper.WriteLine($"{attacker.Id} {cards}");
+        }
+
+        var cards2 = string.Join(',', attack.Defender.Cards.Select(c => c.ToString()));
+        testOutputHelper.WriteLine($"{attack.Defender.Id} {cards2}");
+
         // TODO: random chance of skipping, adding attackers
 
         while (attack.State == AttackState.InProgress)
@@ -74,7 +58,7 @@ public class TwoPlayerGameTests
             }
         }
 
-        _testOutputHelper.WriteLine(ToString(attack));
+        testOutputHelper.WriteLine(ToString(attack));
         return true;
     }
 
@@ -90,7 +74,8 @@ public class TwoPlayerGameTests
             }
             catch (GameplayException ex)
             {
-                if (ex.Message == "Cannot have more attacking cards in this attack")
+                if (ex.Message == "Cannot have more attacking cards in this attack"
+                    || ex.Message.Contains("Reached more than"))
                 {
                     return false;
                 }
@@ -108,11 +93,6 @@ public class TwoPlayerGameTests
         }
 
         var stringBuilder = new StringBuilder();
-
-        var attackers = string.Join(", ", attack.Attackers.Select(a => a.Id));
-
-        stringBuilder.AppendFormat("{0} vs {1}", attackers, attack.Defender.Id);
-        stringBuilder.AppendLine();
 
         var cardGroups = attack.Cards
             .Select(c => $"{c.Player.Id} {c.Card}")

@@ -1,23 +1,17 @@
 ﻿namespace Durak.Gameplay;
 
-public class TurnLogic
+public class TurnLogic(IReadOnlyList<Player> players, char trumpSuit) : ITurnLogic
 {
-    private readonly IReadOnlyList<Player> _players;
-    private readonly char _trumpSuit;
-    private readonly Stack<IAttack> _attacks;
+    private const int _maxAttackCount = 100;
+    private readonly Stack<IAttack> _attacks = new();
 
-    public TurnLogic(IReadOnlyList<Player> players, char trumpSuit)
-    {
-        _players = players;
-        _trumpSuit = trumpSuit;
-        _attacks = new Stack<IAttack>();
-    }
+    public IReadOnlyList<IAttack> Attacks => _attacks.ToList().AsReadOnly();
 
     public void AddAttack(IAttack attack)
     {
-        if (_attacks.Count > 100)
+        if (_attacks.Count > _maxAttackCount)
         {
-            throw new NotImplementedException("TODO1");
+            throw new GameplayException($"Reached more than {_maxAttackCount} attacks in a game");
         }
 
         _attacks.Push(attack);
@@ -39,9 +33,9 @@ public class TurnLogic
 
     private Attack? FirstAttack()
     {
-        var lowestTrumpCard = _players
+        var lowestTrumpCard = players
             .SelectMany(p => p.Cards)
-            .Where(c => c.Suit == _trumpSuit)
+            .Where(c => c.Suit == trumpSuit)
             .OrderBy(c => c.Rank)
             .FirstOrDefault();
 
@@ -49,11 +43,11 @@ public class TurnLogic
 
         if (lowestTrumpCard == null)
         {
-            attackerIndex = Random.Shared.Next(0, _players.Count);
+            attackerIndex = Random.Shared.Next(0, players.Count);
         }
         else
         {
-            attackerIndex = _players
+            attackerIndex = players
                 .Select((p, i) => new { Cards = p.Cards, Index = i })
                 .Single(p => p.Cards.Contains(lowestTrumpCard))
                 .Index;
@@ -64,7 +58,7 @@ public class TurnLogic
 
     private Attack? ConsecutiveAttack()
     {
-        var isOneOrZeroPlayersLeft = _players.Count(p => p.Cards.Count > 0) <= 1;
+        var isOneOrZeroPlayersLeft = players.Count(p => p.Cards.Count > 0) <= 1;
         if (isOneOrZeroPlayersLeft)
         {
             return null;
@@ -72,9 +66,9 @@ public class TurnLogic
 
         var latestAttack = _attacks.Peek();
 
-        for (var i = 0; i < _players.Count; i++)
+        for (var i = 0; i < players.Count; i++)
         {
-            if (_players[i] == latestAttack.PrincipalAttacker)
+            if (players[i] == latestAttack.PrincipalAttacker)
             {
                 var attackerIndex = latestAttack.State switch
                 {
@@ -92,13 +86,13 @@ public class TurnLogic
 
     private int NextIndex(int index)
     {
-        index = (index + 1) % _players.Count;
+        index = (index + 1) % players.Count;
 
         var originalIndex = index;
 
-        while (_players[index].Cards.Count == 0)
+        while (players[index].Cards.Count == 0)
         {
-            index = (index + 1) % _players.Count;
+            index = (index + 1) % players.Count;
             if (originalIndex == index)
             {
                 throw new NotImplementedException("TODO2");
@@ -111,6 +105,6 @@ public class TurnLogic
     private Attack CreateAttack(int attackerIndex)
     {
         var defenderIndex = NextIndex(attackerIndex);
-        return new Attack(_players[attackerIndex], _players[defenderIndex], _trumpSuit);
+        return new Attack(players[attackerIndex], players[defenderIndex], trumpSuit);
     }
 }

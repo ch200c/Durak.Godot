@@ -1,8 +1,5 @@
 ﻿namespace Durak.Gameplay;
 
-public class GameplayException : Exception
+public class GameplayException(string? message) : Exception(message)
 {
-    public GameplayException(string? message) : base(message)
-    {
-    }
 }

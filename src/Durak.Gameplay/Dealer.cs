@@ -1,21 +1,10 @@
 ﻿namespace Durak.Gameplay;
 
-public class Dealer : IDealer
+public class Dealer(int requiredPlayerCardCount, IEnumerable<Player> players, IDeck deck) : IDealer
 {
-    private readonly int _requiredPlayerCardCount;
-    private readonly IDeck _deck;
-    private readonly IEnumerable<Player> _players;
-
-    public Dealer(int requiredPlayerCardCount, IEnumerable<Player> players, IDeck deck)
-    {
-        _requiredPlayerCardCount = requiredPlayerCardCount;
-        _players = players;
-        _deck = deck;
-    }
-
     public bool Deal()
     {
-        foreach (var player in _players)
+        foreach (var player in players)
         {
             if (!Replenish(player))
             {
@@ -26,13 +15,14 @@ public class Dealer : IDealer
         return true;
     }
 
+    //todo fix replenish order
     private bool Replenish(Player player)
     {
         var isReplenished = true;
        
-        while (player.Cards.Count < _requiredPlayerCardCount)
+        while (player.Cards.Count < requiredPlayerCardCount)
         {
-            if (_deck.TryDequeue(out var card))
+            if (deck.TryDequeue(out var card))
             {
                 player.PickUp([card]);
             }
