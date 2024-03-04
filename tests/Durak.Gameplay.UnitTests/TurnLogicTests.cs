@@ -6,7 +6,7 @@ public class TurnLogicTests
     public void NextAttack_FirstAttack_PrincipalAttackerShouldBePlayerWithLowestTrump()
     {
         // Arrange
-        const char trumpSuit = ' ';
+        var trumpSuit = Suit.Hearts;
         var players = new List<Player>() { new(), new() };
 
         players[0].PickUp([new Card(4, trumpSuit)]);
@@ -26,10 +26,10 @@ public class TurnLogicTests
     {
         // Arrange
         var players = new List<Player>() { new(), new() };
-        players[0].PickUp([new Card(2, 'd'), new Card(3, 'd')]);
-        players[1].PickUp([new Card(4, 'd'), new Card(5, 'd')]);
+        players[0].PickUp([new Card(2, Suit.Diamonds), new Card(3, Suit.Diamonds)]);
+        players[1].PickUp([new Card(4, Suit.Diamonds), new Card(5, Suit.Diamonds)]);
 
-        const char trumpSuit = 'c';
+        var trumpSuit = Suit.Clubs;
         var sut = new TurnLogic(players, trumpSuit);
 
         var successfulAttack = new Attack(players[0], players[1], trumpSuit);
@@ -50,11 +50,11 @@ public class TurnLogicTests
     {
         // Arrange
         var players = new List<Player>() { new(), new(), new() };
-        players[0].PickUp([new Card(2, 'd'), new Card(3, 'd')]);
-        players[1].PickUp([new Card(4, 'd'), new Card(5, 'd')]);
-        players[2].PickUp([new Card(6, 'd'), new Card(7, 'd')]);
+        players[0].PickUp([new Card(2, Suit.Diamonds), new Card(3, Suit.Diamonds)]);
+        players[1].PickUp([new Card(4, Suit.Diamonds), new Card(5, Suit.Diamonds)]);
+        players[2].PickUp([new Card(6, Suit.Diamonds), new Card(7, Suit.Diamonds)]);
 
-        const char trumpSuit = 'c';
+        var trumpSuit = Suit.Clubs;
         var sut = new TurnLogic(players, trumpSuit);
 
         var successfulAttack = new Attack(players[0], players[1], trumpSuit);
@@ -75,10 +75,10 @@ public class TurnLogicTests
     {
         // Arrange
         var players = new List<Player>() { new(), new() };
-        players[0].PickUp([new Card(2, 'd'), new Card(3, 'd')]);
-        players[1].PickUp([new Card(4, 'd'), new Card(5, 'd')]);
+        players[0].PickUp([new Card(2, Suit.Diamonds), new Card(3, Suit.Diamonds)]);
+        players[1].PickUp([new Card(4, Suit.Diamonds), new Card(5, Suit.Diamonds)]);
 
-        const char trumpSuit = 'c';
+        var trumpSuit = Suit.Clubs;
         var sut = new TurnLogic(players, trumpSuit);
 
         var beatenOffAttack = new Attack(players[0], players[1], trumpSuit);

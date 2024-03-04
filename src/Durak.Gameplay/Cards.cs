@@ -2,21 +2,55 @@
 
 public record Card(int Rank, char Suit)
 {
+    private int _rank = ValidateRank(Rank);
+    public int Rank
+    {
+        get => _rank;
+        init { _rank = ValidateRank(value); }
+    }
+
+    private char _suit = ValidateSuit(Suit);
+    public char Suit
+    {
+        get => _suit;
+        init { _suit = ValidateSuit(value); }
+    }
+
+    private static int ValidateRank(int rank)
+    {
+        if (rank < 2 || rank > 14)
+        {
+            throw new ArgumentOutOfRangeException(nameof(rank));
+        }
+
+        return rank;
+    }
+
+    private static char ValidateSuit(char suit)
+    {
+        if (suit != Gameplay.Suit.Clubs
+            && suit != Gameplay.Suit.Diamonds
+            && suit != Gameplay.Suit.Hearts
+            && suit != Gameplay.Suit.Spades)
+        {
+            throw new ArgumentOutOfRangeException(nameof(suit));
+        }
+
+        return suit;
+    }
+
     public override string ToString()
     {
-        var serializedRank = Rank switch
-        {
-            var r when r is >= 2 and <= 9 => $" {r}",
-            10 => "10",
-            11 => " J",
-            12 => " Q",
-            13 => " K",
-            14 => " A",
-            _ => throw new ArgumentOutOfRangeException(nameof(Rank))
-        };
-
-        return $"{serializedRank}{Suit}";
+        return CardConverter.ToString(this);
     }
 }
 
 public record AttackCard(Player Player, Card Card);
+
+public static class Suit
+{
+    public static readonly char Clubs = 'c';
+    public static readonly char Diamonds = 'd';
+    public static readonly char Hearts = 'h';
+    public static readonly char Spades = 's';
+}

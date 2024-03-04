@@ -7,6 +7,7 @@ public enum AttackState
     Successful
 }
 
+// TODO: validate suit
 public class Attack(Player principalAttacker, Player defender, char trumpSuit) : IAttack
 {
     private readonly List<Player> _attackers = [principalAttacker];

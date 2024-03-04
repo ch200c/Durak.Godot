@@ -64,33 +64,49 @@ public class TurnLogic(IReadOnlyList<Player> players, char trumpSuit) : ITurnLog
             return null;
         }
 
-        var latestAttack = _attacks.Peek();
+        var previousAttack = _attacks.Peek();
+        int previousAttackerIndex = -1;
+        int previousDefenderIndex = -1;
 
         for (var i = 0; i < players.Count; i++)
         {
-            if (players[i] == latestAttack.PrincipalAttacker)
+            if (players[i] == previousAttack.PrincipalAttacker)
             {
-                var attackerIndex = latestAttack.State switch
-                {
-                    AttackState.Successful => NextIndex(i + 1),
-                    AttackState.BeatenOff => NextIndex(i),
-                    _ => throw new GameplayException("Invalid latest attack state")
-                };
+                previousAttackerIndex = i;
+            }
+            else if (players[i] == previousAttack.Defender)
+            {
+                previousDefenderIndex = i;
+            }
 
-                return CreateAttack(attackerIndex);
+            if (previousAttackerIndex != -1 && previousDefenderIndex != -1)
+            {
+                break;
             }
         }
 
-        throw new GameplayException("Could not find latest attack's principal attacker");
+        if (previousAttackerIndex == -1 || previousDefenderIndex == -1)
+        {
+            throw new GameplayException("Could not find latest attack's players");
+        }
+
+        var attackerIndex = previousAttack.State switch
+        {
+            AttackState.Successful => NextIndex(previousAttackerIndex + 1, previousDefenderIndex),
+            AttackState.BeatenOff => NextIndex(previousAttackerIndex, null),
+            _ => throw new GameplayException("Invalid latest attack state")
+        };
+
+        return CreateAttack(attackerIndex);
     }
 
-    private int NextIndex(int index)
+    private int NextIndex(int index, int? previousDefenderIndex)
     {
         index = (index + 1) % players.Count;
 
         var originalIndex = index;
 
-        while (players[index].Cards.Count == 0)
+        while (players[index].Cards.Count == 0 || index == previousDefenderIndex)
         {
             index = (index + 1) % players.Count;
             if (originalIndex == index)
@@ -104,7 +120,7 @@ public class TurnLogic(IReadOnlyList<Player> players, char trumpSuit) : ITurnLog
 
     private Attack CreateAttack(int attackerIndex)
     {
-        var defenderIndex = NextIndex(attackerIndex);
+        var defenderIndex = NextIndex(attackerIndex, null);
         return new Attack(players[attackerIndex], players[defenderIndex], trumpSuit);
     }
 }

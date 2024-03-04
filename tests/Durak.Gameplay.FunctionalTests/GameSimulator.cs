@@ -32,12 +32,10 @@ public class GameSimulator(ITestOutputHelper testOutputHelper, IDealer dealer, I
 
         foreach (var attacker in attack.Attackers)
         {
-            var cards = string.Join(',', attacker.Cards.Select(c => c.ToString()));
-            testOutputHelper.WriteLine($"{attacker.Id} {cards}");
+            WritePlayerCards(attacker);
         }
 
-        var cards2 = string.Join(',', attack.Defender.Cards.Select(c => c.ToString()));
-        testOutputHelper.WriteLine($"{attack.Defender.Id} {cards2}");
+        WritePlayerCards(attack.Defender);
 
         // TODO: random chance of skipping, adding attackers
 
@@ -85,6 +83,12 @@ public class GameSimulator(ITestOutputHelper testOutputHelper, IDealer dealer, I
         return false;
     }
 
+    private void WritePlayerCards(Player player)
+    {
+        var cards = string.Join(", ", player.Cards.Select(CardConverter.ToString));
+        testOutputHelper.WriteLine($"{player.Id}: [{cards}]");
+    }
+
     private static string ToString(IAttack? attack)
     {
         if (attack is null)
@@ -95,12 +99,12 @@ public class GameSimulator(ITestOutputHelper testOutputHelper, IDealer dealer, I
         var stringBuilder = new StringBuilder();
 
         var cardGroups = attack.Cards
-            .Select(c => $"{c.Player.Id} {c.Card}")
+            .Select(c => string.Format("{0} {1,3}", c.Player.Id, CardConverter.ToString(c.Card)))
             .Chunk(2);
 
         foreach (var cardGroup in cardGroups)
         {
-            stringBuilder.AppendJoin(' ', cardGroup);
+            stringBuilder.AppendJoin("  ", cardGroup);
             stringBuilder.AppendLine();
         }
 

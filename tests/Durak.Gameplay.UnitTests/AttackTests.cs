@@ -60,18 +60,18 @@ public class AttackTests
     {
         // Arrange
         var attacker = new Player();
-        attacker.PickUp([new Card(1, ' ')]);
+        attacker.PickUp([new Card(2, Suit.Diamonds)]);
 
         var defender = new Player();
-        defender.PickUp([new Card(2, ' ')]);
+        defender.PickUp([new Card(3, Suit.Diamonds)]);
 
-        var sut = new Attack(attacker, defender, ' ');
+        var sut = new Attack(attacker, defender, Suit.Diamonds);
 
         // Act
         sut.Play(attacker, attacker.Cards[0]);
 
         // Assert
-        sut.Cards.Should().ContainSingle(c => c.Card.Rank == 1 && c.Card.Suit == ' ');
+        sut.Cards.Should().ContainSingle(c => c.Card.Rank == 2 && c.Card.Suit == Suit.Diamonds);
     }
 
     [Fact]
@@ -79,11 +79,11 @@ public class AttackTests
     {
         // Arrange
         var attacker = new Player();
-        attacker.PickUp([new Card(1, ' ')]);
+        attacker.PickUp([new Card(3, Suit.Clubs)]);
 
         var defender = new Player();
 
-        var sut = new Attack(attacker, defender, ' ');
+        var sut = new Attack(attacker, defender, Suit.Clubs);
 
         // Act
         var act = () => sut.Play(attacker, attacker.Cards[0]);
@@ -92,6 +92,7 @@ public class AttackTests
         act.Should().Throw<GameplayException>();
     }
 
+    // TODO: use constants
     [Theory]
     [InlineData(7, 'c', 6, 'c')]    // lower rank, same suit, trump
     [InlineData(7, 'c', 6, 'd')]    // lower rank, different suit, non-trump
@@ -124,13 +125,12 @@ public class AttackTests
     {
         // Arrange
         var attacker = new Player();
-        attacker.PickUp([new Card(6, 'c'), new Card(7, 'c')]);
+        attacker.PickUp([new Card(6, Suit.Clubs), new Card(7, Suit.Clubs)]);
 
         var defender = new Player();
-        defender.PickUp([new Card(10, 'c'), new Card(11, 'c')]);
+        defender.PickUp([new Card(10, Suit.Clubs), new Card(11, Suit.Clubs)]);
 
-        const char trumpSuit = 'd';
-        var sut = new Attack(attacker, defender, trumpSuit);
+        var sut = new Attack(attacker, defender, Suit.Spades);
 
         sut.Play(attacker, attacker.Cards[0]);
         sut.Play(defender, defender.Cards[0]);
