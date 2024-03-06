@@ -28,10 +28,7 @@ public record Card(int Rank, char Suit)
 
     private static char ValidateSuit(char suit)
     {
-        if (suit != Gameplay.Suit.Clubs
-            && suit != Gameplay.Suit.Diamonds
-            && suit != Gameplay.Suit.Hearts
-            && suit != Gameplay.Suit.Spades)
+        if (!SuitValidator.Validate(suit))
         {
             throw new ArgumentOutOfRangeException(nameof(suit));
         }

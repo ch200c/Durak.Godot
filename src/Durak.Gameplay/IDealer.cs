@@ -2,5 +2,5 @@
 
 public interface IDealer
 {
-    bool Deal();
+    bool Deal(IAttack? previousAttack);
 }
