@@ -9,7 +9,7 @@ public class AttackTests
         var principalAttacker = new Player();
 
         // Act
-        var sut = new Attack(principalAttacker, new Player(), ' ');
+        var sut = new Attack(principalAttacker, new Player(), Suit.Spades);
 
         // Assert
         sut.PrincipalAttacker.Should().Be(principalAttacker);
@@ -22,7 +22,7 @@ public class AttackTests
         var defender = new Player();
 
         // Act
-        var sut = new Attack(new Player(), defender, ' ');
+        var sut = new Attack(new Player(), defender, Suit.Spades);
 
         // Assert
         sut.Defender.Should().Be(defender);
@@ -35,7 +35,7 @@ public class AttackTests
         var principalAttacker = new Player();
 
         // Act
-        var sut = new Attack(principalAttacker, new Player(), ' ');
+        var sut = new Attack(principalAttacker, new Player(), Suit.Spades);
 
         // Assert
         sut.Attackers.Should().ContainSingle(a => a == principalAttacker);
@@ -45,7 +45,7 @@ public class AttackTests
     public void AddAttacker_Attackers_ShouldContainAddedAttacker()
     {
         // Arrange
-        var sut = new Attack(new Player(), new Player(), ' ');
+        var sut = new Attack(new Player(), new Player(), Suit.Spades);
         var attacker = new Player();
 
         // Act

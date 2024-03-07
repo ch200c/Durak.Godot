@@ -3,31 +3,45 @@ using Xunit.Abstractions;
 
 namespace Durak.Gameplay.FunctionalTests;
 
-public class GameSimulator(ITestOutputHelper testOutputHelper, IDealer dealer, ITurnLogic turnLogic)
+public class GameSimulator
 {
+    private readonly ITestOutputHelper _testOutputHelper;
+    private readonly IDealer _dealer;
+    private readonly ITurnLogic _turnLogic;
+
+    public GameSimulator(ITestOutputHelper testOutputHelper, IDealer dealer, ITurnLogic turnLogic)
+    {
+        _testOutputHelper = testOutputHelper;
+        _dealer = dealer;
+        _turnLogic = turnLogic;
+    }
+
     public void Simulate()
     {
-        while (dealer.Deal())
+        IAttack? attack = null;
+
+        while (_dealer.Deal(attack))
         {
-            if (!Attack())
+            attack = Attack();
+            if (attack == null)
             {
                 throw new NotImplementedException("TODO3");
             }
         }
 
-        while (Attack())
+        while (Attack() != null)
         {
             // Do nothing
         }
     }
 
-    private bool Attack()
+    private IAttack? Attack()
     {
-        var attack = turnLogic.NextAttack();
+        var attack = _turnLogic.NextAttack();
 
         if (attack == null)
         {
-            return false;
+            return attack;
         }
 
         foreach (var attacker in attack.Attackers)
@@ -56,8 +70,8 @@ public class GameSimulator(ITestOutputHelper testOutputHelper, IDealer dealer, I
             }
         }
 
-        testOutputHelper.WriteLine(ToString(attack));
-        return true;
+        _testOutputHelper.WriteLine(ToString(attack));
+        return attack;
     }
 
     private static bool PlayOrPass(IAttack attack, Player player)
@@ -86,12 +100,12 @@ public class GameSimulator(ITestOutputHelper testOutputHelper, IDealer dealer, I
     private void WritePlayerCards(Player player)
     {
         var cards = string.Join(", ", player.Cards.Select(CardConverter.ToString));
-        testOutputHelper.WriteLine($"{player.Id}: [{cards}]");
+        _testOutputHelper.WriteLine($"{player.Id}: [{cards}]");
     }
 
     private static string ToString(IAttack? attack)
     {
-        if (attack is null)
+        if (attack == null)
         {
             return string.Empty;
         }

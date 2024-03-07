@@ -1,35 +1,68 @@
 ﻿namespace Durak.Gameplay;
 
-public class Dealer(int requiredPlayerCardCount, IEnumerable<Player> players, IDeck deck) : IDealer
+public class Dealer : IDealer
 {
-    public bool Deal()
+    private readonly int _requiredPlayerCardCount;
+    private readonly IEnumerable<Player> _players;
+    private readonly IDeck _deck;
+
+    public Dealer(int requiredPlayerCardCount, IEnumerable<Player> players, IDeck deck)
     {
-        foreach (var player in players)
+        _requiredPlayerCardCount = requiredPlayerCardCount < 1
+            ? throw new ArgumentOutOfRangeException(nameof(requiredPlayerCardCount))
+            : requiredPlayerCardCount;
+
+        _players = players;
+        _deck = deck;
+    }
+
+    public bool Deal(IAttack? previousAttack)
+    {
+        return previousAttack == null
+            ? FirstDeal()
+            : ConsecutiveDeal(previousAttack);
+    }
+
+    private bool FirstDeal()
+    {
+        var isReplenished = true;
+
+        for (var i = 0; i < _requiredPlayerCardCount; i++)
         {
-            if (!Replenish(player))
+            foreach (var player in _players)
             {
-                return false;
+                if (_deck.TryDequeue(out var card))
+                {
+                    player.PickUp([card]);
+                }
+                else
+                {
+                    isReplenished = false;
+                    break;
+                }
             }
         }
 
-        return true;
+        return isReplenished;
     }
 
-    //todo fix replenish order
-    private bool Replenish(Player player)
+    private bool ConsecutiveDeal(IAttack previousAttack)
     {
         var isReplenished = true;
-       
-        while (player.Cards.Count < requiredPlayerCardCount)
+
+        foreach (var player in previousAttack.Attackers.Union([previousAttack.Defender]))
         {
-            if (deck.TryDequeue(out var card))
+            while (player.Cards.Count < _requiredPlayerCardCount)
             {
-                player.PickUp([card]);
-            }
-            else
-            {
-                isReplenished = false;
-                break;
+                if (_deck.TryDequeue(out var card))
+                {
+                    player.PickUp([card]);
+                }
+                else
+                {
+                    isReplenished = false;
+                    break;
+                }
             }
         }
 

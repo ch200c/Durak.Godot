@@ -7,22 +7,34 @@ public enum AttackState
     Successful
 }
 
-// TODO: validate suit
-public class Attack(Player principalAttacker, Player defender, char trumpSuit) : IAttack
+public class Attack : IAttack
 {
-    private readonly List<Player> _attackers = [principalAttacker];
-    private readonly List<AttackCard> _cards = [];
-    private AttackState _state = AttackState.InProgress;
+    private readonly char _trumpSuit;
+    private readonly List<Player> _attackers;
+    private readonly List<AttackCard> _cards;
+    private readonly Player _defender;
+    private AttackState _state;
 
     public Player PrincipalAttacker => _attackers[0];
 
-    public Player Defender => defender;
+    public Player Defender => _defender;
 
     public IReadOnlyList<Player> Attackers => _attackers.AsReadOnly();
 
     public IReadOnlyList<AttackCard> Cards => _cards.AsReadOnly();
 
     public AttackState State => _state;
+
+    public Attack(Player principalAttacker, Player defender, char trumpSuit)
+    {
+        _defender = defender;
+        _trumpSuit = SuitValidator.Validate(trumpSuit)
+            ? trumpSuit
+            : throw new ArgumentOutOfRangeException(nameof(trumpSuit));
+        _attackers = [principalAttacker];
+        _cards = [];
+        _state = AttackState.InProgress;
+    }
 
     public void AddAttacker(Player attacker)
     {
@@ -53,7 +65,7 @@ public class Attack(Player principalAttacker, Player defender, char trumpSuit) :
             throw new GameplayException("Cannot play a card that does not match any other card's rank");
         }
 
-        if (isAttacking && _cards.Count >= Math.Min(6, defender.Cards.Count))
+        if (isAttacking && _cards.Count >= Math.Min(6, _defender.Cards.Count))
         {
             throw new GameplayException("Cannot have more attacking cards in this attack");
         }
@@ -63,7 +75,7 @@ public class Attack(Player principalAttacker, Player defender, char trumpSuit) :
             throw new GameplayException("Cannot defend with a lower ranked card");
         }
 
-        if (!isAttacking && _cards.Count > 0 && card.Suit != _cards[^1].Card.Suit && card.Suit != trumpSuit)
+        if (!isAttacking && _cards.Count > 0 && card.Suit != _cards[^1].Card.Suit && card.Suit != _trumpSuit)
         {
             throw new GameplayException("Cannot defend with a different suited card that is not in trump suit");
         }
@@ -85,7 +97,7 @@ public class Attack(Player principalAttacker, Player defender, char trumpSuit) :
         }
         else
         {
-            defender.PickUp(_cards.Select(c => c.Card));
+            _defender.PickUp(_cards.Select(c => c.Card));
             _state = AttackState.Successful;
         }
     }

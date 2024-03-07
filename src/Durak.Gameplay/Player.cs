@@ -1,15 +1,21 @@
 ﻿namespace Durak.Gameplay;
 
-public class Player(string? id)
+public class Player
 {
-    private readonly List<Card> _cards = [];
+    private readonly List<Card> _cards;
 
-    public string? Id { get; } = id;
+    public string? Id { get; }
 
     public IReadOnlyList<Card> Cards => _cards.AsReadOnly();
 
     public Player() : this(null)
     {
+    }
+
+    public Player(string? id)
+    {
+        Id = id;
+        _cards = [];
     }
 
     public void PickUp(IEnumerable<Card> cards)
