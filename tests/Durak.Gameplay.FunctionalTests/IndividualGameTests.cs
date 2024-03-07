@@ -2,8 +2,15 @@
 
 namespace Durak.Gameplay.FunctionalTests;
 
-public class IndividualGameTests(ITestOutputHelper testOutputHelper)
+public class IndividualGameTests
 {
+    private readonly ITestOutputHelper _testOutputHelper;
+
+    public IndividualGameTests(ITestOutputHelper testOutputHelper)
+    {
+        _testOutputHelper = testOutputHelper;
+    }
+
     [Theory]
     [InlineData(2)]
     [InlineData(3)]
@@ -21,9 +28,9 @@ public class IndividualGameTests(ITestOutputHelper testOutputHelper)
         var deck = new Deck(new FrenchSuited36CardProvider(), new DefaultCardShuffler());
         var dealer = new Dealer(6, players, deck);
         var turnLogic = new TurnLogic(players, deck.TrumpSuit);
-        var gameSimulator = new GameSimulator(testOutputHelper, dealer, turnLogic);
+        var gameSimulator = new GameSimulator(_testOutputHelper, dealer, turnLogic);
 
-        testOutputHelper.WriteLine($"Trump: {deck.TrumpSuit}");
+        _testOutputHelper.WriteLine($"Trump: {deck.TrumpSuit}");
 
         try
         {
@@ -31,9 +38,9 @@ public class IndividualGameTests(ITestOutputHelper testOutputHelper)
         }
         catch (Exception ex)
         {
-            testOutputHelper.WriteLine(ex.Message);
-            testOutputHelper.WriteLine(ex.StackTrace);
-            testOutputHelper.WriteLine(string.Join(',', players.Select(p => p.Cards.Count)));
+            _testOutputHelper.WriteLine(ex.Message);
+            _testOutputHelper.WriteLine(ex.StackTrace);
+            _testOutputHelper.WriteLine(string.Join(',', players.Select(p => p.Cards.Count)));
         }
 
         var lastAttack = turnLogic.Attacks[^1];

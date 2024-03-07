@@ -9,14 +9,11 @@ public enum AttackState
 
 public class Attack : IAttack
 {
-    private readonly char _trumpSuit ;
-
+    private readonly char _trumpSuit;
     private readonly List<Player> _attackers;
     private readonly List<AttackCard> _cards;
     private readonly Player _defender;
     private AttackState _state;
-
-
 
     public Player PrincipalAttacker => _attackers[0];
 
@@ -36,7 +33,7 @@ public class Attack : IAttack
             : throw new ArgumentOutOfRangeException(nameof(trumpSuit));
         _attackers = [principalAttacker];
         _cards = [];
-        _state = AttackState.Successful;
+        _state = AttackState.InProgress;
     }
 
     public void AddAttacker(Player attacker)
@@ -68,7 +65,7 @@ public class Attack : IAttack
             throw new GameplayException("Cannot play a card that does not match any other card's rank");
         }
 
-        if (isAttacking && _cards.Count >= Math.Min(6, defender.Cards.Count))
+        if (isAttacking && _cards.Count >= Math.Min(6, _defender.Cards.Count))
         {
             throw new GameplayException("Cannot have more attacking cards in this attack");
         }
@@ -100,7 +97,7 @@ public class Attack : IAttack
         }
         else
         {
-            defender.PickUp(_cards.Select(c => c.Card));
+            _defender.PickUp(_cards.Select(c => c.Card));
             _state = AttackState.Successful;
         }
     }

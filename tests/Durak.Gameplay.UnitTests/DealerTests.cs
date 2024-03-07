@@ -13,7 +13,7 @@ public class DealerTests
         var sut = new Dealer(requiredPlayerCardCount, players, deck);
 
         // Act
-        sut.Deal();
+        sut.Deal(null);
 
         // Assert
         players[0].Cards.Should().HaveCount(requiredPlayerCardCount);
