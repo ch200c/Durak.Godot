@@ -1,6 +1,7 @@
-[gd_scene load_steps=9 format=3 uid="uid://dejk8u7pdcg6e"]
+[gd_scene load_steps=10 format=3 uid="uid://dejk8u7pdcg6e"]
 
 [ext_resource type="PackedScene" uid="uid://dnubgd83nv0um" path="res://scenes/table1.tscn" id="1_sid60"]
+[ext_resource type="Script" path="res://src/Main.cs" id="1_ssbm5"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wmgyb"]
 albedo_color = Color(0.439216, 0.301961, 0, 1)
@@ -27,6 +28,7 @@ background_mode = 2
 sky = SubResource("Sky_lm50g")
 
 [node name="Main" type="Node3D"]
+script = ExtResource("1_ssbm5")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(-4.04021e-08, 0.381684, -0.924293, 1.66839e-08, 0.924293, 0.381684, 1, 1.77636e-15, -4.37114e-08, -0.619059, 0.764, 0)
@@ -51,3 +53,51 @@ light_energy = 1.486
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_vchfn")
+
+[node name="Menu" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="ColorRect" type="ColorRect" parent="Menu"]
+layout_mode = 2
+color = Color(0.780392, 0.580392, 0.443137, 0.909804)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Menu"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Menu/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="Menu/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Menu/VBoxContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+text = "Opponents"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Menu/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="OpponentsSpinBox" type="SpinBox" parent="Menu/VBoxContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+min_value = 1.0
+max_value = 5.0
+value = 1.0
+
+[node name="PlayButton" type="Button" parent="Menu/VBoxContainer"]
+layout_mode = 2
+text = "Play"
+
+[connection signal="pressed" from="Menu/VBoxContainer/PlayButton" to="." method="_on_play_button_pressed"]

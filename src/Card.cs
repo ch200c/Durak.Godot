@@ -1,6 +1,7 @@
 using Durak.Gameplay;
 using Godot;
-using System;
+
+namespace Durak.Godot;
 
 public partial class Card : Node
 {
