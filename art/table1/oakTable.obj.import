@@ -1,0 +1,22 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://bq0epcss83p17"
+path="res://.godot/imported/oakTable.obj-276ec9f04c2bb76e97e4923044e65edc.mesh"
+
+[deps]
+
+files=["res://.godot/imported/oakTable.obj-276ec9f04c2bb76e97e4923044e65edc.mesh"]
+
+source_file="res://art/table1/oakTable.obj"
+dest_files=["res://.godot/imported/oakTable.obj-276ec9f04c2bb76e97e4923044e65edc.mesh", "res://.godot/imported/oakTable.obj-276ec9f04c2bb76e97e4923044e65edc.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true
+force_disable_mesh_compression=false

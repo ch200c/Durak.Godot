@@ -1,0 +1,53 @@
+[gd_scene load_steps=9 format=3 uid="uid://dejk8u7pdcg6e"]
+
+[ext_resource type="PackedScene" uid="uid://dnubgd83nv0um" path="res://scenes/table1.tscn" id="1_sid60"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wmgyb"]
+albedo_color = Color(0.439216, 0.301961, 0, 1)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_cd7qf"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_rvw3r"]
+seed = 3
+frequency = 0.0274
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_w452u"]
+noise = SubResource("FastNoiseLite_rvw3r")
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_0gu0x"]
+sky_cover = SubResource("NoiseTexture2D_w452u")
+ground_bottom_color = Color(0.117647, 0.47451, 0.572549, 1)
+ground_curve = 0.03605
+
+[sub_resource type="Sky" id="Sky_lm50g"]
+sky_material = SubResource("ProceduralSkyMaterial_0gu0x")
+
+[sub_resource type="Environment" id="Environment_vchfn"]
+background_mode = 2
+sky = SubResource("Sky_lm50g")
+
+[node name="Main" type="Node3D"]
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(-4.04021e-08, 0.381684, -0.924293, 1.66839e-08, 0.924293, 0.381684, 1, 1.77636e-15, -4.37114e-08, -0.619059, 0.764, 0)
+
+[node name="Floor" type="MeshInstance3D" parent="."]
+transform = Transform3D(10, 0, 0, 0, 1, 0, 0, 0, 10, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_wmgyb")
+mesh = SubResource("PlaneMesh_cd7qf")
+
+[node name="SpotLight3D" type="SpotLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.0383355, 0.999265, 0, -0.999265, -0.0383355, 0, 1.84, 0)
+light_energy = 1.484
+spot_attenuation = 0.517633
+spot_angle = 25.01
+spot_angle_attenuation = 0.435275
+
+[node name="Table" parent="." instance=ExtResource("1_sid60")]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 1.30775, 0)
+light_energy = 1.486
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_vchfn")
