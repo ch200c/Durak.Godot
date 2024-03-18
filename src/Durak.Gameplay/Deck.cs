@@ -8,12 +8,15 @@ public class Deck : IDeck
 
     public char TrumpSuit { get; private set; }
 
+    public Card TrumpCard { get; private set; }
+
     public Deck(ICardProvider cardProvider, ICardShuffler cardShuffler)
     {
         var cards = cardProvider.GetCards();
         cards = cardShuffler.Shuffle(cards);
 
-        TrumpSuit = cards.Last().Suit;
+        TrumpCard = cards.Last();
+        TrumpSuit = TrumpCard.Suit;
 
         _cards = new Queue<Card>(cards);
     }

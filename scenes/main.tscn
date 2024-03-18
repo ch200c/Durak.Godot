@@ -30,7 +30,8 @@ sky = SubResource("Sky_lm50g")
 [node name="Main" type="Node3D"]
 script = ExtResource("1_ssbm5")
 
-[node name="Camera3D" type="Camera3D" parent="."]
+[node name="Camera" type="Camera3D" parent="."]
+unique_name_in_owner = true
 transform = Transform3D(-4.04021e-08, 0.381684, -0.924293, 1.66839e-08, 0.924293, 0.381684, 1, 1.77636e-15, -4.37114e-08, -0.619059, 0.764, 0)
 
 [node name="Floor" type="MeshInstance3D" parent="."]
@@ -55,11 +56,14 @@ light_energy = 1.486
 environment = SubResource("Environment_vchfn")
 
 [node name="Menu" type="MarginContainer" parent="."]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+unique_name_in_owner = true
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -102.5
+offset_right = 102.5
+offset_bottom = 98.0
 grow_horizontal = 2
-grow_vertical = 2
 theme_override_constants/margin_left = 12
 theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 12
@@ -91,6 +95,7 @@ text = "Opponents"
 layout_mode = 2
 
 [node name="OpponentsSpinBox" type="SpinBox" parent="Menu/VBoxContainer/HBoxContainer/VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 min_value = 1.0
 max_value = 5.0

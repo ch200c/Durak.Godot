@@ -14,3 +14,16 @@ mesh = ExtResource("1_ebi6l")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(0.008, 0, 0, 0, 0.008, 0, 0, 0, 0.008, 0, 0, 0)
 shape = SubResource("ConvexPolygonShape3D_ssc7u")
+
+[node name="GameSurface" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.606, 0)
+
+[node name="Talon" type="Node3D" parent="GameSurface"]
+
+[node name="TwoPlayerGamePositions" type="Node3D" parent="GameSurface"]
+
+[node name="Player1Position" type="Node3D" parent="GameSurface/TwoPlayerGamePositions"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.275481, 0, 0)
+
+[node name="Player2Position" type="Node3D" parent="GameSurface/TwoPlayerGamePositions"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.275, 0, 0)
