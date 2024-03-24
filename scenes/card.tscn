@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://bwv6xntu6f842"]
+[gd_scene load_steps=7 format=3 uid="uid://bwv6xntu6f842"]
 
 [ext_resource type="Script" path="res://src/Card.cs" id="1_01met"]
 [ext_resource type="Texture2D" uid="uid://djcrbp7e4624q" path="res://art/cards/fronts/c01.png" id="2_tuwbn"]
@@ -7,27 +7,32 @@
 [sub_resource type="BoxMesh" id="BoxMesh_ptee7"]
 size = Vector3(0.06, 0.09, 0.002)
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_4ijwo"]
-points = PackedVector3Array(-0.003, -0.0045, -0.0005, -0.003, -0.0045, 0.000499902, -0.003, 0.0045, -0.0005, 0.003, -0.0045, -0.0005, 0.003, -0.0045, 0.000499902, -0.003, 0.0045, 0.000499902, 0.003, 0.0045, -0.0005, 0.003, 0.0045, 0.000499902)
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_00voe"]
+albedo_color = Color(0.811765, 0.811765, 0.811765, 1)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_41537"]
+points = PackedVector3Array(-0.03, -0.045, -0.001, -0.03, -0.045, 0.000999804, -0.03, 0.045, -0.001, 0.03, -0.045, -0.001, 0.03, -0.045, 0.000999804, -0.03, 0.045, 0.000999804, 0.03, 0.045, -0.001, 0.03, 0.045, 0.000999804)
 
 [node name="Node3D" type="AnimatableBody3D"]
 script = ExtResource("1_01met")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("BoxMesh_ptee7")
+surface_material_override/0 = SubResource("StandardMaterial3D_00voe")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-shape = SubResource("ConvexPolygonShape3D_4ijwo")
+shape = SubResource("ConvexPolygonShape3D_41537")
 
 [node name="Front" type="Sprite3D" parent="."]
-transform = Transform3D(0.02, 0, 0, 0, 0.021, 0, 0, 0, 0.02, 0, 0, 0.00105025)
+transform = Transform3D(0.02, 0, 0, 0, 0.022, 0, 0, 0, 0.02, 0, 0, 0.00105025)
 pixel_size = 0.004
-transparent = false
 double_sided = false
+no_depth_test = true
 texture = ExtResource("2_tuwbn")
 
 [node name="Back" type="Sprite3D" parent="."]
-transform = Transform3D(0.02, 0, 0, 0, 0.021, 0, 0, 0, 0.2, 0, 0, -0.002)
+transform = Transform3D(-0.02, 0, 1.74846e-08, 0, 0.022, 0, -1.74846e-09, 0, -0.2, 0, 0, -0.001)
 pixel_size = 0.004
-transparent = false
+double_sided = false
+no_depth_test = true
 texture = ExtResource("3_som6t")
