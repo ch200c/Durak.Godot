@@ -12,6 +12,9 @@ public partial class Main : Node3D
 	[Export]
 	private float _mainPlayerCardDistanceMultiplier;
 
+	[Export]
+	private bool _isTopDownView;
+
 	public Main()
 	{
 		_cardScene = GD.Load<PackedScene>("res://scenes/card.tscn");
@@ -24,6 +27,7 @@ public partial class Main : Node3D
 	
 		var opponentCount = GetNode<SpinBox>("%OpponentsSpinBox");
 		var players = CreatePlayers((int)opponentCount.Value + 1);
+
 		var deck = new Deck(new FrenchSuited36CardProvider(), new DefaultCardShuffler());
 		var turnLogic = new TurnLogic(players, deck.TrumpSuit);
 
@@ -49,6 +53,13 @@ public partial class Main : Node3D
 
 		var camera = GetNode<Camera3D>("%Camera");
 
+		if (_isTopDownView)
+		{
+			camera.GlobalPosition = new Vector3(0, 1.2f, 0);
+			camera.RotationDegrees = new Vector3(-90, -90, 0);
+		}
+			
+
 		CreateTrumpCard();
 
 
@@ -60,25 +71,13 @@ public partial class Main : Node3D
 		//card1.GlobalPosition = position;
 		//card2.GlobalPosition = position + new Vector3(0.05f,0.05f,0.05f);
 
-		var twoPlayerGamePositions = GetNode<Node3D>("/root/Main/Table/GameSurface/TwoPlayerGamePositions");
-		foreach ( var opponentPosition in twoPlayerGamePositions.GetChildren().Cast<Node3D>().Skip(1))
-		{
-			//card2.GlobalPosition = opponentPosition.GlobalPosition;
-		}
+		//var twoPlayerGamePositions = GetNode<Node3D>("/root/Main/Table/GameSurface/TwoPlayerGamePositions");
+		//foreach ( var opponentPosition in twoPlayerGamePositions.GetChildren().Cast<Node3D>().Skip(1))
+		//{
+		//	//card2.GlobalPosition = opponentPosition.GlobalPosition;
+		//}
 		
 	
-	}
-
-	private void CreateTrumpCard()
-	{
-		var trumpCard = _cardScene.Instantiate<Card>();
-		AddChild(trumpCard);
-
-		var talon = GetNode<Node3D>("/root/Main/Table/GameSurface/Talon");
-
-		trumpCard.SyncToPhysics = false;
-		trumpCard.RotateX(Mathf.DegToRad(90));
-		trumpCard.GlobalPosition = talon.GlobalPosition;
 	}
 
 	private static List<Player> CreatePlayers(int count)
@@ -91,6 +90,18 @@ public partial class Main : Node3D
 		}
 
 		return players;
+	}
+
+	private void CreateTrumpCard()
+	{
+		var trumpCard = _cardScene.Instantiate<Card>();
+		AddChild(trumpCard);
+
+		var talon = GetNode<Node3D>("/root/Main/Table/GameSurface/Talon");
+
+		trumpCard.SyncToPhysics = false;
+		trumpCard.RotateX(Mathf.DegToRad(90));
+		trumpCard.GlobalPosition = talon.GlobalPosition;
 	}
 }
 
