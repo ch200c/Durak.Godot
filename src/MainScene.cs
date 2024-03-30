@@ -5,10 +5,23 @@ using System.Linq;
 
 namespace Durak.Godot;
 
-public partial class Main : Node3D
+public partial class MainScene : Node3D
 {
 	private const string _mainPlayerCardsGroup = "main_player_cards";
+	
 	private readonly PackedScene _cardScene;
+
+	[Export]
+	private float _cardWidth = 0.06f;
+
+	[Export]
+	private float _cardPaddingX = 0.005f;
+
+	[Export]
+	private float _minMainPlayerHandX = -0.3f;
+
+	[Export]
+	private float _maxMainPlayerHandX = 0.3f;
 
 	[Export]
 	private float _mainPlayerCardDistanceMultiplier;
@@ -16,7 +29,7 @@ public partial class Main : Node3D
 	[Export]
 	private bool _isTopDownView;
 
-	public Main()
+	public MainScene()
 	{
 		_cardScene = GD.Load<PackedScene>("res://scenes/card.tscn");
 		_mainPlayerCardDistanceMultiplier = 0.17f;
@@ -62,12 +75,19 @@ public partial class Main : Node3D
 
 		CreateTrumpCard();
 
-		var awayFromCamera = -camera.GlobalTransform.Basis.Z;
-		var adjustedAwayFromCamera = awayFromCamera * _mainPlayerCardDistanceMultiplier;
-		var mainPlayerPosition = camera.GlobalPosition + adjustedAwayFromCamera + new Vector3(0,-0.1f,0);
+		var mainPlayerPosition = GetMainPlayerPosition(camera);
 
-		CreateMainPlayerHand(players, mainPlayerPosition, camera.RotationDegrees.X);
+		var mainPlayerData = new PlayerData(players[0], mainPlayerPosition);
+		CreateMainPlayerHand(mainPlayerData, camera.RotationDegrees.X);
 		CreateOpponentHands(players);
+	}
+
+	private Vector3 GetMainPlayerPosition(Camera3D camera)
+	{
+		var inFrontOfCamera = -camera.GlobalTransform.Basis.Z;
+		var distancedInFrontOfCamera = inFrontOfCamera * _mainPlayerCardDistanceMultiplier;
+		var lowered = new Vector3(0, -0.1f, 0);
+		return camera.GlobalPosition + distancedInFrontOfCamera + lowered;
 	}
 
 	private static List<Player> CreatePlayers(int count)
@@ -84,7 +104,7 @@ public partial class Main : Node3D
 
 	private void CreateTrumpCard()
 	{
-		var trumpCard = _cardScene.Instantiate<Card>();
+		var trumpCard = _cardScene.Instantiate<CardScene>();
 		AddChild(trumpCard);
 
 		var talon = GetNode<Node3D>("/root/Main/Table/GameSurface/Talon");
@@ -94,49 +114,44 @@ public partial class Main : Node3D
 		trumpCard.GlobalPosition = talon.GlobalPosition;
 	}
 
-	private void CreateMainPlayerHand(List<Player> players, Vector3 mainPlayerPosition, float cameraRotationX)
+	private void CreateMainPlayerHand(PlayerData playerData, float cameraRotationX)
 	{
-		foreach (var card in players[0].Cards)
+		foreach (var card in playerData.Player.Cards)
 		{
-			var cardSceneInstance = _cardScene.Instantiate<Card>();
+			var cardSceneInstance = _cardScene.Instantiate<CardScene>();
+			cardSceneInstance.Initialize(card);
 			AddChild(cardSceneInstance);
 
 			cardSceneInstance.SyncToPhysics = false;
 			cardSceneInstance.RotationDegrees = new Vector3(cameraRotationX, -90, 0);
-			cardSceneInstance.GlobalPosition = mainPlayerPosition;
+			cardSceneInstance.GlobalPosition = playerData.Position;
 			cardSceneInstance.GetNode<MeshInstance3D>("MeshInstance3D").Hide();
 
 			cardSceneInstance.AddToGroup(_mainPlayerCardsGroup);
 		}
 
-		RearrangeCards(GetTree().GetNodesInGroup(_mainPlayerCardsGroup).Cast<Card>().ToList());
+		RearrangeCards(GetTree().GetNodesInGroup(_mainPlayerCardsGroup).Cast<CardScene>().ToList());
 	}
 
-	private void RearrangeCards(IList<Card> cards)
+	private void RearrangeCards(IList<CardScene> cards)
 	{
 		if (cards.Count == 0)
-		{ 
-			return; 
+		{
+			return;
 		}
 
-		var cardWidth = 0.06f;
-		var cardPaddingX = 0.005f;
-		var minX = -0.3f;
-		var maxX = 0.3f;
-
-		var increment = cardWidth + cardPaddingX;
+		var increment = _cardWidth + _cardPaddingX;
 		var isEven = cards.Count % 2 == 0;
-		var midX = (minX + maxX) / 2.0f;
+		var middleX = (_minMainPlayerHandX + _maxMainPlayerHandX) / 2.0f;
 
 		var positions = new List<float>();
 		if (!isEven)
 		{
-			positions.Add(midX);
+			positions.Add(middleX);
 		}
 
-		var positionLeft = isEven ? midX - increment / 2 : midX - increment;
-		var positionRight = isEven ? midX + increment / 2 : midX + increment;
-
+		var positionLeft = isEven ? middleX - increment / 2 : middleX - increment;
+		var positionRight = isEven ? middleX + increment / 2 : middleX + increment;
 
 		for (var i = 0; i < cards.Count / 2; i++, positionLeft -= increment, positionRight += increment)
 		{
@@ -160,7 +175,7 @@ public partial class Main : Node3D
 		{
 			foreach (var card in opponent.Cards)
 			{
-				var cardSceneInstance = _cardScene.Instantiate<Card>();
+				var cardSceneInstance = _cardScene.Instantiate<CardScene>();
 				AddChild(cardSceneInstance);
 
 				cardSceneInstance.SyncToPhysics = false;
@@ -170,9 +185,3 @@ public partial class Main : Node3D
 		}
 	}
 }
-
-// ideally x -0.5  y 0.7
-// rot        20     90
-// diff 0.008  z
-
-// /root/Main/Camera
