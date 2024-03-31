@@ -15,6 +15,7 @@ points = PackedVector3Array(-0.03, -0.045, -0.001, -0.03, -0.045, 0.000999804, -
 
 [node name="Node3D" type="AnimatableBody3D"]
 script = ExtResource("1_01met")
+_lerpWeight = 10.0
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("BoxMesh_ptee7")

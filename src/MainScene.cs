@@ -10,6 +10,7 @@ public partial class MainScene : Node3D
 	private const string _mainPlayerCardsGroup = "main_player_cards";
 	
 	private readonly PackedScene _cardScene;
+	private Dictionary<Player, PlayerData> _playerData;
 
 	[Export]
 	private float _cardWidth = 0.06f;
@@ -33,6 +34,7 @@ public partial class MainScene : Node3D
 	{
 		_cardScene = GD.Load<PackedScene>("res://scenes/card.tscn");
 		_mainPlayerCardDistanceMultiplier = 0.17f;
+		_playerData = [];
 	}
 
 	private void _on_play_button_pressed()
@@ -42,29 +44,6 @@ public partial class MainScene : Node3D
 		var opponentCount = GetNode<SpinBox>("%OpponentsSpinBox");
 		var players = CreatePlayers((int)opponentCount.Value + 1);
 
-		var deck = new Deck(new FrenchSuited36CardProvider(), new DefaultCardShuffler());
-		var turnLogic = new TurnLogic(players, deck.TrumpSuit);
-
-		var dealer = new Dealer(6, players, deck);
-		dealer.Deal(null);
-
-
-		//var playerCards = new Dictionary<Player, List<Card>>();
-
-		//foreach (var player in players)
-		//{
-		//	var cards = new List<Card>();
-		//	foreach (var card in player.Cards)
-		//	{
-		//		cards.Add(cardScene.Instantiate() as Card);
-		//	}
-		//	playerCards.Add(player, cards);
-		//}
-
-		//var card1 = _cardScene.Instantiate() as Card;
-
-		//AddChild(card1);
-
 		var camera = GetNode<Camera3D>("%Camera");
 
 		if (_isTopDownView)
@@ -73,16 +52,32 @@ public partial class MainScene : Node3D
 			camera.RotationDegrees = new Vector3(-90, -90, 0);
 		}
 
-		CreateTrumpCard();
+		var mainPlayerPosition = GetMainPlayerGlobalPosition(camera);
+		var mainPlayerData = new PlayerData(players[0], mainPlayerPosition, []);
+		_playerData.Add(mainPlayerData.Player, mainPlayerData);
 
-		var mainPlayerPosition = GetMainPlayerPosition(camera);
+		var twoPlayerGamePositions = GetNode<Node3D>("/root/Main/Table/GameSurface/TwoPlayerGamePositions")
+			.GetChildren()
+			.Cast<Node3D>()
+			.Select(n => n.GlobalPosition);
 
-		var mainPlayerData = new PlayerData(players[0], mainPlayerPosition);
-		CreateMainPlayerHand(mainPlayerData, camera.RotationDegrees.X);
-		CreateOpponentHands(players);
+		foreach (var (opponentGlobalPosition, opponent) in twoPlayerGamePositions.Skip(1).Zip(players.Skip(1)))
+		{
+			_playerData.Add(opponent, new PlayerData(opponent, opponentGlobalPosition, []));
+		}
+
+		GD.Print($"Player data count {_playerData.Count}");
+
+		var deck = new Deck(new FrenchSuited36CardProvider(), new DefaultCardShuffler());
+		var turnLogic = new TurnLogic(players, deck.TrumpSuit);
+
+		var dealer = new Dealer(6, players, deck);
+		dealer.Deal(null);
+
+		CreateTrumpCard(deck.TrumpCard);
 	}
 
-	private Vector3 GetMainPlayerPosition(Camera3D camera)
+	private Vector3 GetMainPlayerGlobalPosition(Camera3D camera)
 	{
 		var inFrontOfCamera = -camera.GlobalTransform.Basis.Z;
 		var distancedInFrontOfCamera = inFrontOfCamera * _mainPlayerCardDistanceMultiplier;
@@ -90,58 +85,103 @@ public partial class MainScene : Node3D
 		return camera.GlobalPosition + distancedInFrontOfCamera + lowered;
 	}
 
-	private static List<Player> CreatePlayers(int count)
+	private List<Player> CreatePlayers(int count)
 	{
 		var players = new List<Player>() { };
 
 		for (var i = 0; i < count; i++)
 		{
-			players.Add(new Player($"P{i + 1}"));
+			var player = new Player($"P{i + 1}");
+			player.CardsAdded += Player_CardsAdded;
+			players.Add(player);
 		}
 
 		return players;
 	}
 
-	private void CreateTrumpCard()
+
+	private int _cooldownIteration = 0;
+
+	private void Player_CardsAdded(object? sender, CardsAddedEventArgs e)
 	{
-		var trumpCard = _cardScene.Instantiate<CardScene>();
-		AddChild(trumpCard);
+		var rotationX = GetNode<Camera3D>("%Camera").RotationDegrees.X;
+		var talon = GetNode<Node3D>("/root/Main/Table/GameSurface/Talon");
+
+		foreach (var card in e.Cards)
+		{
+			var playerData = _playerData[(Player)sender!];
+			GD.Print($"{card} added for {playerData.Player.Id}");
+			
+
+			var cardScene = _cardScene.Instantiate<CardScene>();
+			cardScene.Initialize(card);
+			
+			AddChild(cardScene);
+			
+			cardScene.SyncToPhysics = false;
+			cardScene.RotationDegrees = new Vector3(rotationX, -90, 0);
+			cardScene.GetNode<MeshInstance3D>("MeshInstance3D").Hide();
+			cardScene.GlobalPosition = talon.GlobalPosition;
+	 
+
+			cardScene.SyncToPhysics = true;
+
+			var offsets = GetCardOffsets(playerData.CardScenes.Count);
+
+			cardScene.TargetPosition = playerData.GlobalPosition;
+			playerData.CardScenes.Add(cardScene);
+
+			if (_cooldownIteration != 0) 
+			{
+				cardScene.AddToTargetPositionCooldown(50 * _cooldownIteration); 
+			}
+				
+			_cooldownIteration++;
+			_cooldownIteration %= 10;
+		}
+	}
+
+	private void CreateTrumpCard(Card card)
+	{
+		var cardScene = _cardScene.Instantiate<CardScene>();
+		cardScene.Initialize(card);
+		AddChild(cardScene);
 
 		var talon = GetNode<Node3D>("/root/Main/Table/GameSurface/Talon");
 
-		trumpCard.SyncToPhysics = false;
-		trumpCard.RotateX(Mathf.DegToRad(90));
-		trumpCard.GlobalPosition = talon.GlobalPosition;
+		cardScene.SyncToPhysics = false;
+		cardScene.RotateX(Mathf.DegToRad(-90));
+		cardScene.GlobalPosition = talon.GlobalPosition;
 	}
 
-	private void CreateMainPlayerHand(PlayerData playerData, float cameraRotationX)
+	//private void CreateMainPlayerHand(PlayerData playerData, float cameraRotationX)
+	//{
+	//	foreach (var card in playerData.Player.Cards)
+	//	{
+	//		var cardScene = _cardScene.Instantiate<CardScene>();
+	//		cardScene.Initialize(card);
+	//		AddChild(cardScene);
+
+	//		cardScene.SyncToPhysics = false;
+	//		cardScene.RotationDegrees = new Vector3(cameraRotationX, -90, 0);
+	//		cardScene.GlobalPosition = playerData.GlobalPosition;
+	//		cardScene.GetNode<MeshInstance3D>("MeshInstance3D").Hide();
+
+	//		cardScene.AddToGroup(_mainPlayerCardsGroup);
+	//	}
+
+	//	RearrangeCards(GetTree().GetNodesInGroup(_mainPlayerCardsGroup).Cast<CardScene>().ToList());
+	//}
+
+	private IEnumerable<Vector3> GetCardOffsets(int count)
 	{
-		foreach (var card in playerData.Player.Cards)
+		if (count == 0)
 		{
-			var cardSceneInstance = _cardScene.Instantiate<CardScene>();
-			cardSceneInstance.Initialize(card);
-			AddChild(cardSceneInstance);
-
-			cardSceneInstance.SyncToPhysics = false;
-			cardSceneInstance.RotationDegrees = new Vector3(cameraRotationX, -90, 0);
-			cardSceneInstance.GlobalPosition = playerData.Position;
-			cardSceneInstance.GetNode<MeshInstance3D>("MeshInstance3D").Hide();
-
-			cardSceneInstance.AddToGroup(_mainPlayerCardsGroup);
-		}
-
-		RearrangeCards(GetTree().GetNodesInGroup(_mainPlayerCardsGroup).Cast<CardScene>().ToList());
-	}
-
-	private void RearrangeCards(IList<CardScene> cards)
-	{
-		if (cards.Count == 0)
-		{
-			return;
+			return [];
 		}
 
 		var increment = _cardWidth + _cardPaddingX;
-		var isEven = cards.Count % 2 == 0;
+		var isEven = count % 2 == 0;
 		var middleX = (_minMainPlayerHandX + _maxMainPlayerHandX) / 2.0f;
 
 		var positions = new List<float>();
@@ -153,16 +193,14 @@ public partial class MainScene : Node3D
 		var positionLeft = isEven ? middleX - increment / 2 : middleX - increment;
 		var positionRight = isEven ? middleX + increment / 2 : middleX + increment;
 
-		for (var i = 0; i < cards.Count / 2; i++, positionLeft -= increment, positionRight += increment)
+		for (var i = 0; i < count / 2; i++, positionLeft -= increment, positionRight += increment)
 		{
 			positions.Add(positionLeft);
 			positions.Add(positionRight);
 		}
 
-		foreach (var (card, position) in cards.Zip(positions))
-		{
-			card.GlobalPosition = new Vector3(card.GlobalPosition.X, card.GlobalPosition.Y, card.GlobalPosition.Z + position);
-		}
+
+		return positions.Select(p => new Vector3(0, 0, p));
 	}
 
 	private void CreateOpponentHands(List<Player> players)
@@ -175,12 +213,13 @@ public partial class MainScene : Node3D
 		{
 			foreach (var card in opponent.Cards)
 			{
-				var cardSceneInstance = _cardScene.Instantiate<CardScene>();
-				AddChild(cardSceneInstance);
+				var cardScene = _cardScene.Instantiate<CardScene>();
+				cardScene.Initialize(card);
+				AddChild(cardScene);
 
-				cardSceneInstance.SyncToPhysics = false;
-				cardSceneInstance.RotateX(Mathf.DegToRad(90));
-				cardSceneInstance.GlobalPosition = opponentPosition.GlobalPosition;
+				cardScene.SyncToPhysics = false;
+				cardScene.RotateX(Mathf.DegToRad(90));
+				cardScene.GlobalPosition = opponentPosition.GlobalPosition;
 			}
 		}
 	}
