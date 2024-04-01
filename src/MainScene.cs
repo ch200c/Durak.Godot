@@ -1,5 +1,6 @@
 using Durak.Gameplay;
 using Godot;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,9 +9,9 @@ namespace Durak.Godot;
 public partial class MainScene : Node3D
 {
 	private const string _mainPlayerCardsGroup = "main_player_cards";
-	
+	private int _cardPhysicsCooldownIteration;
 	private readonly PackedScene _cardScene;
-	private Dictionary<Player, PlayerData> _playerData;
+	private readonly Dictionary<Player, PlayerData> _playerData;
 
 	[Export]
 	private float _cardWidth = 0.06f;
@@ -30,11 +31,20 @@ public partial class MainScene : Node3D
 	[Export]
 	private bool _isTopDownView;
 
+	[Export]
+	private float _cardPhysicsCooldownMs;
+
+	[Export]
+	private float _maxCardPhysicsCooldownMs;
+
 	public MainScene()
 	{
 		_cardScene = GD.Load<PackedScene>("res://scenes/card.tscn");
 		_mainPlayerCardDistanceMultiplier = 0.17f;
 		_playerData = [];
+		_cardPhysicsCooldownIteration = 0;
+		_cardPhysicsCooldownMs = 50;
+		_maxCardPhysicsCooldownMs = 1_250;
 	}
 
 	private void _on_play_button_pressed()
@@ -100,8 +110,6 @@ public partial class MainScene : Node3D
 		return players;
 	}
 
-	private int _cooldownIteration = 0;
-
 	private void Player_CardsAdded(object? sender, CardsAddedEventArgs e)
 	{
 		var talon = GetNode<Node3D>("/root/Main/Table/GameSurface/Talon");
@@ -110,31 +118,33 @@ public partial class MainScene : Node3D
 		{
 			var playerData = _playerData[(Player)sender!];
 			GD.Print($"{card} added for {playerData.Player.Id}");
-			
+
 			var cardScene = _cardScene.Instantiate<CardScene>();
 			cardScene.Initialize(card);
-			
+
 			AddChild(cardScene);
-	
+
 			cardScene.RotationDegrees = CardScene.FaceDownDegrees;
 			cardScene.GetNode<MeshInstance3D>("MeshInstance3D").Hide();
 			cardScene.GlobalPosition = talon.GlobalPosition;
 			cardScene.TargetRotationDegrees = playerData.RotationDegrees;
 			playerData.CardScenes.Add(cardScene);
-	
+
 			var offsets = GetCardOffsets(playerData.CardScenes.Count);
 			foreach (var (existingCardScene, offset) in playerData.CardScenes.Zip(offsets))
 			{
 				existingCardScene.TargetPosition = playerData.GlobalPosition + offset;
 			}
 
-			if (_cooldownIteration != 0) 
+			var cooldown = TimeSpan.FromMilliseconds(_cardPhysicsCooldownMs * _cardPhysicsCooldownIteration);
+			cardScene.AddPhysicsCooldown(cooldown);
+
+			_cardPhysicsCooldownIteration++;
+
+			if (_cardPhysicsCooldownMs * _cardPhysicsCooldownIteration > _maxCardPhysicsCooldownMs)
 			{
-				cardScene.AddToTargetPositionCooldown(80 * _cooldownIteration); 
+				_cardPhysicsCooldownIteration = 0;
 			}
-				
-			_cooldownIteration++;
-			_cooldownIteration %= 10;
 		}
 	}
 
@@ -156,7 +166,6 @@ public partial class MainScene : Node3D
 	//		cardScene.AddToGroup(_mainPlayerCardsGroup);
 	//	RearrangeCards(GetTree().GetNodesInGroup(_mainPlayerCardsGroup).Cast<CardScene>().ToList());
 
-
 	private IEnumerable<Vector3> GetCardOffsets(int count)
 	{
 		if (count == 0)
@@ -174,12 +183,12 @@ public partial class MainScene : Node3D
 			positions.Add(middleX);
 		}
 
-		var positionLeft = isEven 
-			? middleX - increment / 2 
+		var positionLeft = isEven
+			? middleX - increment / 2
 			: middleX - increment;
 
-		var positionRight = isEven 
-			? middleX + increment / 2 
+		var positionRight = isEven
+			? middleX + increment / 2
 			: middleX + increment;
 
 		for (var i = 0; i < count / 2; i++, positionLeft -= increment, positionRight += increment)

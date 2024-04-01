@@ -7,8 +7,7 @@ namespace Durak.Godot;
 
 public partial class CardScene : StaticBody3D
 {
-	public static Vector3 FaceDownDegrees = new Vector3(90, 0, 0);
-	//public static Vector3 FaceUpDegrees = new Vector3(90, -90, 0);
+	public static readonly Vector3 FaceDownDegrees = new(90, 0, 0);
 
 	public Card? Card { get; private set; }
 
@@ -22,16 +21,12 @@ public partial class CardScene : StaticBody3D
 	[Export]
 	private float _rotationLerpWeight;
 
-	[Export]
-	private  long _cooldownMs = 100;
-
-	private  DateTime _cooldownExpiration = DateTime.UtcNow;
+	private  DateTime _physicsCooldownExpiration = DateTime.UtcNow;
 
 	public CardScene()
 	{
 		_positionLerpWeight = 0.3f;
 		_rotationLerpWeight = 0.3f;
-		//_cooldownMs = 1_000;
 	}
 
 	public void Initialize(Card card)
@@ -42,7 +37,7 @@ public partial class CardScene : StaticBody3D
 		GetNode<Sprite3D>("Front").Texture = texture;
 	}
 
-	private Texture2D GetTexture(Card card)
+	private static Texture2D GetTexture(Card card)
 	{
 		var fileName = new StringBuilder("res://art/cards/fronts/");
 
@@ -76,20 +71,20 @@ public partial class CardScene : StaticBody3D
 
 	public override void _PhysicsProcess(double delta)
 	{
-		if (DateTime.UtcNow >= _cooldownExpiration)
+		if (DateTime.UtcNow >= _physicsCooldownExpiration)
 		{
 			Position = Position.Lerp(TargetPosition, (float)delta * _positionLerpWeight);
 			RotationDegrees = RotationDegrees.Lerp(TargetRotationDegrees, (float)delta * _rotationLerpWeight);
 		}
 	}
 
-	public void AddToTargetPositionCooldown(int cooldownMs)
+	public void AddPhysicsCooldown(TimeSpan cooldown)
 	{
 		var cooldownStart = new DateTime(
-			Math.Max(DateTime.UtcNow.Ticks, _cooldownExpiration.Ticks), DateTimeKind.Utc);
+			Math.Max(DateTime.UtcNow.Ticks, _physicsCooldownExpiration.Ticks), DateTimeKind.Utc);
 
-		_cooldownExpiration = cooldownStart + TimeSpan.FromMilliseconds(cooldownMs);
+		_physicsCooldownExpiration = cooldownStart + cooldown;
 
-		GD.Print(Card, " ", _cooldownExpiration.ToString("HH:mm:ss:fff"));
+		GD.Print(Card, " ", _physicsCooldownExpiration.ToString("HH:mm:ss:fff"));
 	}
 }
