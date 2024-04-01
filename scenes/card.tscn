@@ -13,9 +13,10 @@ albedo_color = Color(0.811765, 0.811765, 0.811765, 1)
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_41537"]
 points = PackedVector3Array(-0.03, -0.045, -0.001, -0.03, -0.045, 0.000999804, -0.03, 0.045, -0.001, 0.03, -0.045, -0.001, 0.03, -0.045, 0.000999804, -0.03, 0.045, 0.000999804, 0.03, 0.045, -0.001, 0.03, 0.045, 0.000999804)
 
-[node name="Node3D" type="AnimatableBody3D"]
+[node name="Node3D" type="StaticBody3D"]
 script = ExtResource("1_01met")
-_lerpWeight = 10.0
+_positionLerpWeight = 8.0
+_rotationLerpWeight = 5.0
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("BoxMesh_ptee7")

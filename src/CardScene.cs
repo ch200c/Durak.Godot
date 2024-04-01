@@ -5,14 +5,22 @@ using System.Text;
 
 namespace Durak.Godot;
 
-public partial class CardScene : AnimatableBody3D
+public partial class CardScene : StaticBody3D
 {
+	public static Vector3 FaceDownDegrees = new Vector3(90, 0, 0);
+	//public static Vector3 FaceUpDegrees = new Vector3(90, -90, 0);
+
 	public Card? Card { get; private set; }
 
 	public Vector3 TargetPosition { get; set; }
 
+	public Vector3 TargetRotationDegrees { get; set; }
+
 	[Export]
-	private float _lerpWeight;
+	private float _positionLerpWeight;
+
+	[Export]
+	private float _rotationLerpWeight;
 
 	[Export]
 	private  long _cooldownMs = 100;
@@ -21,7 +29,8 @@ public partial class CardScene : AnimatableBody3D
 
 	public CardScene()
 	{
-		_lerpWeight = 0.3f;
+		_positionLerpWeight = 0.3f;
+		_rotationLerpWeight = 0.3f;
 		//_cooldownMs = 1_000;
 	}
 
@@ -67,9 +76,10 @@ public partial class CardScene : AnimatableBody3D
 
 	public override void _PhysicsProcess(double delta)
 	{
-		if (SyncToPhysics && DateTime.UtcNow >= _cooldownExpiration)
+		if (DateTime.UtcNow >= _cooldownExpiration)
 		{
-			Position = Position.Lerp(TargetPosition, (float)delta * _lerpWeight);
+			Position = Position.Lerp(TargetPosition, (float)delta * _positionLerpWeight);
+			RotationDegrees = RotationDegrees.Lerp(TargetRotationDegrees, (float)delta * _rotationLerpWeight);
 		}
 	}
 
@@ -80,11 +90,6 @@ public partial class CardScene : AnimatableBody3D
 
 		_cooldownExpiration = cooldownStart + TimeSpan.FromMilliseconds(cooldownMs);
 
-		GD.Print(Card, _cooldownExpiration.ToString("HH:mm:ss:fff"));
+		GD.Print(Card, " ", _cooldownExpiration.ToString("HH:mm:ss:fff"));
 	}
 }
-
-
-// get 1 from memory, set target
-// get 2nd from memory at the same time, set snooze for 20ms before target
-// get 3rd from mem

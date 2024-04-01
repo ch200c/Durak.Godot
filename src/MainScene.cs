@@ -53,7 +53,8 @@ public partial class MainScene : Node3D
 		}
 
 		var mainPlayerPosition = GetMainPlayerGlobalPosition(camera);
-		var mainPlayerData = new PlayerData(players[0], mainPlayerPosition, []);
+		var rotationX = GetNode<Camera3D>("%Camera").RotationDegrees.X;
+		var mainPlayerData = new PlayerData(players[0], mainPlayerPosition, new Vector3(rotationX, -90, 0), []);
 		_playerData.Add(mainPlayerData.Player, mainPlayerData);
 
 		var twoPlayerGamePositions = GetNode<Node3D>("/root/Main/Table/GameSurface/TwoPlayerGamePositions")
@@ -63,7 +64,7 @@ public partial class MainScene : Node3D
 
 		foreach (var (opponentGlobalPosition, opponent) in twoPlayerGamePositions.Skip(1).Zip(players.Skip(1)))
 		{
-			_playerData.Add(opponent, new PlayerData(opponent, opponentGlobalPosition, []));
+			_playerData.Add(opponent, new PlayerData(opponent, opponentGlobalPosition, new Vector3(0, 90, 0), []));
 		}
 
 		GD.Print($"Player data count {_playerData.Count}");
@@ -99,12 +100,10 @@ public partial class MainScene : Node3D
 		return players;
 	}
 
-
 	private int _cooldownIteration = 0;
 
 	private void Player_CardsAdded(object? sender, CardsAddedEventArgs e)
 	{
-		var rotationX = GetNode<Camera3D>("%Camera").RotationDegrees.X;
 		var talon = GetNode<Node3D>("/root/Main/Table/GameSurface/Talon");
 
 		foreach (var card in e.Cards)
@@ -112,28 +111,26 @@ public partial class MainScene : Node3D
 			var playerData = _playerData[(Player)sender!];
 			GD.Print($"{card} added for {playerData.Player.Id}");
 			
-
 			var cardScene = _cardScene.Instantiate<CardScene>();
 			cardScene.Initialize(card);
 			
 			AddChild(cardScene);
-			
-			cardScene.SyncToPhysics = false;
-			cardScene.RotationDegrees = new Vector3(rotationX, -90, 0);
+	
+			cardScene.RotationDegrees = CardScene.FaceDownDegrees;
 			cardScene.GetNode<MeshInstance3D>("MeshInstance3D").Hide();
 			cardScene.GlobalPosition = talon.GlobalPosition;
-	 
-
-			cardScene.SyncToPhysics = true;
-
-			var offsets = GetCardOffsets(playerData.CardScenes.Count);
-
-			cardScene.TargetPosition = playerData.GlobalPosition;
+			cardScene.TargetRotationDegrees = playerData.RotationDegrees;
 			playerData.CardScenes.Add(cardScene);
+	
+			var offsets = GetCardOffsets(playerData.CardScenes.Count);
+			foreach (var (existingCardScene, offset) in playerData.CardScenes.Zip(offsets))
+			{
+				existingCardScene.TargetPosition = playerData.GlobalPosition + offset;
+			}
 
 			if (_cooldownIteration != 0) 
 			{
-				cardScene.AddToTargetPositionCooldown(50 * _cooldownIteration); 
+				cardScene.AddToTargetPositionCooldown(80 * _cooldownIteration); 
 			}
 				
 			_cooldownIteration++;
@@ -149,29 +146,16 @@ public partial class MainScene : Node3D
 
 		var talon = GetNode<Node3D>("/root/Main/Table/GameSurface/Talon");
 
-		cardScene.SyncToPhysics = false;
-		cardScene.RotateX(Mathf.DegToRad(-90));
+		cardScene.RotationDegrees = CardScene.FaceDownDegrees;
+		cardScene.TargetRotationDegrees = CardScene.FaceDownDegrees;
 		cardScene.GlobalPosition = talon.GlobalPosition;
+		cardScene.TargetPosition = talon.GlobalPosition;
+
 	}
 
-	//private void CreateMainPlayerHand(PlayerData playerData, float cameraRotationX)
-	//{
-	//	foreach (var card in playerData.Player.Cards)
-	//	{
-	//		var cardScene = _cardScene.Instantiate<CardScene>();
-	//		cardScene.Initialize(card);
-	//		AddChild(cardScene);
-
-	//		cardScene.SyncToPhysics = false;
-	//		cardScene.RotationDegrees = new Vector3(cameraRotationX, -90, 0);
-	//		cardScene.GlobalPosition = playerData.GlobalPosition;
-	//		cardScene.GetNode<MeshInstance3D>("MeshInstance3D").Hide();
-
 	//		cardScene.AddToGroup(_mainPlayerCardsGroup);
-	//	}
-
 	//	RearrangeCards(GetTree().GetNodesInGroup(_mainPlayerCardsGroup).Cast<CardScene>().ToList());
-	//}
+
 
 	private IEnumerable<Vector3> GetCardOffsets(int count)
 	{
@@ -190,8 +174,13 @@ public partial class MainScene : Node3D
 			positions.Add(middleX);
 		}
 
-		var positionLeft = isEven ? middleX - increment / 2 : middleX - increment;
-		var positionRight = isEven ? middleX + increment / 2 : middleX + increment;
+		var positionLeft = isEven 
+			? middleX - increment / 2 
+			: middleX - increment;
+
+		var positionRight = isEven 
+			? middleX + increment / 2 
+			: middleX + increment;
 
 		for (var i = 0; i < count / 2; i++, positionLeft -= increment, positionRight += increment)
 		{
@@ -199,28 +188,6 @@ public partial class MainScene : Node3D
 			positions.Add(positionRight);
 		}
 
-
 		return positions.Select(p => new Vector3(0, 0, p));
-	}
-
-	private void CreateOpponentHands(List<Player> players)
-	{
-		var twoPlayerGamePositions = GetNode<Node3D>("/root/Main/Table/GameSurface/TwoPlayerGamePositions")
-			.GetChildren()
-			.Cast<Node3D>();
-
-		foreach (var (opponentPosition, opponent) in twoPlayerGamePositions.Skip(1).Zip(players.Skip(1)))
-		{
-			foreach (var card in opponent.Cards)
-			{
-				var cardScene = _cardScene.Instantiate<CardScene>();
-				cardScene.Initialize(card);
-				AddChild(cardScene);
-
-				cardScene.SyncToPhysics = false;
-				cardScene.RotateX(Mathf.DegToRad(90));
-				cardScene.GlobalPosition = opponentPosition.GlobalPosition;
-			}
-		}
 	}
 }
