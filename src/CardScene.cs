@@ -16,6 +16,8 @@ public partial class CardScene : StaticBody3D
 
 	public Vector3 TargetRotationDegrees { get; set; }
 
+	public event EventHandler? Clicked;
+
 	[Export]
 	private float _positionLerpWeight = 0.3f;
 
@@ -70,6 +72,15 @@ public partial class CardScene : StaticBody3D
 		{
 			Position = Position.Lerp(TargetPosition, (float)delta * _positionLerpWeight);
 			RotationDegrees = RotationDegrees.Lerp(TargetRotationDegrees, (float)delta * _rotationLerpWeight);
+		}
+	}
+
+	public override void _InputEvent(Camera3D camera, InputEvent @event, Vector3 position, Vector3 normal, int shapeIdx)
+	{
+		if (@event.IsActionPressed("left_mouse_button"))
+		{
+			GD.Print(Card);
+			Clicked?.Invoke(this, EventArgs.Empty);
 		}
 	}
 

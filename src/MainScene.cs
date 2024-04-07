@@ -68,8 +68,6 @@ public partial class MainScene : Node3D
 		var deck = new Deck(new FrenchSuited36CardProvider(), new DefaultCardShuffler());
 		var turnLogic = new TurnLogic(players, deck.TrumpSuit);
 
-		//deck.
-
 		var dealer = new Dealer(6, players, deck);
 		dealer.Deal(null);
 
@@ -130,6 +128,7 @@ public partial class MainScene : Node3D
 	{
 		var cardScene = _cardScene.Instantiate<CardScene>();
 		cardScene.Initialize(card);
+		cardScene.Clicked += CardScene_Clicked;
 		AddChild(cardScene);
 
 		var talon = GetNode<Node3D>("/root/Main/Table/GameSurface/Talon");
@@ -150,6 +149,7 @@ public partial class MainScene : Node3D
 	{
 		var cardScene = _cardScene.Instantiate<CardScene>();
 		//cardScene.Initialize(card);
+		cardScene.Clicked += CardScene_Clicked;
 		AddChild(cardScene);
 
 		var talon = GetNode<Node3D>("/root/Main/Table/GameSurface/Talon");
@@ -177,7 +177,7 @@ public partial class MainScene : Node3D
 
 			var cardScene = _cardScene.Instantiate<CardScene>();
 			cardScene.Initialize(card);
-
+			cardScene.Clicked += CardScene_Clicked;
 			AddChild(cardScene);
 
 			cardScene.GetNode<MeshInstance3D>("MeshInstance3D").Hide();
@@ -219,10 +219,15 @@ public partial class MainScene : Node3D
 		}
 	}
 
-	//		cardScene.AddToGroup(_mainPlayerCardsGroup);
-	//	RearrangeCards(GetTree().GetNodesInGroup(_mainPlayerCardsGroup).Cast<CardScene>().ToList());
+    private void CardScene_Clicked(object? sender, EventArgs e)
+    {
+        GD.Print("Received ", ((CardScene)sender!).Card);
+    }
 
-	private IEnumerable<Vector3> GetCardOffsets(int count)
+    //		cardScene.AddToGroup(_mainPlayerCardsGroup);
+    //	RearrangeCards(GetTree().GetNodesInGroup(_mainPlayerCardsGroup).Cast<CardScene>().ToList());
+
+    private IEnumerable<Vector3> GetCardOffsets(int count)
 	{
 		if (count == 0)
 		{
