@@ -7,7 +7,8 @@ namespace Durak.Godot;
 
 public partial class CardScene : StaticBody3D
 {
-	public static readonly Vector3 FaceDownDegrees = new(90, 0, 0);
+	public static readonly Vector3 FaceDownDegrees = new(90, -90, 0);
+	public static readonly Vector3 FaceUpDegrees = new(-90, 0, 0);
 
 	public Card? Card { get; private set; }
 
@@ -16,18 +17,12 @@ public partial class CardScene : StaticBody3D
 	public Vector3 TargetRotationDegrees { get; set; }
 
 	[Export]
-	private float _positionLerpWeight;
+	private float _positionLerpWeight = 0.3f;
 
 	[Export]
-	private float _rotationLerpWeight;
+	private float _rotationLerpWeight = 0.3f;
 
-	private  DateTime _physicsCooldownExpiration = DateTime.UtcNow;
-
-	public CardScene()
-	{
-		_positionLerpWeight = 0.3f;
-		_rotationLerpWeight = 0.3f;
-	}
+	private DateTime _physicsCooldownExpiration = DateTime.UtcNow;
 
 	public void Initialize(Card card)
 	{
@@ -55,7 +50,7 @@ public partial class CardScene : StaticBody3D
 		}
 		else if (card.Suit == Suit.Spades)
 		{
-			fileName.Append('d');
+			fileName.Append('s');
 		}
 		else
 		{
@@ -84,7 +79,5 @@ public partial class CardScene : StaticBody3D
 			Math.Max(DateTime.UtcNow.Ticks, _physicsCooldownExpiration.Ticks), DateTimeKind.Utc);
 
 		_physicsCooldownExpiration = cooldownStart + cooldown;
-
-		GD.Print(Card, " ", _physicsCooldownExpiration.ToString("HH:mm:ss:fff"));
 	}
 }
