@@ -29,9 +29,6 @@ public partial class MainScene : Node3D
 	private float _mainPlayerCardDistanceMultiplier = 0.17f;
 
 	[Export]
-	private bool _isTopDownView = false;
-
-	[Export]
 	private int _cardPhysicsCooldownMs = 50;
 
 	[Export]
@@ -55,12 +52,6 @@ public partial class MainScene : Node3D
 		var players = CreatePlayers((int)opponentCount.Value + 1);
 
 		var camera = GetNode<Camera3D>("%Camera");
-
-		if (_isTopDownView)
-		{
-			camera.GlobalPosition = new Vector3(0, 1.2f, 0);
-			camera.RotationDegrees = new Vector3(-90, -90, 0);
-		}
 
 		AddMainPlayerData(players[0], camera);
 		AddOpponentPlayerData(players);
@@ -131,15 +122,15 @@ public partial class MainScene : Node3D
 		cardScene.Clicked += CardScene_Clicked;
 		AddChild(cardScene);
 
-		var talon = GetNode<Node3D>("/root/Main/Table/GameSurface/Talon");
+		var trumpCard = GetNode<Node3D>("/root/Main/Table/GameSurface/TrumpCardPosition");
 
 		cardScene.RotationDegrees = CardScene.FaceUpDegrees;
-		cardScene.GlobalPosition = talon.GlobalPosition;
+		cardScene.GlobalPosition = trumpCard.GlobalPosition;
 
 		if (_isAnimationEnabled)
 		{
 			cardScene.TargetRotationDegrees = CardScene.FaceUpDegrees;
-			cardScene.TargetPosition = talon.GlobalPosition;
+			cardScene.TargetPosition = trumpCard.GlobalPosition;
 		}
 
 		cardScene.SetPhysicsProcess(_isAnimationEnabled);
@@ -152,7 +143,7 @@ public partial class MainScene : Node3D
 		cardScene.Clicked += CardScene_Clicked;
 		AddChild(cardScene);
 
-		var talon = GetNode<Node3D>("/root/Main/Table/GameSurface/Talon");
+		var talon = GetNode<Node3D>("/root/Main/Table/GameSurface/TalonPosition");
 
 		cardScene.RotationDegrees = CardScene.FaceDownDegrees;
 		cardScene.GlobalPosition = talon.GlobalPosition;
@@ -168,7 +159,7 @@ public partial class MainScene : Node3D
 
 	private void Player_CardsAdded(object? sender, CardsAddedEventArgs e)
 	{
-		var talon = GetNode<Node3D>("/root/Main/Table/GameSurface/Talon");
+		var talon = GetNode<Node3D>("/root/Main/Table/GameSurface/TalonPosition");
 
 		foreach (var card in e.Cards)
 		{
@@ -219,15 +210,16 @@ public partial class MainScene : Node3D
 		}
 	}
 
-    private void CardScene_Clicked(object? sender, EventArgs e)
-    {
-        GD.Print("Received ", ((CardScene)sender!).Card);
-    }
+	private void CardScene_Clicked(object? sender, EventArgs e)
+	{
+		var cardScene = (CardScene)sender!;
+		GD.Print("Received ", cardScene.Card);
+	}
 
-    //		cardScene.AddToGroup(_mainPlayerCardsGroup);
-    //	RearrangeCards(GetTree().GetNodesInGroup(_mainPlayerCardsGroup).Cast<CardScene>().ToList());
+	//		cardScene.AddToGroup(_mainPlayerCardsGroup);
+	//	RearrangeCards(GetTree().GetNodesInGroup(_mainPlayerCardsGroup).Cast<CardScene>().ToList());
 
-    private IEnumerable<Vector3> GetCardOffsets(int count)
+	private IEnumerable<Vector3> GetCardOffsets(int count)
 	{
 		if (count == 0)
 		{

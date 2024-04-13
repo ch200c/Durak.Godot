@@ -18,7 +18,10 @@ shape = SubResource("ConvexPolygonShape3D_ssc7u")
 [node name="GameSurface" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.606, 0)
 
-[node name="Talon" type="Node3D" parent="GameSurface"]
+[node name="TrumpCardPosition" type="Node3D" parent="GameSurface"]
+
+[node name="TalonPosition" type="Node3D" parent="GameSurface"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.002, 0.02)
 
 [node name="TwoPlayerGamePositions" type="Node3D" parent="GameSurface"]
 
