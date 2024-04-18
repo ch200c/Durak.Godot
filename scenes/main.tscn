@@ -107,17 +107,20 @@ layout_mode = 2
 text = "Play"
 
 [node name="SubViewportContainer" type="SubViewportContainer" parent="."]
-anchors_preset = 1
-anchor_left = 1.0
+custom_minimum_size = Vector2(50, 50)
+anchors_preset = -1
+anchor_left = 0.727
 anchor_right = 1.0
-offset_left = -387.0
-offset_bottom = 272.0
+anchor_bottom = 0.241
+offset_left = -0.504089
+offset_bottom = -0.168015
 grow_horizontal = 0
 stretch = true
+metadata/_edit_use_anchors_ = true
 
 [node name="SubViewport" type="SubViewport" parent="SubViewportContainer"]
 handle_input_locally = false
-size = Vector2i(387, 272)
+size = Vector2i(315, 156)
 render_target_update_mode = 4
 
 [node name="TopDownCamera" type="Camera3D" parent="SubViewportContainer/SubViewport"]

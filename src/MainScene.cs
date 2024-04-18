@@ -122,7 +122,7 @@ public partial class MainScene : Node3D
 		cardScene.Clicked += CardScene_Clicked;
 		AddChild(cardScene);
 
-		var trumpCard = GetNode<Node3D>("/root/Main/Table/GameSurface/TrumpCardPosition");
+		var trumpCard = GetNode<Node3D>("/root/Main/Table/GameSurface/Talon/TrumpCardPosition");
 
 		cardScene.RotationDegrees = CardScene.FaceUpDegrees;
 		cardScene.GlobalPosition = trumpCard.GlobalPosition;
@@ -143,7 +143,7 @@ public partial class MainScene : Node3D
 		cardScene.Clicked += CardScene_Clicked;
 		AddChild(cardScene);
 
-		var talon = GetNode<Node3D>("/root/Main/Table/GameSurface/TalonPosition");
+		var talon = GetNode<Node3D>("/root/Main/Table/GameSurface/Talon/TalonPosition");
 
 		cardScene.RotationDegrees = CardScene.FaceDownDegrees;
 		cardScene.GlobalPosition = talon.GlobalPosition;
@@ -159,7 +159,7 @@ public partial class MainScene : Node3D
 
 	private void Player_CardsAdded(object? sender, CardsAddedEventArgs e)
 	{
-		var talon = GetNode<Node3D>("/root/Main/Table/GameSurface/TalonPosition");
+		var talon = GetNode<Node3D>("/root/Main/Table/GameSurface/Talon/TalonPosition");
 
 		foreach (var card in e.Cards)
 		{
