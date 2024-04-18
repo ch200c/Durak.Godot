@@ -26,12 +26,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.606, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.275481, 0, 0)
 
 [node name="Player2Position" type="Node3D" parent="GameSurface/TwoPlayerGamePositions"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.275, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.275, 0.1, 0)
 
 [node name="Talon" type="Node3D" parent="GameSurface"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.015, 0, 0.015)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.1, 0, 0.1)
 
 [node name="TrumpCardPosition" type="Node3D" parent="GameSurface/Talon"]
 
 [node name="TalonPosition" type="Node3D" parent="GameSurface/Talon"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.00199997, 0.02)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.002, 0.02)

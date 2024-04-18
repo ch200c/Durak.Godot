@@ -155,6 +155,7 @@ public partial class MainScene : Node3D
 		}
 
 		cardScene.SetPhysicsProcess(_isAnimationEnabled);
+		cardScene.GetNode<Sprite3D>("Back").SortingOffset = 1;
 	}
 
 	private void Player_CardsAdded(object? sender, CardsAddedEventArgs e)
