@@ -16,5 +16,9 @@ public interface IAttack
 
     void Play(Player player, Card card);
 
+    CanPlayResult CanPlay(Player player, Card card);
+
     void End();
 }
+
+public record CanPlayResult(bool CanPlay, string? Error);

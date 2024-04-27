@@ -19,6 +19,22 @@ shape = SubResource("ConvexPolygonShape3D_ssc7u")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.606, 0)
 
 [node name="AttackingCard1Position" type="Node3D" parent="GameSurface"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.06, 0, -0.1)
+
+[node name="DefendingCard1Position" type="Node3D" parent="GameSurface"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.04, 0.002, -0.08)
+
+[node name="AttackingCard2Position" type="Node3D" parent="GameSurface"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.06, 0, 0)
+
+[node name="DefendingCard2Position" type="Node3D" parent="GameSurface"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.04, 0.002, 0.02)
+
+[node name="AttackingCard3Position" type="Node3D" parent="GameSurface"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.06, 0, 0.1)
+
+[node name="DefendingCard3Position" type="Node3D" parent="GameSurface"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.04, 0.002, 0.12)
 
 [node name="TwoPlayerGamePositions" type="Node3D" parent="GameSurface"]
 
@@ -29,9 +45,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.275481, 0, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.275, 0.1, 0)
 
 [node name="Talon" type="Node3D" parent="GameSurface"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.1, 0, 0.1)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.07, 0, 0.2)
 
 [node name="TrumpCardPosition" type="Node3D" parent="GameSurface/Talon"]
 
 [node name="TalonPosition" type="Node3D" parent="GameSurface/Talon"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.002, 0.02)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.02, 0.002, 0.02)

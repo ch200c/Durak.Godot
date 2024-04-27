@@ -48,36 +48,11 @@ public class Attack : IAttack
 
     public void Play(Player player, Card card)
     {
-        if (_state != AttackState.InProgress)
+        var result = CanPlay(player, card);
+        
+        if (!result.CanPlay)
         {
-            throw new GameplayException("Cannot play when the attack is not in progress");
-        }
-
-        if (!player.Cards.Contains(card))
-        {
-            throw new GameplayException("Cannot play non-player's card");
-        }
-
-        var isAttacking = _cards.Count % 2 == 0;
-
-        if (isAttacking && _cards.Count > 0 && _cards.TrueForAll(c => c.Card.Rank != card.Rank))
-        {
-            throw new GameplayException("Cannot play a card that does not match any other card's rank");
-        }
-
-        if (isAttacking && _cards.Count >= Math.Min(6, _defender.Cards.Count))
-        {
-            throw new GameplayException("Cannot have more attacking cards in this attack");
-        }
-
-        if (!isAttacking && _cards.Count > 0 && card.Rank < _cards[^1].Card.Rank && card.Suit == _cards[^1].Card.Suit)
-        {
-            throw new GameplayException("Cannot defend with a lower ranked card");
-        }
-
-        if (!isAttacking && _cards.Count > 0 && card.Suit != _cards[^1].Card.Suit && card.Suit != _trumpSuit)
-        {
-            throw new GameplayException("Cannot defend with a different suited card that is not in trump suit");
+            throw new GameplayException(result.Error);
         }
 
         _cards.Add(new AttackCard(player, card));
@@ -100,5 +75,42 @@ public class Attack : IAttack
             _defender.PickUp(_cards.Select(c => c.Card));
             _state = AttackState.Successful;
         }
+    }
+
+    public CanPlayResult CanPlay(Player player, Card card)
+    {
+        if (_state != AttackState.InProgress)
+        {
+            return new CanPlayResult(false, "Cannot play when the attack is not in progress");
+        }
+
+        if (!player.Cards.Contains(card))
+        {
+            return new CanPlayResult(false, "Cannot play non-player's card");
+        }
+
+        var isAttacking = _cards.Count % 2 == 0;
+
+        if (isAttacking && _cards.Count > 0 && _cards.TrueForAll(c => c.Card.Rank != card.Rank))
+        {
+            return new CanPlayResult(false, "Cannot play a card that does not match any other card's rank");
+        }
+
+        if (isAttacking && _cards.Count >= Math.Min(12, _defender.Cards.Count * 2))
+        {
+            return new CanPlayResult(false, "Cannot have more attacking cards in this attack");
+        }
+
+        if (!isAttacking && _cards.Count > 0 && card.Rank < _cards[^1].Card.Rank && card.Suit == _cards[^1].Card.Suit)
+        {
+            return new CanPlayResult(false, "Cannot defend with a lower ranked card");
+        }
+
+        if (!isAttacking && _cards.Count > 0 && card.Suit != _cards[^1].Card.Suit && card.Suit != _trumpSuit)
+        {
+            return new CanPlayResult(false, "Cannot defend with a different suited card that is not in trump suit");
+        }
+
+        return new CanPlayResult(true, null);
     }
 }
