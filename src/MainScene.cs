@@ -44,7 +44,7 @@ public partial class MainScene : Node3D
 		_cardPhysicsCooldownIteration = 0;
 	}
 
-	private void _on_play_button_pressed()
+    private void _on_play_button_pressed()
 	{
 		GetNode<MarginContainer>("%Menu").Hide();
 
