@@ -17,6 +17,9 @@ public partial class CardScene : StaticBody3D
 
 	public Vector3 TargetRotationDegrees { get; set; }
 
+	public bool IsOnTable { get; set; }
+
+
 	public event EventHandler? Clicked;
 
 	[Export]

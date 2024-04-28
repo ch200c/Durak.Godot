@@ -11,7 +11,7 @@ public partial class MainScene : Node3D
 	private const string _mainPlayerCardsGroup = "main_player_cards";
 	private int _cardPhysicsCooldownIteration;
 	private readonly PackedScene _cardScene;
-	private readonly Dictionary<Player, PlayerData> _playerData;
+	private readonly Dictionary<string, PlayerData> _playerData;
 
 	[Export]
 	private float _cardWidth = 0.06f;
@@ -44,14 +44,42 @@ public partial class MainScene : Node3D
 		_cardPhysicsCooldownIteration = 0;
 	}
 
-    private void _on_play_button_pressed()
+	private void Camera_Moved(object? sender, EventArgs e)
+	{
+		var camera = (Camera)sender!;
+		var mainPlayerGlobalPosition = GetMainPlayerGlobalPosition(camera);
+
+		_playerData["P1"].GlobalPosition = mainPlayerGlobalPosition;
+
+		_playerData["P1"].RotationDegrees = new Vector3(camera.RotationDegrees.X, camera.RotationDegrees.Y, camera.RotationDegrees.Z);
+
+		var inHandCards = _playerData["P1"].CardScenes.Where(c => !c.IsOnTable).ToList();
+
+
+		var cardOffsets = GetCardOffsets(inHandCards.Count);
+
+		foreach (var (existingCardScene, offset) in inHandCards.Zip(cardOffsets))
+		{
+			existingCardScene.GlobalPosition = offset;
+
+			var targetPosition = _playerData["P1"].GlobalPosition + offset;
+
+			existingCardScene.TargetPosition = targetPosition;
+			existingCardScene.GlobalPosition = targetPosition;
+			existingCardScene.TargetRotationDegrees = _playerData["P1"].RotationDegrees;
+			existingCardScene.RotationDegrees = _playerData["P1"].RotationDegrees;
+		}
+	}
+
+	private void _on_play_button_pressed()
 	{
 		GetNode<MarginContainer>("%Menu").Hide();
 
 		var opponentCount = GetNode<SpinBox>("%OpponentsSpinBox");
 		var players = CreatePlayers((int)opponentCount.Value + 1);
 
-		var camera = GetNode<Camera3D>("%Camera");
+		var camera = GetNode<Camera>("%Camera");
+		camera.Moved += Camera_Moved;
 
 		AddMainPlayerData(players[0], camera);
 		AddOpponentPlayerData(players);
@@ -135,9 +163,8 @@ public partial class MainScene : Node3D
 	private void AddMainPlayerData(Player player, Camera3D camera)
 	{
 		var globalPosition = GetMainPlayerGlobalPosition(camera);
-		var rotationX = GetNode<Camera3D>("%Camera").RotationDegrees.X;
-		var playerData = new PlayerData(player, globalPosition, new Vector3(rotationX, -90, 0), []);
-		_playerData.Add(playerData.Player, playerData);
+		var playerData = new PlayerData(player, globalPosition, new Vector3(camera.RotationDegrees.X, -90, 0), []);
+		_playerData.Add(playerData.Player.Id!, playerData);
 	}
 
 	private Vector3 GetMainPlayerGlobalPosition(Camera3D camera)
@@ -163,7 +190,7 @@ public partial class MainScene : Node3D
 
 		foreach (var (globalPosition, opponent) in positions.Skip(1).Zip(players.Skip(1)))
 		{
-			_playerData.Add(opponent, new PlayerData(opponent, globalPosition, new Vector3(0, 90, 0), []));
+			_playerData.Add(opponent.Id!, new PlayerData(opponent, globalPosition, new Vector3(0, 90, 0), []));
 		}
 	}
 
@@ -216,7 +243,7 @@ public partial class MainScene : Node3D
 
 		foreach (var card in e.Cards)
 		{
-			var playerData = _playerData[(Player)sender!];
+			var playerData = _playerData[((Player)sender!).Id!];
 			GD.Print($"{card} added for {playerData.Player.Id}");
 
 			var cardScene = _cardScene.Instantiate<CardScene>();
@@ -272,35 +299,91 @@ public partial class MainScene : Node3D
 
 		if (_flag == 0)
 		{
-			cardScene.TargetPosition = GetNode<Node3D>("/root/Main/Table/GameSurface/AttackingCard1Position").GlobalPosition;
+			if (_isAnimationEnabled)
+			{
+				cardScene.TargetPosition = GetNode<Node3D>("/root/Main/Table/GameSurface/AttackingCard1Position").GlobalPosition;
+			}
+			else
+			{
+				cardScene.GlobalPosition = GetNode<Node3D>("/root/Main/Table/GameSurface/AttackingCard1Position").GlobalPosition;
+			}
 		}
 		else if (_flag == 1)
 		{
-			cardScene.TargetPosition = GetNode<Node3D>("/root/Main/Table/GameSurface/DefendingCard1Position").GlobalPosition;
+			if (_isAnimationEnabled)
+			{
+				cardScene.TargetPosition = GetNode<Node3D>("/root/Main/Table/GameSurface/DefendingCard1Position").GlobalPosition;
+			}
+			else
+			{
+				cardScene.GlobalPosition = GetNode<Node3D>("/root/Main/Table/GameSurface/DefendingCard1Position").GlobalPosition;
+			}
 			cardScene.GetNode<Sprite3D>("Front").SortingOffset = 1;
 		}
 		else if (_flag == 2)
 		{
-			cardScene.TargetPosition = GetNode<Node3D>("/root/Main/Table/GameSurface/AttackingCard2Position").GlobalPosition;
+			if (_isAnimationEnabled)
+			{
+				cardScene.TargetPosition = GetNode<Node3D>("/root/Main/Table/GameSurface/AttackingCard2Position").GlobalPosition;
+			}
+			else
+			{
+				cardScene.GlobalPosition = GetNode<Node3D>("/root/Main/Table/GameSurface/AttackingCard2Position").GlobalPosition;
+			}
+			
 		}
 		else if (_flag == 3)
 		{
-			cardScene.TargetPosition = GetNode<Node3D>("/root/Main/Table/GameSurface/DefendingCard2Position").GlobalPosition;
+			if (_isAnimationEnabled)
+			{
+				cardScene.TargetPosition = GetNode<Node3D>("/root/Main/Table/GameSurface/DefendingCard2Position").GlobalPosition;
+			}
+			else
+			{
+				cardScene.GlobalPosition = GetNode<Node3D>("/root/Main/Table/GameSurface/DefendingCard2Position").GlobalPosition;
+			}
+			
 			cardScene.GetNode<Sprite3D>("Front").SortingOffset = 1;
 		}
 		else if (_flag == 4)
 		{
-			cardScene.TargetPosition = GetNode<Node3D>("/root/Main/Table/GameSurface/AttackingCard3Position").GlobalPosition;
+			if (_isAnimationEnabled)
+			{
+				cardScene.TargetPosition = GetNode<Node3D>("/root/Main/Table/GameSurface/AttackingCard3Position").GlobalPosition;
+			}
+			else
+			{
+				cardScene.GlobalPosition = GetNode<Node3D>("/root/Main/Table/GameSurface/AttackingCard3Position").GlobalPosition;
+			}
+			
 		}
 		else if (_flag == 5)
 		{
-			cardScene.TargetPosition = GetNode<Node3D>("/root/Main/Table/GameSurface/DefendingCard3Position").GlobalPosition;
+			if (_isAnimationEnabled)
+			{
+				cardScene.TargetPosition = GetNode<Node3D>("/root/Main/Table/GameSurface/DefendingCard3Position").GlobalPosition;
+			}
+			else
+			{
+				cardScene.GlobalPosition = GetNode<Node3D>("/root/Main/Table/GameSurface/DefendingCard3Position").GlobalPosition;
+			}
+
+		  
 			cardScene.GetNode<Sprite3D>("Front").SortingOffset = 1;
 		}
 		_flag++;
 
 
-		cardScene.TargetRotationDegrees = CardScene.FaceUpDegrees;
+		if (_isAnimationEnabled)
+		{
+			cardScene.TargetRotationDegrees = CardScene.FaceUpDegrees;
+		}
+		else
+		{
+			cardScene.GlobalRotationDegrees = CardScene.FaceUpDegrees;
+		}
+		cardScene.IsOnTable = true;
+		
 	}
 
 	//		cardScene.AddToGroup(_mainPlayerCardsGroup);
