@@ -5,6 +5,7 @@ public class Player
     private readonly List<Card> _cards;
 
     public event EventHandler<CardsAddedEventArgs>? CardsAdded;
+    public event EventHandler<CardRemovedEventArgs>? CardRemoved;
 
     public string? Id { get; }
 
@@ -30,6 +31,8 @@ public class Player
     public void Shed(Card card)
     {
         _cards.Remove(card);
+
+        CardRemoved?.Invoke(this, new CardRemovedEventArgs(card));
     }
 }
 
@@ -40,5 +43,25 @@ public class CardsAddedEventArgs : EventArgs
     public CardsAddedEventArgs(IEnumerable<Card> cards)
     {
         Cards = cards;
+    }
+}
+
+public class CardRemovedEventArgs : EventArgs
+{
+    public Card Card { get; }
+
+    public CardRemovedEventArgs(Card card)
+    {
+        Card = card;
+    }
+}
+
+public class AttackCardAddedEventArgs : EventArgs
+{
+    public AttackCard Card { get; }
+
+    public AttackCardAddedEventArgs(AttackCard card)
+    {
+        Card = card;
     }
 }

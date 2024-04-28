@@ -1,4 +1,6 @@
-﻿namespace Durak.Gameplay;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Durak.Gameplay;
 
 public class TurnLogic : ITurnLogic
 {
@@ -22,7 +24,7 @@ public class TurnLogic : ITurnLogic
     {
         if (_attacks.Count > _maxAttackCount)
         {
-            throw new GameplayException($"Reached more than {_maxAttackCount} attacks in a game");
+            throw new GameplayException($"Reached more than {_maxAttackCount} attacks");
         }
 
         _attacks.Push(attack);
@@ -42,7 +44,22 @@ public class TurnLogic : ITurnLogic
         return attack;
     }
 
-    private Attack? FirstAttack()
+    public bool TryGetNextAttack([MaybeNullWhen(false)] out IAttack nextAttack)
+    {
+        nextAttack = _attacks.Count == 0
+            ? FirstAttack()
+            : ConsecutiveAttack();
+
+        if (nextAttack != null)
+        {
+            AddAttack(nextAttack);
+            return true;
+        }
+
+        return false;
+    }
+
+    private Attack FirstAttack()
     {
         var lowestTrumpCard = _players
             .SelectMany(p => p.Cards)
@@ -76,8 +93,8 @@ public class TurnLogic : ITurnLogic
         }
 
         var previousAttack = _attacks.Peek();
-        int previousAttackerIndex = -1;
-        int previousDefenderIndex = -1;
+        var previousAttackerIndex = -1;
+        var previousDefenderIndex = -1;
 
         for (var i = 0; i < _players.Count; i++)
         {

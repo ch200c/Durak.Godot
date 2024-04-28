@@ -2,6 +2,9 @@
 
 public interface IAttack
 {
+    event EventHandler<AttackCardAddedEventArgs> AttackCardAdded;
+    event EventHandler AttackEnded;
+
     Player PrincipalAttacker { get; }
 
     Player Defender { get; }
@@ -18,7 +21,12 @@ public interface IAttack
 
     CanPlayResult CanPlay(Player player, Card card);
 
+    Player NextToPlay();
+
     void End();
 }
 
-public record CanPlayResult(bool CanPlay, string? Error);
+public record CanPlayResult(bool CanPlay, string? Error)
+{
+    public static implicit operator bool(CanPlayResult result) => result.CanPlay;
+}

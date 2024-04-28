@@ -15,6 +15,9 @@ public class Attack : IAttack
     private readonly Player _defender;
     private AttackState _state;
 
+    public event  EventHandler<AttackCardAddedEventArgs>? AttackCardAdded;
+    public event EventHandler? AttackEnded;
+
     public Player PrincipalAttacker => _attackers[0];
 
     public Player Defender => _defender;
@@ -50,12 +53,15 @@ public class Attack : IAttack
     {
         var result = CanPlay(player, card);
         
-        if (!result.CanPlay)
+        if (!result)
         {
             throw new GameplayException(result.Error);
         }
 
-        _cards.Add(new AttackCard(player, card));
+        var attackCard = new AttackCard(player, card);
+        _cards.Add(attackCard);
+        AttackCardAdded?.Invoke(this, new AttackCardAddedEventArgs(attackCard));
+
         player.Shed(card);
     }
 
@@ -75,6 +81,8 @@ public class Attack : IAttack
             _defender.PickUp(_cards.Select(c => c.Card));
             _state = AttackState.Successful;
         }
+
+        AttackEnded?.Invoke(this, new EventArgs());
     }
 
     public CanPlayResult CanPlay(Player player, Card card)
@@ -87,6 +95,11 @@ public class Attack : IAttack
         if (!player.Cards.Contains(card))
         {
             return new CanPlayResult(false, "Cannot play non-player's card");
+        }
+
+        if (_cards.Select(c => c.Card).Contains(card))
+        {
+            return new CanPlayResult(false, "Cannot play already played card");
         }
 
         var isAttacking = _cards.Count % 2 == 0;
@@ -112,5 +125,21 @@ public class Attack : IAttack
         }
 
         return new CanPlayResult(true, null);
+    }
+
+    public Player NextToPlay()
+    {
+        if (_cards.Count == 0)
+        {
+            return _attackers[0];
+        }
+
+        var isLastCardPlayedByAttacker = _attackers.Contains(_cards[^1].Player);
+        if (isLastCardPlayedByAttacker)
+        {
+            return _defender;
+        }
+
+        return _cards[^2].Player;
     }
 }
