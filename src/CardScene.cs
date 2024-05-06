@@ -7,7 +7,8 @@ namespace Durak.Godot;
 
 public partial class CardScene : StaticBody3D
 {
-	public static readonly Vector3 FaceDownDegrees = new(90, -45, 0);
+    public static readonly Vector3 FaceDownDegrees2 = new(90, 45, 0);
+    public static readonly Vector3 FaceDownDegrees = new(90, -45, 0);
 	public static readonly Vector3 TrumpCardFaceUpDegrees = new(-90, 45, 0);
 	public static readonly Vector3 FaceUpDegrees = new(-90, -90, 0);
 

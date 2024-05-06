@@ -71,4 +71,4 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.07, 0, 0.2)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.02, 0.002, 0.02)
 
 [node name="DiscardPilePosition" type="Node3D" parent="GameSurface"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.07, 0, -0.2)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.07, 0, 0.2)
