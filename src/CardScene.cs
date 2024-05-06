@@ -5,9 +5,16 @@ using System.Text;
 
 namespace Durak.Godot;
 
+public enum CardState
+{
+	InHand,
+	InAttack,
+	Discarded
+}
+
 public partial class CardScene : StaticBody3D
 {
-    public static readonly Vector3 FaceDownDegrees2 = new(90, 45, 0);
+    public static readonly Vector3 FaceDownDiscardedDegrees = new(90, 45, 0);
     public static readonly Vector3 FaceDownDegrees = new(90, -45, 0);
 	public static readonly Vector3 TrumpCardFaceUpDegrees = new(-90, 45, 0);
 	public static readonly Vector3 FaceUpDegrees = new(-90, -90, 0);
@@ -18,7 +25,7 @@ public partial class CardScene : StaticBody3D
 
 	public Vector3 TargetRotationDegrees { get; set; }
 
-	public bool IsOnTable { get; set; }
+	public CardState CardState { get; set; }
 
 	public event EventHandler? Clicked;
 
@@ -33,10 +40,12 @@ public partial class CardScene : StaticBody3D
 	public void Initialize(Card card)
 	{
 		Card = card;
-
+		
 		var texture = GetTexture(Card);
 		GetNode<Sprite3D>("Front").Texture = texture;
-	}
+
+        CardState = CardState.InHand;
+    }
 
 	private static Texture2D GetTexture(Card card)
 	{

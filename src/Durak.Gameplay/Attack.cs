@@ -60,9 +60,9 @@ public class Attack : IAttack
 
         var attackCard = new AttackCard(player, card);
         _cards.Add(attackCard);
-        AttackCardAdded?.Invoke(this, new AttackCardAddedEventArgs(attackCard));
-
         player.Shed(card);
+
+        AttackCardAdded?.Invoke(this, new AttackCardAddedEventArgs(attackCard));
     }
 
     public void End()

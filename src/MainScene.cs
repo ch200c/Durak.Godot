@@ -70,7 +70,7 @@ public partial class MainScene : Node3D
 
 	private void RearrangePlayerCards(string id)
 	{
-		var inHandCards = _playerData[id].CardScenes.Where(c => !c.IsOnTable).ToList();
+		var inHandCards = _playerData[id].CardScenes.Where(c => c.CardState == CardState.InHand).ToList();
 		GD.Print($"Rearranging {id} cards: {string.Join(',', inHandCards.Select(c => c.Card))}");
 
 		var cardOffsets = GetCardOffsets(inHandCards.Count);
@@ -86,6 +86,7 @@ public partial class MainScene : Node3D
 		}
 	}
 
+	// todo block spam
 	private void _on_end_attack_button_pressed()
 	{
 		GD.Print("Ending attack by P1");
@@ -118,25 +119,26 @@ public partial class MainScene : Node3D
 		StartAttack();
 	}
 	//todo rearrange after playing a card for cpu
-	// todo discard only what is needed (re use)
-	// print who won who lost on each round
+
 	private void CurrentAttack_AttackEnded(object? sender, EventArgs e)
 	{
-		GD.Print("Attack ended");
-
 		_currentAttack!.AttackCardAdded -= CurrentAttack_AttackCardAdded;
 		_currentAttack.AttackEnded -= CurrentAttack_AttackEnded;
+
+		var attackerIds = _currentAttack!.Attackers.Select(a => a.Id);
+		var attackCards = _currentAttack!.Cards.Select(c => c.Card);
+		GD.Print($"Attack state: {_currentAttack.State} | {string.Join(',', attackerIds)} vs {_currentAttack.Defender.Id} | {string.Join(',', attackCards)}");
 
 		switch (_currentAttack.State)
 		{
 			case AttackState.BeatenOff:
 				{
-					DiscardTableCards(_currentAttack!.Attackers.Select(a => a.Id).Union([_currentAttack!.Defender.Id!]));
+					DiscardTableCards();
 					break;
 				}
 			case AttackState.Successful:
 				{
-					DiscardTableCards(_currentAttack!.Attackers.Select(a => a.Id));
+					RemoveCardScenes();
 					break;
 				}
 			default:
@@ -150,13 +152,15 @@ public partial class MainScene : Node3D
 		StartAttack();
 	}
 
-	private void DiscardTableCards(IEnumerable<string?> playerIds)
+	private void DiscardTableCards()
 	{
 		var discardPile = GetNode<Node3D>("/root/Main/Table/GameSurface/DiscardPilePosition");
 
-		foreach (var id in playerIds)
+		var attackPlayerIds = _currentAttack!.Attackers.Select(a => a.Id).Union([_currentAttack.Defender.Id]);
+
+		foreach (var id in attackPlayerIds)
 		{
-			var tableCards = _playerData[id!].CardScenes.Where(c => c.IsOnTable).ToList();
+			var tableCards = _playerData[id!].CardScenes.Where(c => c.CardState == CardState.InAttack).ToList();
 
 			foreach (var tableCard in tableCards)
 			{
@@ -164,7 +168,23 @@ public partial class MainScene : Node3D
 				_playerData[id!].CardScenes.Remove(tableCard);
 
 				MoveCard(tableCard, discardPile.GlobalPosition);
-				RotateCard(tableCard, CardScene.FaceDownDegrees2);
+				RotateCard(tableCard, CardScene.FaceDownDiscardedDegrees);
+				tableCard.CardState = CardState.Discarded;
+			}
+		}
+	}
+
+	private void RemoveCardScenes()
+	{
+		var attackPlayerIds = _currentAttack!.Attackers.Select(a => a.Id).Union([_currentAttack.Defender.Id]);
+
+		foreach (var id in attackPlayerIds)
+		{
+			var tableCards = _playerData[id!].CardScenes.Where(c => c.CardState == CardState.InAttack).ToList();
+
+			foreach (var tableCard in tableCards)
+			{
+				_playerData[id!].CardScenes.Remove(tableCard);
 			}
 		}
 	}
@@ -209,7 +229,7 @@ public partial class MainScene : Node3D
 
 		GD.Print($"Next to play: {player.Id} | " +
 			$"Data: {string.Join(',', _playerData[player.Id!].CardScenes.Select(c => c.Card))} | " +
-			$"In hand: {string.Join(',', _playerData[player.Id!].CardScenes.Where(c => !c.IsOnTable).Select(c => c.Card))} | " +
+			$"In hand: {string.Join(',', _playerData[player.Id!].CardScenes.Where(c => c.CardState == CardState.InHand).Select(c => c.Card))} | " +
 			$"Indices: {string.Join(',', availableCardIndices)}");
 
 		while (availableCardIndices.TryDequeue(out var cardIndex))
@@ -319,10 +339,21 @@ public partial class MainScene : Node3D
 		foreach (var card in e.Cards)
 		{
 			GD.Print($"{card} added for {playerData.Player.Id}");
+			CardScene? cardScene = null;
+			var isPlayerCard = false;
+			foreach (var kvp in _playerData)
+			{
+				cardScene = kvp.Value.CardScenes.Find(c => c.Card == card);
+				if (cardScene != null)
+				{
+					isPlayerCard = kvp.Key == playerData.Player.Id;
+					break;
+				}
+			}
+			//var cardScene = playerData.CardScenes.Find(c => c.Card == card);
 
-			var cardScene = playerData.CardScenes.Find(c => c.Card == card);
-
-			if (cardScene == null)
+			var isNewCard = cardScene == null;
+			if (isNewCard)
 			{
 				cardScene = _cardScene.Instantiate<CardScene>();
 				cardScene.Initialize(card);
@@ -334,16 +365,29 @@ public partial class MainScene : Node3D
 
 				AddChild(cardScene);
 
-				cardScene.GetNode<MeshInstance3D>("MeshInstance3D").Hide();
 				cardScene.SetPhysicsProcess(_isAnimationEnabled);
-				playerData.CardScenes.Add(cardScene);
+				
 			}
+
+			if (!isPlayerCard)
+			{
+				playerData.CardScenes.Add(cardScene!);
+			}
+
+			cardScene!.CardState = CardState.InHand;
+
+			// todo only hide if p1?
+			cardScene.GetNode<MeshInstance3D>("MeshInstance3D").Hide();
 
 			if (_isAnimationEnabled)
 			{
-				cardScene.RotationDegrees = CardScene.FaceDownDegrees;
 				cardScene.TargetRotationDegrees = playerData.RotationDegrees;
-				cardScene.GlobalPosition = talon.GlobalPosition;
+
+				if (isNewCard)
+				{
+					cardScene.RotationDegrees = CardScene.FaceDownDegrees;
+					cardScene.GlobalPosition = talon.GlobalPosition;
+				}
 			}
 			else
 			{
@@ -409,7 +453,7 @@ public partial class MainScene : Node3D
 			return;
 		}
 
-		if (cardScene.IsOnTable)
+		if (cardScene.CardState != CardState.InHand)
 		{
 			GD.Print("Ignoring P1 as card is not in their hand");
 			return;
@@ -442,7 +486,8 @@ public partial class MainScene : Node3D
 			cardScene.GetNode<Sprite3D>("Front").SortingOffset = 1;
 		}
 
-		cardScene.IsOnTable = true;
+		cardScene.CardState = CardState.InAttack;
+		cardScene.GetNode<MeshInstance3D>("MeshInstance3D").Show();
 	}
 
 	private void RotateCard(CardScene cardScene, Vector3 rotationDegrees)
@@ -453,7 +498,7 @@ public partial class MainScene : Node3D
 		}
 		else
 		{
-			cardScene.GlobalRotationDegrees = rotationDegrees;
+			cardScene.RotationDegrees = rotationDegrees;
 		}
 	}
 
