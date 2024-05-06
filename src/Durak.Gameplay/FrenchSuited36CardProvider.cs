@@ -5,7 +5,7 @@ public class FrenchSuited36CardProvider : ICardProvider
     public IEnumerable<Card> GetCards()
     {
         var ranks = Enumerable.Range(6, 8);
-        var suits = new char[] { 'c', 'd', 'h', 's' };
+        var suits = new char[] { Suit.Clubs, Suit.Diamonds, Suit.Hearts, Suit.Spades };
 
         foreach (var rank in ranks)
         {

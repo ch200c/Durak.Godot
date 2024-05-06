@@ -13,7 +13,7 @@ public class Deck : IDeck
     public Deck(ICardProvider cardProvider, ICardShuffler cardShuffler)
     {
         var cards = cardProvider.GetCards();
-        cards = cardShuffler.Shuffle(cards);
+        cards = cardShuffler.Shuffle(cards).ToList();
 
         TrumpCard = cards.Last();
         TrumpSuit = TrumpCard.Suit;

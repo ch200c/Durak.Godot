@@ -19,7 +19,6 @@ public partial class CardScene : StaticBody3D
 
 	public bool IsOnTable { get; set; }
 
-
 	public event EventHandler? Clicked;
 
 	[Export]
@@ -60,12 +59,12 @@ public partial class CardScene : StaticBody3D
 		}
 		else
 		{
-			throw new GameException("TODO");
+			throw new GameException($"Unknown card suit {card.Suit}");
 		}
 
 		var normalizedRank = card.Rank == 14 ? 1 : card.Rank;
-		var serializedRank = $"{normalizedRank:00}";
-		fileName.Append($"{serializedRank}.png");
+		var formattedRank = $"{normalizedRank:00}";
+		fileName.Append($"{formattedRank}.png");
 
 		return GD.Load<Texture2D>(fileName.ToString());
 	}
@@ -83,7 +82,7 @@ public partial class CardScene : StaticBody3D
 	{
 		if (@event.IsActionPressed("left_mouse_button"))
 		{
-			GD.Print(Card);
+			GD.Print($"Clicked {Card}");
 			Clicked?.Invoke(this, EventArgs.Empty);
 		}
 	}
