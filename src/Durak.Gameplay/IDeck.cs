@@ -8,5 +8,7 @@ public interface IDeck
 
     Card TrumpCard { get; }
 
+    int Count { get; }
+
     bool TryDequeue([MaybeNullWhen(false)] out Card card);
 }

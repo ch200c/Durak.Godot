@@ -10,6 +10,8 @@ public class Deck : IDeck
 
     public Card TrumpCard { get; private set; }
 
+    public int Count => _cards.Count;
+
     public Deck(ICardProvider cardProvider, ICardShuffler cardShuffler)
     {
         var cards = cardProvider.GetCards();

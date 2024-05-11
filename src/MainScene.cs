@@ -15,6 +15,7 @@ public partial class MainScene : Node3D
 	private TurnLogic? _turnLogic;
 	private IAttack? _currentAttack;
 	private Dealer? _dealer;
+	private Deck? _deck;
 
 	[Export]
 	private float _cardWidth = 0.06f;
@@ -107,13 +108,13 @@ public partial class MainScene : Node3D
 		AddMainPlayerData(players[0], camera);
 		AddOpponentPlayerData(players);
 
-		var deck = new Deck(new FrenchSuited36CardProvider(), new DefaultCardShuffler());
-		_turnLogic = new TurnLogic(players, deck.TrumpSuit);
+		_deck = new Deck(new FrenchSuited36CardProvider(), new DefaultCardShuffler());
+		_turnLogic = new TurnLogic(players, _deck.TrumpSuit);
 
-		_dealer = new Dealer(6, players, deck);
+		_dealer = new Dealer(6, players, _deck);
 		_dealer.Deal(null);
 
-		CreateTrumpCard(deck.TrumpCard);
+		CreateTrumpCard(_deck.TrumpCard);
 		CreateTalon();
 
 		StartAttack();
@@ -146,9 +147,20 @@ public partial class MainScene : Node3D
 				}
 		}
 
+		// todo diff before and after
+
 		_dealer!.Deal(_currentAttack);
 
-		StartAttack();
+        if (_deck!.Count == 1)
+        {
+            ((CardScene)GetTree().GetFirstNodeInGroup("talon")).Hide();
+        }
+        else if (_deck!.Count == 0)
+        {
+            ((CardScene)GetTree().GetFirstNodeInGroup("trumpCard")).Hide();
+        }
+
+        StartAttack();
 	}
 
 	private void PrintCardScenes(string tag)
@@ -326,6 +338,7 @@ public partial class MainScene : Node3D
 		RotateCard(cardScene, CardScene.TrumpCardFaceUpDegrees);
 
 		cardScene.SetPhysicsProcess(_isAnimationEnabled);
+		cardScene.AddToGroup("trumpCard");
 	}
 
 	private void CreateTalon()
@@ -341,6 +354,7 @@ public partial class MainScene : Node3D
 
 		cardScene.SetPhysicsProcess(_isAnimationEnabled);
 		cardScene.GetNode<Sprite3D>("Back").SortingOffset = 1;
+		cardScene.AddToGroup("talon");
 	}
 
 	private sealed record AddedCardData(CardScene? CardScene, bool IsNewCard, bool IsPlayerCard);
