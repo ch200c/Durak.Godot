@@ -30,7 +30,6 @@ sky = SubResource("Sky_lm50g")
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_ssbm5")
-_isAnimationEnabled = true
 
 [node name="Camera" type="Camera3D" parent="."]
 unique_name_in_owner = true

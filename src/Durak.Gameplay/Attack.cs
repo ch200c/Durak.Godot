@@ -109,7 +109,7 @@ public class Attack : IAttack
             return new CanPlayResult(false, "Cannot play a card that does not match any other card's rank");
         }
 
-        if (isAttacking && _cards.Count >= Math.Min(12, _defender.Cards.Count * 2))
+        if (isAttacking && (_cards.Count >= 12 || _defender.Cards.Count == 0))
         {
             return new CanPlayResult(false, "Cannot have more attacking cards in this attack");
         }
