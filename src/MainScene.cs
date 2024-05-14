@@ -87,9 +87,14 @@ public partial class MainScene : Node3D
 		}
 	}
 
-	// todo block spam
 	private void _on_end_attack_button_pressed()
 	{
+		if (_currentAttack!.NextToPlay().Id != "P1")
+		{
+			GD.Print("Ignoring end attack");
+			return;
+		}
+
 		GD.Print("Ending attack by P1");
 		_currentAttack!.End();
 	}
@@ -164,8 +169,9 @@ public partial class MainScene : Node3D
 
 		foreach (var playerData in _playerData)
 		{
-			var cards = playerData.Value.CardScenes.Select(c => $"{c.Card} {c.CardState}");
-			GD.Print($"{playerData.Key} {string.Join(", ", cards)}");
+			var nonDiscardedCards = playerData.Value.CardScenes.Where(c => c.CardState != CardState.Discarded).Select(c => $"{c.Card} {c.CardState}");
+			var discardedCards = playerData.Value.CardScenes.Where(c => c.CardState == CardState.Discarded).Select(c => $"{c.Card}");
+			GD.Print($"{playerData.Key} {string.Join(", ", nonDiscardedCards)}, Discarded: {string.Join(", ", discardedCards)}");
 		}
 	}
 
@@ -269,7 +275,7 @@ public partial class MainScene : Node3D
 
 	private bool PlayAsNonMainPlayer()
 	{
-		// todo click on minimap to make it full screen or keyboard shortcut
+		// todo click on mini map to make it full screen or keyboard shortcut
 
 		var player = _currentAttack!.NextToPlay();
 		var availableCardIndices = new Queue<int>(Enumerable.Range(0, player.Cards.Count));
@@ -354,7 +360,7 @@ public partial class MainScene : Node3D
 		cardScene.Initialize(card);
 
 		AddChild(cardScene);
-		
+
 
 		var trumpCard = GetNode<Node3D>("/root/Main/Table/GameSurface/Talon/TrumpCardPosition");
 
