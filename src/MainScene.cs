@@ -96,6 +96,11 @@ public partial class MainScene : Node3D
 
 	private void _on_play_button_pressed()
 	{
+		var mainSceneChildCount = GetChildCount();
+		var totalChildCount = GetTree().GetNodeCount();
+
+		GD.Print($"Main scene child count: {mainSceneChildCount}, total: {totalChildCount}");
+
 		GetNode<MarginContainer>("%Menu").Hide();
 		GetNode<MarginContainer>("%HUD").Show();
 
@@ -103,6 +108,7 @@ public partial class MainScene : Node3D
 		var players = CreatePlayers((int)opponentCount.Value + 1);
 
 		var camera = GetNode<Camera>("%Camera");
+		camera.Moved -= Camera_Moved;
 		camera.Moved += Camera_Moved;
 
 		AddMainPlayerData(players[0], camera);
@@ -112,7 +118,7 @@ public partial class MainScene : Node3D
 		_turnLogic = new TurnLogic(players, _deck.TrumpSuit);
 
 		_dealer = new Dealer(6, players, _deck);
-		_dealer.Deal(null);
+		_dealer.Deal(_currentAttack);
 
 		CreateTrumpCard(_deck.TrumpCard);
 		CreateTalon();
@@ -147,20 +153,9 @@ public partial class MainScene : Node3D
 				}
 		}
 
-		// todo diff before and after
-
 		_dealer!.Deal(_currentAttack);
 
-        if (_deck!.Count == 1)
-        {
-            ((CardScene)GetTree().GetFirstNodeInGroup("talon")).Hide();
-        }
-        else if (_deck!.Count == 0)
-        {
-            ((CardScene)GetTree().GetFirstNodeInGroup("trumpCard")).Hide();
-        }
-
-        StartAttack();
+		StartAttack();
 	}
 
 	private void PrintCardScenes(string tag)
@@ -215,9 +210,8 @@ public partial class MainScene : Node3D
 	{
 		if (!_turnLogic!.TryGetNextAttack(out _currentAttack))
 		{
-			GD.Print("Game ended");
+			Reset();
 			return;
-			// TODO reset;
 		}
 
 		_currentAttack.AttackCardAdded += CurrentAttack_AttackCardAdded;
@@ -229,6 +223,35 @@ public partial class MainScene : Node3D
 		{
 			PlayAsNonMainPlayer();
 		}
+	}
+
+	private void Reset()
+	{
+		var noCardsLeftPlayerData = _playerData.Values.Where(p => p.Player.Cards.Count == 0).ToList();
+		if (noCardsLeftPlayerData.Count == _playerData.Count)
+		{
+			GD.Print("Game ended in a draw!");
+		}
+		else
+		{
+			var loserPlayerData = _playerData.Values.Except(noCardsLeftPlayerData);
+			GD.Print($"{string.Join(',', loserPlayerData.Select(p => p.Player.Id))} lost");
+		}
+
+		foreach (var (key, value) in _playerData)
+		{
+			value.Player.CardsAdded -= Player_CardsAdded;
+		}
+
+		_playerData.Clear();
+
+		var cardScenes = GetTree().GetNodesInGroup("card");
+		foreach (var cardScene in cardScenes)
+		{
+			cardScene.QueueFree();
+		}
+
+		GetTree().ReloadCurrentScene();
 	}
 
 	private void CurrentAttack_AttackCardAdded(object? sender, AttackCardAddedEventArgs e)
@@ -331,6 +354,7 @@ public partial class MainScene : Node3D
 		cardScene.Initialize(card);
 
 		AddChild(cardScene);
+		
 
 		var trumpCard = GetNode<Node3D>("/root/Main/Table/GameSurface/Talon/TrumpCardPosition");
 
@@ -339,6 +363,7 @@ public partial class MainScene : Node3D
 
 		cardScene.SetPhysicsProcess(_isAnimationEnabled);
 		cardScene.AddToGroup("trumpCard");
+		cardScene.AddToGroup("card");
 	}
 
 	private void CreateTalon()
@@ -355,12 +380,24 @@ public partial class MainScene : Node3D
 		cardScene.SetPhysicsProcess(_isAnimationEnabled);
 		cardScene.GetNode<Sprite3D>("Back").SortingOffset = 1;
 		cardScene.AddToGroup("talon");
+		cardScene.AddToGroup("card");
 	}
 
 	private sealed record AddedCardData(CardScene? CardScene, bool IsNewCard, bool IsPlayerCard);
 
 	private void Player_CardsAdded(object? sender, CardsAddedEventArgs e)
 	{
+		if (_deck!.Count == 1)
+		{
+			GD.Print("Hiding talon");
+			((CardScene)GetTree().GetFirstNodeInGroup("talon")).Hide();
+		}
+		else if (_deck!.Count == 0)
+		{
+			GD.Print("Hiding trump card");
+			((CardScene)GetTree().GetFirstNodeInGroup("trumpCard")).Hide();
+		}
+
 		var talon = GetNode<Node3D>("/root/Main/Table/GameSurface/Talon/TalonPosition");
 		var playerData = _playerData[((Player)sender!).Id!];
 
@@ -426,6 +463,7 @@ public partial class MainScene : Node3D
 		cardScene.Initialize(card);
 
 		AddChild(cardScene);
+		cardScene.AddToGroup("card");
 		cardScene.SetPhysicsProcess(_isAnimationEnabled);
 		return cardScene;
 	}
