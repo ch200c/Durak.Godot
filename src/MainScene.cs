@@ -9,7 +9,8 @@ namespace Durak.Godot;
 
 public partial class MainScene : Node3D
 {
-	private int _cardPhysicsCooldownIteration;
+    private const string Player1Id = "P1";
+    private int _cardPhysicsCooldownIteration;
 	private readonly PackedScene _cardScene;
 	private readonly Dictionary<string, PlayerData> _playerData;
 	private TurnLogic? _turnLogic;
@@ -63,10 +64,10 @@ public partial class MainScene : Node3D
 		var camera = GetNode<Camera>("%Camera");
 		var mainPlayerGlobalPosition = GetMainPlayerGlobalPosition(camera);
 
-		_playerData["P1"].GlobalPosition = mainPlayerGlobalPosition;
-		_playerData["P1"].RotationDegrees = new Vector3(camera.RotationDegrees.X, camera.RotationDegrees.Y, camera.RotationDegrees.Z);
+		_playerData[Player1Id].GlobalPosition = mainPlayerGlobalPosition;
+		_playerData[Player1Id].RotationDegrees = new Vector3(camera.RotationDegrees.X, camera.RotationDegrees.Y, camera.RotationDegrees.Z);
 
-		RearrangePlayerCards("P1");
+		RearrangePlayerCards(Player1Id);
 	}
 
 	private void RearrangePlayerCards(string id)
@@ -89,7 +90,7 @@ public partial class MainScene : Node3D
 
 	private void _on_end_attack_button_pressed()
 	{
-		if (_currentAttack!.NextToPlay().Id != "P1")
+		if (_currentAttack!.NextToPlay().Id != Player1Id)
 		{
 			GD.Print("Ignoring end attack");
 			return;
@@ -225,7 +226,7 @@ public partial class MainScene : Node3D
 
 		GD.Print($"Starting attack as {_currentAttack.PrincipalAttacker.Id}");
 
-		if (_currentAttack.PrincipalAttacker.Id != "P1")
+		if (_currentAttack.PrincipalAttacker.Id != Player1Id)
 		{
 			PlayAsNonMainPlayer();
 		}
@@ -262,12 +263,12 @@ public partial class MainScene : Node3D
 
 	private void CurrentAttack_AttackCardAdded(object? sender, AttackCardAddedEventArgs e)
 	{
-		if (e.Card.Player.Id != "P1")
+		if (e.Card.Player.Id != Player1Id)
 		{
 			RearrangePlayerCards(e.Card.Player.Id!);
 			//GD.Print($"Ending call stack after {e.Card.Player.Id} card added");
 			
-			if (_currentAttack!.NextToPlay().Id != "P1")
+			if (_currentAttack!.NextToPlay().Id != Player1Id)
 			{
 				PlayAsNonMainPlayer();
 			}
@@ -430,7 +431,7 @@ public partial class MainScene : Node3D
 				playerData.CardScenes.Add(cardScene!);
 			}
 
-			if (playerData.Player.Id == "P1")
+			if (playerData.Player.Id == Player1Id)
 			{
 				cardScene!.Clicked -= CardScene_Clicked;
 				cardScene.Clicked += CardScene_Clicked;
@@ -542,13 +543,13 @@ public partial class MainScene : Node3D
 		var cardScene = (CardScene)sender!;
 		GD.Print($"Received click {cardScene.Card}");
 
-		if (_currentAttack == null || _currentAttack.NextToPlay() != _playerData["P1"].Player)
+		if (_currentAttack == null || _currentAttack.NextToPlay() != _playerData[Player1Id].Player)
 		{
 			GD.Print("Ignoring P1 as it is other player's turn");
 			return;
 		}
 
-		if (!_playerData["P1"].CardScenes.Contains(cardScene))
+		if (!_playerData[Player1Id].CardScenes.Contains(cardScene))
 		{
 			GD.Print("Ignoring P1 as it is not their card");
 			return;
@@ -560,7 +561,7 @@ public partial class MainScene : Node3D
 			return;
 		}
 
-		var canPlayResult = _currentAttack!.CanPlay(_playerData["P1"].Player, cardScene.Card!);
+		var canPlayResult = _currentAttack!.CanPlay(_playerData[Player1Id].Player, cardScene.Card!);
 
 		if (!canPlayResult)
 		{
@@ -575,7 +576,7 @@ public partial class MainScene : Node3D
 
 		GD.Print($"Playing {cardScene.Card!} as P1");
 
-		_currentAttack.Play(_playerData["P1"].Player, cardScene.Card!);
+		_currentAttack.Play(_playerData[Player1Id].Player, cardScene.Card!);
 
 		PrintCardScenes("P1 played");
 	}

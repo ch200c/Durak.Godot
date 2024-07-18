@@ -43,7 +43,7 @@ public partial class Camera : Camera3D
             _rotationX += mouseMotion.Relative.X * _lookAroundSpeed;
             _rotationY += mouseMotion.Relative.Y * _lookAroundSpeed;
 
-            // reset rotation
+            // Reset rotation
             var transform = Transform;
             transform.Basis = Basis.Identity;
             Transform = transform;
