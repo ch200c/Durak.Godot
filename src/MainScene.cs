@@ -265,10 +265,16 @@ public partial class MainScene : Node3D
 		if (e.Card.Player.Id != "P1")
 		{
 			RearrangePlayerCards(e.Card.Player.Id!);
-			GD.Print($"Ending call stack after {e.Card.Player.Id} card added");
+			//GD.Print($"Ending call stack after {e.Card.Player.Id} card added");
+			
+			if (_currentAttack!.NextToPlay().Id != "P1")
+			{
+				PlayAsNonMainPlayer();
+			}
+			
 			return;
 		}
-
+		
 		RearrangeMainPlayerCards();
 		PlayAsNonMainPlayer();
 	}
@@ -339,9 +345,10 @@ public partial class MainScene : Node3D
 		var nodeName = players.Count switch
 		{
 			2 => "TwoPlayerGame",
+			3 => "ThreePlayerGame",
 			_ => throw new NotImplementedException()
 		};
-
+		// todo better skipping than index
 		var positions = GetNode<Node3D>($"/root/Main/Table/GameSurface/{nodeName}")
 			.GetChildren()
 			.Cast<Node3D>()

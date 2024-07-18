@@ -26,6 +26,17 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.275481, 0, 0)
 [node name="Player2Position" type="Node3D" parent="GameSurface/TwoPlayerGame"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.275, 0.1, 0)
 
+[node name="ThreePlayerGame" type="Node3D" parent="GameSurface"]
+
+[node name="Player1Position" type="Node3D" parent="GameSurface/ThreePlayerGame"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.275481, 0, 0)
+
+[node name="Player2Position" type="Node3D" parent="GameSurface/ThreePlayerGame"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.275, 0.1, -0.275)
+
+[node name="Player3Position" type="Node3D" parent="GameSurface/ThreePlayerGame"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.275, 0.1, 0.275)
+
 [node name="Talon" type="Node3D" parent="GameSurface"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.07, 0, 0.2)
 
