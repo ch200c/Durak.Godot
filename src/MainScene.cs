@@ -1,22 +1,87 @@
 using Durak.Gameplay;
 using Godot;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Durak.Godot;
 
-public partial class MainScene : Node3D
+public interface IDiscardPileProvider
 {
-    private const string Player1Id = "P1";
-    private int _cardPhysicsCooldownIteration;
+	Node3D GetDiscardPile();
+}
+
+public interface IAttackProvider
+{
+	IAttack GetAttack();
+}
+
+public interface IPlayerDataProvider
+{
+	Dictionary<string, PlayerData> GetPlayerData();
+}
+
+public class DiscardTableCardsRequest : IRequest { };
+
+public class DiscardTableCardsHandler : IRequestHandler<DiscardTableCardsRequest>
+{
+	private readonly IDiscardPileProvider _discardPileProvider;
+	private readonly IAttackProvider _attackProvider;
+	private readonly IPlayerDataProvider _playerDataProvider;
+	// toido keys?
+	// INodeProvider<T>, = GetNode<T> proxy, decoupling
+	// IAttackProvider = singleton changes internally as game progresses
+	// IPlayerDataProvider = singleton changes as game progresses
+	public DiscardTableCardsHandler(
+		IDiscardPileProvider discardPileProvider, IAttackProvider attackProvider, IPlayerDataProvider playerDataProvider)
+	{
+		_discardPileProvider = discardPileProvider;
+		_attackProvider = attackProvider;
+		_playerDataProvider = playerDataProvider;
+	}
+
+	public Task Handle(DiscardTableCardsRequest request, CancellationToken cancellationToken)
+	{
+		GD.Print("Handling 123");
+		var attack = _attackProvider.GetAttack();
+
+		var attackPlayerIds = attack.Attackers.Select(a => a.Id).Union([attack.Defender.Id]);
+		var playerData = _playerDataProvider.GetPlayerData();
+
+		foreach (var id in attackPlayerIds)
+		{
+			var tableCards = playerData[id!].CardScenes.Where(c => c.CardState == CardState.InAttack).ToList();
+
+			foreach (var tableCard in tableCards)
+			{
+				GD.Print($"Discarding {tableCard.Card}");
+
+				tableCard.Move(_discardPileProvider.GetDiscardPile().GlobalPosition);
+				tableCard.Rotate(CardScene.FaceDownDiscardedDegrees);
+				tableCard.CardState = CardState.Discarded;
+			}
+		}
+		GD.Print("Handled 123");
+		return Task.CompletedTask;
+	}
+}
+
+public partial class MainScene : Node3D, IDiscardPileProvider, IAttackProvider, IPlayerDataProvider
+{
+	private const string Player1Id = "P1";
+	private int _cardPhysicsCooldownIteration;
 	private readonly PackedScene _cardScene;
 	private readonly Dictionary<string, PlayerData> _playerData;
 	private TurnLogic? _turnLogic;
 	private IAttack? _currentAttack;
 	private Dealer? _dealer;
 	private Deck? _deck;
+	private ServiceProvider _serviceProvider;
 
 	[Export]
 	private float _cardWidth = 0.06f;
@@ -42,11 +107,50 @@ public partial class MainScene : Node3D
 	[Export]
 	private bool _isAnimationEnabled = false;
 
+	public Node3D GetDiscardPile()
+	{
+		return GetNode<Node3D>("/root/Main/Table/GameSurface/DiscardPilePosition");
+	}
+
+	public IAttack GetAttack()
+	{
+		if (_currentAttack == null)
+		{
+			throw new GameException("Current attack not initialized");
+		}
+
+		return _currentAttack;
+	}
+
+	public Dictionary<string, PlayerData> GetPlayerData()
+	{
+		return _playerData;
+	}
+
 	public MainScene()
 	{
+		var services = new ServiceCollection();
+		services.AddMediatR(c => c.RegisterServicesFromAssembly(typeof(MainScene).Assembly));
+		services.AddSingleton<IPlayerDataProvider, MainScene>(_ => this);
+		services.AddSingleton<IDiscardPileProvider, MainScene>(_ => this);
+		services.AddSingleton<IAttackProvider, MainScene>(_ => this);
+
+		services.AddTransient<IRequestHandler<DiscardTableCardsRequest>, DiscardTableCardsHandler>();
+
+		_serviceProvider = services.BuildServiceProvider();
+		//services.addkey
+		//services.adds
+
 		_cardScene = GD.Load<PackedScene>("res://scenes/card.tscn");
 		_playerData = [];
 		_cardPhysicsCooldownIteration = 0;
+	}
+
+	
+	protected override void Dispose(bool disposing)
+	{
+		base.Dispose(disposing);
+		_serviceProvider.Dispose();
 	}
 
 	public override void _EnterTree()
@@ -145,7 +249,8 @@ public partial class MainScene : Node3D
 		{
 			case AttackState.BeatenOff:
 				{
-					DiscardTableCards();
+					var mediator = _serviceProvider.GetRequiredService<IMediator>();
+					mediator.Send(new DiscardTableCardsRequest()).GetAwaiter().GetResult();
 					break;
 				}
 			case AttackState.Successful:
@@ -176,26 +281,28 @@ public partial class MainScene : Node3D
 		}
 	}
 
-	private void DiscardTableCards()
-	{
-		var discardPile = GetNode<Node3D>("/root/Main/Table/GameSurface/DiscardPilePosition");
+	
 
-		var attackPlayerIds = _currentAttack!.Attackers.Select(a => a.Id).Union([_currentAttack.Defender.Id]);
+	//private void DiscardTableCards()
+	//{
+	//	var discardPile = GetNode<Node3D>("/root/Main/Table/GameSurface/DiscardPilePosition");
 
-		foreach (var id in attackPlayerIds)
-		{
-			var tableCards = _playerData[id!].CardScenes.Where(c => c.CardState == CardState.InAttack).ToList();
+	//	var attackPlayerIds = _currentAttack!.Attackers.Select(a => a.Id).Union([_currentAttack.Defender.Id]);
 
-			foreach (var tableCard in tableCards)
-			{
-				GD.Print($"Discarding {tableCard.Card}");
+	//	foreach (var id in attackPlayerIds)
+	//	{
+	//		var tableCards = _playerData[id!].CardScenes.Where(c => c.CardState == CardState.InAttack).ToList();
 
-				MoveCard(tableCard, discardPile.GlobalPosition);
-				RotateCard(tableCard, CardScene.FaceDownDiscardedDegrees);
-				tableCard.CardState = CardState.Discarded;
-			}
-		}
-	}
+	//		foreach (var tableCard in tableCards)
+	//		{
+	//			GD.Print($"Discarding {tableCard.Card}");
+
+ //               tableCard.Move(discardPile.GlobalPosition);
+ //               tableCard.Rotate(CardScene.FaceDownDiscardedDegrees);
+	//			tableCard.CardState = CardState.Discarded;
+	//		}
+	//	}
+	//}
 
 	private void RemoveCardScenes()
 	{
@@ -372,8 +479,8 @@ public partial class MainScene : Node3D
 
 		var trumpCard = GetNode<Node3D>("/root/Main/Table/GameSurface/Talon/TrumpCardPosition");
 
-		MoveCard(cardScene, trumpCard.GlobalPosition);
-		RotateCard(cardScene, CardScene.TrumpCardFaceUpDegrees);
+		cardScene.Move(trumpCard.GlobalPosition);
+		cardScene.Rotate(CardScene.TrumpCardFaceUpDegrees);
 
 		cardScene.SetPhysicsProcess(_isAnimationEnabled);
 		cardScene.AddToGroup("trumpCard");
@@ -388,8 +495,8 @@ public partial class MainScene : Node3D
 
 		var talon = GetNode<Node3D>("/root/Main/Table/GameSurface/Talon/TalonPosition");
 
-		MoveCard(cardScene, talon.GlobalPosition);
-		RotateCard(cardScene, CardScene.FaceDownDegrees);
+		cardScene.Move(talon.GlobalPosition);
+		cardScene.Rotate(CardScene.FaceDownDegrees);
 
 		cardScene.SetPhysicsProcess(_isAnimationEnabled);
 		cardScene.GetNode<Sprite3D>("Back").SortingOffset = 1;
@@ -461,7 +568,7 @@ public partial class MainScene : Node3D
 			foreach (var (existingCardScene, offset) in inHandCards.Zip(offsets))
 			{
 				var targetPosition = playerData.GlobalPosition + offset;
-				MoveCard(existingCardScene, targetPosition);
+				existingCardScene.Move(targetPosition);
 			}
 
 			if (_isAnimationEnabled)
@@ -470,6 +577,8 @@ public partial class MainScene : Node3D
 			}
 		}
 	}
+
+	// TODO set animation enabled from main as event to card scene childrenb
 
 	private CardScene InstantiateAndInitializeCardScene(Card card)
 	{
@@ -585,8 +694,8 @@ public partial class MainScene : Node3D
 	{
 		var position = GetCardGlobalPositionOnTable();
 
-		MoveCard(cardScene, position);
-		RotateCard(cardScene, CardScene.FaceUpDegrees);
+		cardScene.Move(position);
+		cardScene.Rotate(CardScene.FaceUpDegrees);
 
 		if (IsDefending())
 		{
@@ -595,30 +704,6 @@ public partial class MainScene : Node3D
 
 		cardScene.CardState = CardState.InAttack;
 		cardScene.GetNode<MeshInstance3D>("MeshInstance3D").Show();
-	}
-
-	private void RotateCard(CardScene cardScene, Vector3 rotationDegrees)
-	{
-		if (_isAnimationEnabled)
-		{
-			cardScene.TargetRotationDegrees = rotationDegrees;
-		}
-		else
-		{
-			cardScene.RotationDegrees = rotationDegrees;
-		}
-	}
-
-	private void MoveCard(CardScene cardScene, Vector3 position)
-	{
-		if (_isAnimationEnabled)
-		{
-			cardScene.TargetPosition = position;
-		}
-		else
-		{
-			cardScene.GlobalPosition = position;
-		}
 	}
 
 	private IEnumerable<Vector3> GetCardOffsets(int count)

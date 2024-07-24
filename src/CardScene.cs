@@ -37,6 +37,8 @@ public partial class CardScene : StaticBody3D
 
 	private DateTime _physicsCooldownExpiration = DateTime.UtcNow;
 
+	public bool IsAnimationEnabled { get; set; }
+
 	public void Initialize(Card card)
 	{
 		Card = card;
@@ -104,4 +106,28 @@ public partial class CardScene : StaticBody3D
 
 		_physicsCooldownExpiration = cooldownStart + cooldown;
 	}
+
+    public void Rotate(Vector3 rotationDegrees)
+    {
+        if (IsAnimationEnabled)
+        {
+            TargetRotationDegrees = rotationDegrees;
+        }
+        else
+        {
+            RotationDegrees = rotationDegrees;
+        }
+    }
+
+    public void Move(Vector3 position)
+    {
+        if (IsAnimationEnabled)
+        {
+            TargetPosition = position;
+        }
+        else
+        {
+            GlobalPosition = position;
+        }
+    }
 }
