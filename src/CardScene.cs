@@ -14,9 +14,6 @@ public enum CardState
 
 public partial class CardScene : StaticBody3D
 {
-	public static readonly Vector3 TrumpCardFaceUpDegrees = new(-90, 45, 0);
-	public static readonly Vector3 FaceUpDegrees = new(-90, -90, 0);
-
 	public Card? Card { get; private set; }
 
 	public Vector3 TargetPosition { get; set; }

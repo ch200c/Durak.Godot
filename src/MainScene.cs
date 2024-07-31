@@ -203,7 +203,7 @@ public partial class MainScene : Node3D, IDiscardPileProvider, IAttackProvider, 
 				}
 			case AttackState.Successful:
 				{
-					RemoveCardScenes();
+					RemoveCardScenes(); //todo handler
 					break;
 				}
 			default:
@@ -401,12 +401,10 @@ public partial class MainScene : Node3D, IDiscardPileProvider, IAttackProvider, 
 
 		AddChild(cardScene);
 
-		var trumpCard = GetNode<Node3D>("/root/Main/Table/GameSurface/Deck/TrumpCardPosition");
+		var trumpCard = GetNode<Node3D>("/root/Main/Table/GameSurface/Deck/TrumpCard");
 
 		cardScene.MoveGlobally(trumpCard.GlobalPosition);
-		cardScene.RotateDegrees(CardScene.TrumpCardFaceUpDegrees);
-		// cardScene.GlobalPosition = trumpCard.GlobalPosition;
-		// cardScene.RotationDegrees = CardScene.TrumpCardFaceUpDegrees;
+		cardScene.RotateDegrees(trumpCard.RotationDegrees);
 
 		cardScene.IsAnimationEnabled = _isAnimationEnabled;
 		cardScene.SetPhysicsProcess(false);
@@ -422,9 +420,6 @@ public partial class MainScene : Node3D, IDiscardPileProvider, IAttackProvider, 
 		AddChild(cardScene);
 
 		var talon = GetNode<Node3D>("/root/Main/Table/GameSurface/Deck/Talon");
-
-		// cardScene.GlobalPosition = talon.GlobalPosition;
-		// cardScene.RotationDegrees = CardScene.FaceDownDegrees;
 
 		cardScene.MoveGlobally(talon.GlobalPosition);
 		cardScene.RotateDegrees(talon.RotationDegrees);
@@ -550,28 +545,28 @@ public partial class MainScene : Node3D, IDiscardPileProvider, IAttackProvider, 
 		return new AddedCardData(cardScene, isNewCard, isPlayerCard);
 	}
 
-	private Vector3 GetCardGlobalPositionOnTable()
+	private Node3D GetCardPlacementOnTable()
 	{
 		var path = new StringBuilder("/root/Main/Table/GameSurface/AttackingAndDefending/");
 		var position = _currentAttack!.Cards.Count switch
 		{
-			0 => "AttackingCard1Position",
-			1 => "DefendingCard1Position",
-			2 => "AttackingCard2Position",
-			3 => "DefendingCard2Position",
-			4 => "AttackingCard3Position",
-			5 => "DefendingCard3Position",
-			6 => "AttackingCard4Position",
-			7 => "DefendingCard4Position",
-			8 => "AttackingCard5Position",
-			9 => "DefendingCard5Position",
-			10 => "AttackingCard6Position",
-			11 => "DefendingCard6Position",
+			0 => "AttackingCard1",
+			1 => "DefendingCard1",
+			2 => "AttackingCard2",
+			3 => "DefendingCard2",
+			4 => "AttackingCard3",
+			5 => "DefendingCard3",
+			6 => "AttackingCard4",
+			7 => "DefendingCard4",
+			8 => "AttackingCard5",
+			9 => "DefendingCard5",
+			10 => "AttackingCard6",
+			11 => "DefendingCard6",
 			_ => throw new GameException("Invalid amount of cards in current attack")
 		};
 
 		path.Append(position);
-		return GetNode<Node3D>(path.ToString()).GlobalPosition;
+		return GetNode<Node3D>(path.ToString());
 	}
 
 	private bool IsDefending()
@@ -624,10 +619,10 @@ public partial class MainScene : Node3D, IDiscardPileProvider, IAttackProvider, 
 
 	private void PlaceCardOnTable(CardScene cardScene)
 	{
-		var position = GetCardGlobalPositionOnTable();
+		var placement = GetCardPlacementOnTable();
 
-		cardScene.MoveGlobally(position);
-		cardScene.RotateDegrees(CardScene.FaceUpDegrees);
+		cardScene.MoveGlobally(placement.GlobalPosition);
+		cardScene.RotateDegrees(placement.RotationDegrees);
 
 		if (IsDefending())
 		{

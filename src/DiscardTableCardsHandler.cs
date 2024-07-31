@@ -6,6 +6,13 @@ using System.Threading.Tasks;
 
 namespace Durak.Godot;
 
+//public class DiscardTableCardsRequest : IRequest { };
+
+//public class DiscardTableCardsHandler : IRequestHandler<DiscardTableCardsRequest>
+//{
+
+//}
+
 public class DiscardTableCardsRequest : IRequest { };
 
 public class DiscardTableCardsHandler : IRequestHandler<DiscardTableCardsRequest>
