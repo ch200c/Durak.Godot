@@ -14,8 +14,6 @@ public enum CardState
 
 public partial class CardScene : StaticBody3D
 {
-    public static readonly Vector3 FaceDownDiscardedDegrees = new(90, 45, 0);
-    public static readonly Vector3 FaceDownDegrees = new(90, -45, 0);
 	public static readonly Vector3 TrumpCardFaceUpDegrees = new(-90, 45, 0);
 	public static readonly Vector3 FaceUpDegrees = new(-90, -90, 0);
 
@@ -85,7 +83,7 @@ public partial class CardScene : StaticBody3D
 	{
 		if (DateTime.UtcNow >= _physicsCooldownExpiration)
 		{
-			Position = Position.Lerp(TargetPosition, (float)delta * _positionLerpWeight);
+            GlobalPosition = Position.Lerp(TargetPosition, (float)delta * _positionLerpWeight);
 			RotationDegrees = RotationDegrees.Lerp(TargetRotationDegrees, (float)delta * _rotationLerpWeight);
 		}
 	}
@@ -107,7 +105,7 @@ public partial class CardScene : StaticBody3D
 		_physicsCooldownExpiration = cooldownStart + cooldown;
 	}
 
-    public void Rotate(Vector3 rotationDegrees)
+    public void RotateDegrees(Vector3 rotationDegrees)
     {
         if (IsAnimationEnabled)
         {
@@ -119,7 +117,7 @@ public partial class CardScene : StaticBody3D
         }
     }
 
-    public void Move(Vector3 position)
+    public void MoveGlobally(Vector3 position)
     {
         if (IsAnimationEnabled)
         {

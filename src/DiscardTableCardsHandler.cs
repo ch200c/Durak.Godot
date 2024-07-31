@@ -29,20 +29,22 @@ public class DiscardTableCardsHandler : IRequestHandler<DiscardTableCardsRequest
 		var attack = _attackProvider.GetAttack();
 		var attackPlayerIds = attack.Attackers.Select(a => a.Id).Union([attack.Defender.Id]);
 		var playerData = _playerDataProvider.GetPlayerData();
+		var discardPile = _discardPileProvider.GetDiscardPile();
 
-		foreach (var id in attackPlayerIds)
+        foreach (var id in attackPlayerIds)
 		{
-			var tableCards = playerData[id!].CardScenes.Where(c => c.CardState == CardState.InAttack).ToList();
+			var tableCards = playerData[id].CardScenes.Where(c => c.CardState == CardState.InAttack).ToList();
 
 			foreach (var tableCard in tableCards)
 			{
 				GD.Print($"Discarding {tableCard.Card}");
 
-				tableCard.Move(_discardPileProvider.GetDiscardPile().GlobalPosition);
-				tableCard.Rotate(CardScene.FaceDownDiscardedDegrees);
+				tableCard.MoveGlobally(discardPile.GlobalPosition);
+				tableCard.RotateDegrees(discardPile.RotationDegrees);
 				tableCard.CardState = CardState.Discarded;
 			}
 		}
+
 		GD.Print(nameof(DiscardTableCardsHandler), "handling complete");
 		return Task.CompletedTask;
 	}

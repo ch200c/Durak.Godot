@@ -62,7 +62,7 @@ public partial class MainScene : Node3D, IDiscardPileProvider, IAttackProvider, 
 
 	public Node3D GetDiscardPile()
 	{
-		return GetNode<Node3D>("/root/Main/Table/GameSurface/DiscardPilePosition");
+		return GetNode<Node3D>("/root/Main/Table/GameSurface/DiscardPile");
 	}
 
 	public IAttack GetAttack()
@@ -401,10 +401,10 @@ public partial class MainScene : Node3D, IDiscardPileProvider, IAttackProvider, 
 
 		AddChild(cardScene);
 
-		var trumpCard = GetNode<Node3D>("/root/Main/Table/GameSurface/Talon/TrumpCardPosition");
+		var trumpCard = GetNode<Node3D>("/root/Main/Table/GameSurface/Deck/TrumpCardPosition");
 
-		cardScene.Move(trumpCard.GlobalPosition);
-		cardScene.Rotate(CardScene.TrumpCardFaceUpDegrees);
+		cardScene.MoveGlobally(trumpCard.GlobalPosition);
+		cardScene.RotateDegrees(CardScene.TrumpCardFaceUpDegrees);
 		// cardScene.GlobalPosition = trumpCard.GlobalPosition;
 		// cardScene.RotationDegrees = CardScene.TrumpCardFaceUpDegrees;
 
@@ -421,13 +421,13 @@ public partial class MainScene : Node3D, IDiscardPileProvider, IAttackProvider, 
 
 		AddChild(cardScene);
 
-		var talon = GetNode<Node3D>("/root/Main/Table/GameSurface/Talon/TalonPosition");
+		var talon = GetNode<Node3D>("/root/Main/Table/GameSurface/Deck/Talon");
 
 		// cardScene.GlobalPosition = talon.GlobalPosition;
 		// cardScene.RotationDegrees = CardScene.FaceDownDegrees;
 
-		cardScene.Move(talon.GlobalPosition);
-		cardScene.Rotate(CardScene.FaceDownDegrees);
+		cardScene.MoveGlobally(talon.GlobalPosition);
+		cardScene.RotateDegrees(talon.RotationDegrees);
 
 		cardScene.IsAnimationEnabled = _isAnimationEnabled;
 		cardScene.SetPhysicsProcess(false);
@@ -452,7 +452,7 @@ public partial class MainScene : Node3D, IDiscardPileProvider, IAttackProvider, 
 			((CardScene)GetTree().GetFirstNodeInGroup("trumpCard")).Hide();
 		}
 
-		var talon = GetNode<Node3D>("/root/Main/Table/GameSurface/Talon/TalonPosition");
+		var talon = GetNode<Node3D>("/root/Main/Table/GameSurface/Deck/Talon");
 		var playerData = _playerData[((Player)sender!).Id];
 
 		foreach (var card in e.Cards)
@@ -486,7 +486,7 @@ public partial class MainScene : Node3D, IDiscardPileProvider, IAttackProvider, 
 
 				if (isNewCard)
 				{
-					cardScene.RotationDegrees = CardScene.FaceDownDegrees;
+					cardScene.RotationDegrees = talon.RotationDegrees;
 					cardScene.GlobalPosition = talon.GlobalPosition;
 				}
 			}
@@ -501,7 +501,7 @@ public partial class MainScene : Node3D, IDiscardPileProvider, IAttackProvider, 
 			foreach (var (existingCardScene, offset) in inHandCards.Zip(offsets))
 			{
 				var targetPosition = playerData.GlobalPosition + offset;
-				existingCardScene.Move(targetPosition);
+				existingCardScene.MoveGlobally(targetPosition);
 			}
 
 			if (_isAnimationEnabled)
@@ -626,8 +626,8 @@ public partial class MainScene : Node3D, IDiscardPileProvider, IAttackProvider, 
 	{
 		var position = GetCardGlobalPositionOnTable();
 
-		cardScene.Move(position);
-		cardScene.Rotate(CardScene.FaceUpDegrees);
+		cardScene.MoveGlobally(position);
+		cardScene.RotateDegrees(CardScene.FaceUpDegrees);
 
 		if (IsDefending())
 		{
