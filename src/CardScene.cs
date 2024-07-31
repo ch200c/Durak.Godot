@@ -7,6 +7,7 @@ namespace Durak.Godot;
 
 public enum CardState
 {
+	InDeck,
 	InHand,
 	InAttack,
 	Discarded
@@ -34,14 +35,14 @@ public partial class CardScene : StaticBody3D
 
 	public bool IsAnimationEnabled { get; set; }
 
-	public void Initialize(Card card)
+	public void Initialize(Card card, CardState cardState)
 	{
 		Card = card;
 		
 		var texture = GetTexture(Card);
 		GetNode<Sprite3D>("Front").Texture = texture;
 
-        CardState = CardState.InHand;
+        CardState = cardState;
     }
 
 	private static Texture2D GetTexture(Card card)

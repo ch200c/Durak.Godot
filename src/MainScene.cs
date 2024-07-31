@@ -36,6 +36,8 @@ public partial class MainScene : Node3D, IDiscardPileProvider, IAttackProvider, 
 	private Deck? _deck;
 	private ServiceProvider _serviceProvider;
 
+	private IMediator Mediator => _serviceProvider.GetRequiredService<IMediator>();
+
 	[Export]
 	private float _cardWidth = 0.06f;
 
@@ -87,7 +89,8 @@ public partial class MainScene : Node3D, IDiscardPileProvider, IAttackProvider, 
 		services.AddSingleton<IPlayerDataProvider, MainScene>(_ => this);
 		services.AddSingleton<IDiscardPileProvider, MainScene>(_ => this);
 		services.AddSingleton<IAttackProvider, MainScene>(_ => this);
-		services.AddTransient<IRequestHandler<DiscardTableCardsRequest>, DiscardTableCardsHandler>();
+		services.AddTransient<IRequestHandler<BeatenOffAttackRequest>, BeatenOffAttackHandler>();
+		services.AddTransient<IRequestHandler<SuccessfulAttackRequest>, SuccessfulAttackHandler>();
 
 		_serviceProvider = services.BuildServiceProvider();
 		_cardScene = GD.Load<PackedScene>("res://scenes/card.tscn");
@@ -197,13 +200,12 @@ public partial class MainScene : Node3D, IDiscardPileProvider, IAttackProvider, 
 		{
 			case AttackState.BeatenOff:
 				{
-					var mediator = _serviceProvider.GetRequiredService<IMediator>();
-					mediator.Send(new DiscardTableCardsRequest()).GetAwaiter().GetResult();
+					Mediator.Send(new BeatenOffAttackRequest()).GetAwaiter().GetResult();
 					break;
 				}
 			case AttackState.Successful:
 				{
-					RemoveCardScenes(); //todo handler
+					Mediator.Send(new SuccessfulAttackRequest()).GetAwaiter().GetResult();
 					break;
 				}
 			default:
@@ -226,22 +228,6 @@ public partial class MainScene : Node3D, IDiscardPileProvider, IAttackProvider, 
 			var nonDiscardedCards = playerData.Value.CardScenes.Where(c => c.CardState != CardState.Discarded).Select(c => $"{c.Card} {c.CardState}");
 			var discardedCards = playerData.Value.CardScenes.Where(c => c.CardState == CardState.Discarded).Select(c => $"{c.Card}");
 			GD.Print($"{playerData.Key} {string.Join(", ", nonDiscardedCards)}, Discarded: {string.Join(", ", discardedCards)}");
-		}
-	}
-
-	private void RemoveCardScenes()
-	{
-		var attackPlayerIds = _currentAttack!.Attackers.Select(a => a.Id).Union([_currentAttack.Defender.Id]);
-
-		foreach (var id in attackPlayerIds)
-		{
-			var tableCards = _playerData[id].CardScenes.Where(c => c.CardState == CardState.InAttack).ToList();
-
-			foreach (var tableCard in tableCards)
-			{
-				GD.Print($"Discarding {tableCard.Card}");
-				tableCard.CardState = CardState.Discarded;
-			}
 		}
 	}
 
@@ -397,7 +383,7 @@ public partial class MainScene : Node3D, IDiscardPileProvider, IAttackProvider, 
 	{
 		GD.Print($"Trump: {card}");
 		var cardScene = _cardScene.Instantiate<CardScene>();
-		cardScene.Initialize(card); //todo not in hand if not dealt
+		cardScene.Initialize(card, CardState.InDeck);
 
 		AddChild(cardScene);
 
@@ -509,7 +495,7 @@ public partial class MainScene : Node3D, IDiscardPileProvider, IAttackProvider, 
 	private CardScene InstantiateAndInitializeCardScene(Card card)
 	{
 		var cardScene = _cardScene.Instantiate<CardScene>();
-		cardScene.Initialize(card);
+		cardScene.Initialize(card, CardState.InHand);
 		cardScene.IsAnimationEnabled = _isAnimationEnabled;
 
 		AddChild(cardScene);

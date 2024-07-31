@@ -6,22 +6,15 @@ using System.Threading.Tasks;
 
 namespace Durak.Godot;
 
-//public class DiscardTableCardsRequest : IRequest { };
+public class BeatenOffAttackRequest : IRequest { };
 
-//public class DiscardTableCardsHandler : IRequestHandler<DiscardTableCardsRequest>
-//{
-
-//}
-
-public class DiscardTableCardsRequest : IRequest { };
-
-public class DiscardTableCardsHandler : IRequestHandler<DiscardTableCardsRequest>
+public class BeatenOffAttackHandler : IRequestHandler<BeatenOffAttackRequest>
 {
 	private readonly IDiscardPileProvider _discardPileProvider;
 	private readonly IAttackProvider _attackProvider;
 	private readonly IPlayerDataProvider _playerDataProvider;
 	
-	public DiscardTableCardsHandler(
+	public BeatenOffAttackHandler(
 		IDiscardPileProvider discardPileProvider, IAttackProvider attackProvider, IPlayerDataProvider playerDataProvider)
 	{
 		_discardPileProvider = discardPileProvider;
@@ -29,9 +22,9 @@ public class DiscardTableCardsHandler : IRequestHandler<DiscardTableCardsRequest
 		_playerDataProvider = playerDataProvider;
 	}
 
-	public Task Handle(DiscardTableCardsRequest request, CancellationToken cancellationToken)
+	public Task Handle(BeatenOffAttackRequest request, CancellationToken cancellationToken)
 	{
-		GD.Print(nameof(DiscardTableCardsHandler), "handling started");
+		GD.Print(nameof(BeatenOffAttackHandler), "handling started");
 
 		var attack = _attackProvider.GetAttack();
 		var attackPlayerIds = attack.Attackers.Select(a => a.Id).Union([attack.Defender.Id]);
@@ -52,7 +45,7 @@ public class DiscardTableCardsHandler : IRequestHandler<DiscardTableCardsRequest
 			}
 		}
 
-		GD.Print(nameof(DiscardTableCardsHandler), "handling complete");
+		GD.Print(nameof(BeatenOffAttackHandler), "handling complete");
 		return Task.CompletedTask;
 	}
 }
