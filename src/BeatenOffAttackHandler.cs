@@ -42,7 +42,8 @@ public class BeatenOffAttackHandler : IRequestHandler<BeatenOffAttackRequest>
 				tableCard.MoveGlobally(discardPile.GlobalPosition);
 				tableCard.RotateDegrees(discardPile.RotationDegrees);
 				tableCard.CardState = CardState.Discarded;
-			}
+                playerData[id].CardScenes.Remove(tableCard);
+            }
 		}
 
 		GD.Print(nameof(BeatenOffAttackHandler), "handling complete");

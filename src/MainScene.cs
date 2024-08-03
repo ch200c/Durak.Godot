@@ -24,6 +24,10 @@ public interface IPlayerDataProvider
 	Dictionary<string, PlayerData> GetPlayerData();
 }
 
+//public class Reset : INotification 
+//{ 
+//}
+
 public partial class MainScene : Node3D, IDiscardPileProvider, IAttackProvider, IPlayerDataProvider
 {
 	private const string Player1Id = "P1";
@@ -90,6 +94,7 @@ public partial class MainScene : Node3D, IDiscardPileProvider, IAttackProvider, 
 		services.AddSingleton<IDiscardPileProvider, MainScene>(_ => this);
 		services.AddSingleton<IAttackProvider, MainScene>(_ => this);
 		services.AddTransient<IRequestHandler<BeatenOffAttackRequest>, BeatenOffAttackHandler>();
+		//services.AddSingleton<INotificationHandler<Reset>, BeatenOffAttackHandler>();
 		services.AddTransient<IRequestHandler<SuccessfulAttackRequest>, SuccessfulAttackHandler>();
 
 		_serviceProvider = services.BuildServiceProvider();
@@ -275,6 +280,8 @@ public partial class MainScene : Node3D, IDiscardPileProvider, IAttackProvider, 
 		{
 			cardScene.QueueFree();
 		}
+
+		//Mediator.Send(new Reset()).GetAwaiter().GetResult();
 
 		GetTree().ReloadCurrentScene();
 	}
