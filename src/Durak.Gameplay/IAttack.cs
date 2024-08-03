@@ -15,6 +15,8 @@ public interface IAttack
 
     AttackState State { get; }
 
+    bool IsDefending { get; }
+
     void AddAttacker(Player attacker);
 
     void Play(Player player, Card card);

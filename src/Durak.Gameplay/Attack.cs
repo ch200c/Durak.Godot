@@ -28,6 +28,8 @@ public class Attack : IAttack
 
     public AttackState State => _state;
 
+    public bool IsDefending => _cards.Count % 2 != 0;
+
     public Attack(Player principalAttacker, Player defender, char trumpSuit)
     {
         _defender = defender;
@@ -102,7 +104,7 @@ public class Attack : IAttack
             return new CanPlayResult(false, "Cannot play already played card");
         }
 
-        var isAttacking = _cards.Count % 2 == 0;
+        var isAttacking = !IsDefending;
 
         if (isAttacking && _cards.Count > 0 && _cards.TrueForAll(c => c.Card.Rank != card.Rank))
         {

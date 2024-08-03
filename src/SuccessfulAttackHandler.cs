@@ -20,18 +20,15 @@ public class SuccessfulAttackHandler : IRequestHandler<SuccessfulAttackRequest>
 
     public Task Handle(SuccessfulAttackRequest request, CancellationToken cancellationToken)
     {
-		var attack = _attackProvider.GetAttack();
-		var playerData = _playerDataProvider.GetPlayerData();
-        var attackPlayerIds = attack.Attackers.Select(a => a.Id).Union([attack.Defender.Id]);
+        var attackPlayerIds = _attackProvider.Attack.Attackers.Select(a => a.Id).Union([_attackProvider.Attack.Defender.Id]);
 
         foreach (var id in attackPlayerIds)
         {
-            var tableCards = playerData[id].CardScenes.Where(c => c.CardState == CardState.InAttack).ToList();
+            var tableCards = _playerDataProvider.PlayerData[id].CardScenes.Where(c => c.CardState == CardState.InAttack).ToList();
 
             foreach (var tableCard in tableCards)
             {
-                //GD.Print($"Discarding {tableCard.Card}");
-                tableCard.CardState = CardState.Discarded;
+                tableCard.CardState = CardState.Discarded; // todo
             }
         }
 
