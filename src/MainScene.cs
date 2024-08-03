@@ -81,7 +81,6 @@ public partial class MainScene : Node3D, IDiscardPileProvider, IAttackProvider, 
 		services.AddSingleton<IAttackProvider, MainScene>(_ => this);
 		services.AddTransient<IRequestHandler<BeatenOffAttackRequest>, BeatenOffAttackHandler>();
 		//services.AddSingleton<INotificationHandler<Reset>, BeatenOffAttackHandler>();
-		services.AddTransient<IRequestHandler<SuccessfulAttackRequest>, SuccessfulAttackHandler>();
 
 		_serviceProvider = services.BuildServiceProvider();
 		_cardScene = GD.Load<PackedScene>("res://scenes/card.tscn");
@@ -196,7 +195,6 @@ public partial class MainScene : Node3D, IDiscardPileProvider, IAttackProvider, 
 				}
 			case AttackState.Successful:
 				{
-					Mediator.Send(new SuccessfulAttackRequest()).GetAwaiter().GetResult();
 					break;
 				}
 			default:
@@ -435,7 +433,9 @@ public partial class MainScene : Node3D, IDiscardPileProvider, IAttackProvider, 
 
 			var (cardScene, isNewCard, isPlayerCard) = GetAddedCardData(playerData, card);
 
-			if (isNewCard)
+            GD.Print($"isNew: {isNewCard}, isPlayerCard: {isPlayerCard}");
+
+            if (isNewCard)
 			{
 				cardScene = InstantiateAndInitializeCardScene(card);
 			}
