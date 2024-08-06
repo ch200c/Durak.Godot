@@ -37,52 +37,53 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.275, 0.1, -0.275)
 [node name="Player3Position" type="Node3D" parent="GameSurface/ThreePlayerGame"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.275, 0.1, 0.275)
 
-[node name="Talon" type="Node3D" parent="GameSurface"]
+[node name="Deck" type="Node3D" parent="GameSurface"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.07, 0, 0.2)
 
-[node name="TrumpCardPosition" type="Node3D" parent="GameSurface/Talon"]
+[node name="TrumpCard" type="Node3D" parent="GameSurface/Deck"]
+transform = Transform3D(0.707107, -0.707107, -3.09086e-08, 0, -4.37114e-08, 1, -0.707107, -0.707107, -3.09086e-08, 0, 0, 0)
 
-[node name="TalonPosition" type="Node3D" parent="GameSurface/Talon"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.02, 0.002, 0.02)
+[node name="Talon" type="Node3D" parent="GameSurface/Deck"]
+transform = Transform3D(0.707107, -0.707107, 3.09086e-08, 0, -4.37114e-08, -1, 0.707107, 0.707107, -3.09086e-08, 0.02, 0.002, 0.02)
 
-[node name="DiscardPilePosition" type="Node3D" parent="GameSurface"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.07, 0, 0.2)
+[node name="DiscardPile" type="Node3D" parent="GameSurface"]
+transform = Transform3D(0.707107, -0.707107, 3.09086e-08, 0, -4.37114e-08, -1, 0.707107, 0.707107, -3.09086e-08, 0.07, 0, 0.2)
 
 [node name="AttackingAndDefending" type="Node3D" parent="GameSurface"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.08)
 
-[node name="AttackingCard1Position" type="Node3D" parent="GameSurface/AttackingAndDefending"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.06, 0, -0.1)
+[node name="AttackingCard1" type="Node3D" parent="GameSurface/AttackingAndDefending"]
+transform = Transform3D(-4.37114e-08, 1, 4.37114e-08, 0, -4.37114e-08, 1, 1, 4.37114e-08, 1.91069e-15, 0.06, 0, -0.1)
 
-[node name="DefendingCard1Position" type="Node3D" parent="GameSurface/AttackingAndDefending"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.04, 0.00199997, -0.08)
+[node name="DefendingCard1" type="Node3D" parent="GameSurface/AttackingAndDefending"]
+transform = Transform3D(-4.37114e-08, 1, 4.37114e-08, 0, -4.37114e-08, 1, 1, 4.37114e-08, 1.91069e-15, 0.04, 0.00199997, -0.08)
 
-[node name="AttackingCard2Position" type="Node3D" parent="GameSurface/AttackingAndDefending"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.06, 0, 0)
+[node name="AttackingCard2" type="Node3D" parent="GameSurface/AttackingAndDefending"]
+transform = Transform3D(-4.37114e-08, 1, 4.37114e-08, 0, -4.37114e-08, 1, 1, 4.37114e-08, 1.91069e-15, 0.06, 0, 0)
 
-[node name="DefendingCard2Position" type="Node3D" parent="GameSurface/AttackingAndDefending"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.04, 0.00199997, 0.02)
+[node name="DefendingCard2" type="Node3D" parent="GameSurface/AttackingAndDefending"]
+transform = Transform3D(-4.37114e-08, 1, 4.37114e-08, 0, -4.37114e-08, 1, 1, 4.37114e-08, 1.91069e-15, 0.04, 0.00199997, 0.02)
 
-[node name="AttackingCard3Position" type="Node3D" parent="GameSurface/AttackingAndDefending"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.06, 0, 0.1)
+[node name="AttackingCard3" type="Node3D" parent="GameSurface/AttackingAndDefending"]
+transform = Transform3D(-4.37114e-08, 1, 4.37114e-08, 0, -4.37114e-08, 1, 1, 4.37114e-08, 1.91069e-15, 0.06, 0, 0.1)
 
-[node name="DefendingCard3Position" type="Node3D" parent="GameSurface/AttackingAndDefending"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.04, 0.00199997, 0.12)
+[node name="DefendingCard3" type="Node3D" parent="GameSurface/AttackingAndDefending"]
+transform = Transform3D(-4.37114e-08, 1, 4.37114e-08, 0, -4.37114e-08, 1, 1, 4.37114e-08, 1.91069e-15, 0.04, 0.00199997, 0.12)
 
-[node name="AttackingCard4Position" type="Node3D" parent="GameSurface/AttackingAndDefending"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06, 0, -0.1)
+[node name="AttackingCard4" type="Node3D" parent="GameSurface/AttackingAndDefending"]
+transform = Transform3D(-4.37114e-08, 1, 4.37114e-08, 0, -4.37114e-08, 1, 1, 4.37114e-08, 1.91069e-15, -0.06, 0, -0.1)
 
-[node name="DefendingCard4Position" type="Node3D" parent="GameSurface/AttackingAndDefending"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.08, 0.00199997, -0.08)
+[node name="DefendingCard4" type="Node3D" parent="GameSurface/AttackingAndDefending"]
+transform = Transform3D(-4.37114e-08, 1, 4.37114e-08, 0, -4.37114e-08, 1, 1, 4.37114e-08, 1.91069e-15, -0.08, 0.00199997, -0.08)
 
-[node name="AttackingCard5Position" type="Node3D" parent="GameSurface/AttackingAndDefending"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06, 0, 0)
+[node name="AttackingCard5" type="Node3D" parent="GameSurface/AttackingAndDefending"]
+transform = Transform3D(-4.37114e-08, 1, 4.37114e-08, 0, -4.37114e-08, 1, 1, 4.37114e-08, 1.91069e-15, -0.06, 0, 0)
 
-[node name="DefendingCard5Position" type="Node3D" parent="GameSurface/AttackingAndDefending"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.08, 0.00199997, 0.02)
+[node name="DefendingCard5" type="Node3D" parent="GameSurface/AttackingAndDefending"]
+transform = Transform3D(-4.37114e-08, 1, 4.37114e-08, 0, -4.37114e-08, 1, 1, 4.37114e-08, 1.91069e-15, -0.08, 0.00199997, 0.02)
 
-[node name="AttackingCard6Position" type="Node3D" parent="GameSurface/AttackingAndDefending"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06, 0, 0.1)
+[node name="AttackingCard6" type="Node3D" parent="GameSurface/AttackingAndDefending"]
+transform = Transform3D(-4.37114e-08, 1, 4.37114e-08, 0, -4.37114e-08, 1, 1, 4.37114e-08, 1.91069e-15, -0.06, 0, 0.1)
 
-[node name="DefendingCard6Position" type="Node3D" parent="GameSurface/AttackingAndDefending"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.08, 0.00199997, 0.12)
+[node name="DefendingCard6" type="Node3D" parent="GameSurface/AttackingAndDefending"]
+transform = Transform3D(-4.37114e-08, 1, 4.37114e-08, 0, -4.37114e-08, 1, 1, 4.37114e-08, 1.91069e-15, -0.08, 0.00199997, 0.12)

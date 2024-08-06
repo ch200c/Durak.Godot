@@ -7,6 +7,7 @@ namespace Durak.Godot;
 
 public enum CardState
 {
+	InDeck,
 	InHand,
 	InAttack,
 	Discarded
@@ -14,11 +15,6 @@ public enum CardState
 
 public partial class CardScene : StaticBody3D
 {
-    public static readonly Vector3 FaceDownDiscardedDegrees = new(90, 45, 0);
-    public static readonly Vector3 FaceDownDegrees = new(90, -45, 0);
-	public static readonly Vector3 TrumpCardFaceUpDegrees = new(-90, 45, 0);
-	public static readonly Vector3 FaceUpDegrees = new(-90, -90, 0);
-
 	public Card? Card { get; private set; }
 
 	public Vector3 TargetPosition { get; set; }
@@ -37,14 +33,16 @@ public partial class CardScene : StaticBody3D
 
 	private DateTime _physicsCooldownExpiration = DateTime.UtcNow;
 
-	public void Initialize(Card card)
+	public bool IsAnimationEnabled { get; set; }
+
+	public void Initialize(Card card, CardState cardState)
 	{
 		Card = card;
 		
 		var texture = GetTexture(Card);
 		GetNode<Sprite3D>("Front").Texture = texture;
 
-        CardState = CardState.InHand;
+        CardState = cardState;
     }
 
 	private static Texture2D GetTexture(Card card)
@@ -83,7 +81,7 @@ public partial class CardScene : StaticBody3D
 	{
 		if (DateTime.UtcNow >= _physicsCooldownExpiration)
 		{
-			Position = Position.Lerp(TargetPosition, (float)delta * _positionLerpWeight);
+            GlobalPosition = Position.Lerp(TargetPosition, (float)delta * _positionLerpWeight);
 			RotationDegrees = RotationDegrees.Lerp(TargetRotationDegrees, (float)delta * _rotationLerpWeight);
 		}
 	}
@@ -104,4 +102,28 @@ public partial class CardScene : StaticBody3D
 
 		_physicsCooldownExpiration = cooldownStart + cooldown;
 	}
+
+    public void RotateDegrees(Vector3 rotationDegrees)
+    {
+        if (IsAnimationEnabled)
+        {
+            TargetRotationDegrees = rotationDegrees;
+        }
+        else
+        {
+            RotationDegrees = rotationDegrees;
+        }
+    }
+
+    public void MoveGlobally(Vector3 position)
+    {
+        if (IsAnimationEnabled)
+        {
+            TargetPosition = position;
+        }
+        else
+        {
+            GlobalPosition = position;
+        }
+    }
 }

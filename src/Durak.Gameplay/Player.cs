@@ -7,15 +7,11 @@ public class Player
     public event EventHandler<CardsAddedEventArgs>? CardsAdded;
     public event EventHandler<CardRemovedEventArgs>? CardRemoved;
 
-    public string? Id { get; }
+    public string Id { get; }
 
     public IReadOnlyList<Card> Cards => _cards.AsReadOnly();
 
-    public Player() : this(null)
-    {
-    }
-
-    public Player(string? id)
+    public Player(string id)
     {
         Id = id;
         _cards = [];
