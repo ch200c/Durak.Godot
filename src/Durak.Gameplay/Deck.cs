@@ -12,6 +12,8 @@ public class Deck : IDeck
 
     public int Count => _cards.Count;
 
+    public event EventHandler<CardRemovedEventArgs>? CardRemoved;
+
     public Deck(ICardProvider cardProvider, ICardShuffler cardShuffler)
     {
         var cards = cardProvider.GetCards();
@@ -25,6 +27,12 @@ public class Deck : IDeck
 
     public bool TryDequeue([MaybeNullWhen(false)] out Card card)
     {
-        return _cards.TryDequeue(out card);
+        if (_cards.TryDequeue(out card))
+        {
+            CardRemoved?.Invoke(this, new CardRemovedEventArgs(card));
+            return true;
+        }
+
+        return false;
     }
 }

@@ -4,6 +4,8 @@ namespace Durak.Gameplay;
 
 public interface IDeck
 {
+    event EventHandler<CardRemovedEventArgs> CardRemoved;
+
     char TrumpSuit { get; }
 
     Card TrumpCard { get; }

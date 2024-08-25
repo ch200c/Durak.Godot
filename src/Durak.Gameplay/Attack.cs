@@ -15,7 +15,7 @@ public class Attack : IAttack
     private readonly Player _defender;
     private AttackState _state;
 
-    public event  EventHandler<AttackCardAddedEventArgs>? AttackCardAdded;
+    public event EventHandler<AttackCardAddedEventArgs>? AttackCardAdded;
     public event EventHandler? AttackEnded;
 
     public Player PrincipalAttacker => _attackers[0];

@@ -1,11 +1,11 @@
 using Godot;
-using System;
 
 namespace Durak.Godot;
 
 public partial class Camera : Camera3D
 {
-    public event EventHandler? Moved;
+    [Signal]
+    public delegate void MovedEventHandler();
 
     [Export]
     private float _lookAroundSpeed = 0.004f;
@@ -43,11 +43,7 @@ public partial class Camera : Camera3D
             _rotationX += mouseMotion.Relative.X * _lookAroundSpeed;
             _rotationY += mouseMotion.Relative.Y * _lookAroundSpeed;
 
-            // Reset rotation
-            var transform = Transform;
-            transform.Basis = Basis.Identity;
-            Transform = transform;
-
+            ResetRotation();
             RotateObjectLocal(Vector3.Up, _rotationX);
             RotateObjectLocal(Vector3.Right, _rotationY);
             isMoving = true;
@@ -59,15 +55,13 @@ public partial class Camera : Camera3D
             GlobalPosition = _presetPosition1;
             isMoving = true;
         }
-
-        if (Input.IsActionPressed("f2"))
+        else if (Input.IsActionPressed("f2"))
         {
             GlobalRotationDegrees = _presetRotationDegrees2;
             GlobalPosition = _presetPosition2;
             isMoving = true;
         }
-
-        if (Input.IsActionPressed("f3"))
+        else if (Input.IsActionPressed("f3"))
         {
             GlobalRotationDegrees = _presetRotationDegrees3;
             GlobalPosition = _presetPosition3;
@@ -76,7 +70,7 @@ public partial class Camera : Camera3D
 
         if (isMoving)
         {
-            Moved?.Invoke(this, new EventArgs());
+            EmitSignal(SignalName.Moved);
         }
     }
 
@@ -84,22 +78,30 @@ public partial class Camera : Camera3D
     {
         var isMoving = false;
         var inFrontOfCamera = -GlobalTransform.Basis.Z;
+        var movement = inFrontOfCamera * _movementSpeed * (float)delta;
 
         if (Input.IsActionPressed("ui_up"))
         {
-            GlobalPosition += inFrontOfCamera * _movementSpeed * (float)delta;
+            GlobalPosition += movement;
             isMoving = true;
         }
-
+        
         if (Input.IsActionPressed("ui_down"))
         {
-            GlobalPosition -= inFrontOfCamera * _movementSpeed * (float)delta;
+            GlobalPosition -= movement;
             isMoving = true;
         }
 
         if (isMoving)
         {
-            Moved?.Invoke(this, new EventArgs());
+            EmitSignal(SignalName.Moved);
         }
+    }
+
+    private void ResetRotation()
+    {
+        var transform = Transform;
+        transform.Basis = Basis.Identity;
+        Transform = transform;
     }
 }

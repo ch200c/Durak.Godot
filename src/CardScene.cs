@@ -15,7 +15,10 @@ public enum CardState
 
 public partial class CardScene : StaticBody3D
 {
-	public Card? Card { get; private set; }
+    [Signal]
+    public delegate void ClickedEventHandler(CardScene cardScene);
+
+    public Card Card => _card ?? throw new GameException("Card is not initialized");
 
 	public Vector3 TargetPosition { get; set; }
 
@@ -23,59 +26,26 @@ public partial class CardScene : StaticBody3D
 
 	public CardState CardState { get; set; }
 
-	public event EventHandler? Clicked;
+    public bool IsAnimationEnabled { get; set; }
 
-	[Export]
+    [Export]
 	private float _positionLerpWeight = 0.3f;
 
 	[Export]
 	private float _rotationLerpWeight = 0.3f;
 
 	private DateTime _physicsCooldownExpiration = DateTime.UtcNow;
-
-	public bool IsAnimationEnabled { get; set; }
+    private Card? _card;
 
 	public void Initialize(Card card, CardState cardState)
 	{
-		Card = card;
+		_card = card;
 		
-		var texture = GetTexture(Card);
+		var texture = GetTexture(_card);
 		GetNode<Sprite3D>("Front").Texture = texture;
 
         CardState = cardState;
     }
-
-	private static Texture2D GetTexture(Card card)
-	{
-		var fileName = new StringBuilder("res://art/cards/fronts/");
-
-		if (card.Suit == Suit.Clubs)
-		{
-			fileName.Append('c');
-		}
-		else if (card.Suit == Suit.Diamonds)
-		{
-			fileName.Append('d');
-		}
-		else if (card.Suit == Suit.Hearts)
-		{
-			fileName.Append('h');
-		}
-		else if (card.Suit == Suit.Spades)
-		{
-			fileName.Append('s');
-		}
-		else
-		{
-			throw new GameException($"Unknown card suit {card.Suit}");
-		}
-
-		var normalizedRank = card.Rank == 14 ? 1 : card.Rank;
-		var formattedRank = $"{normalizedRank:00}";
-		fileName.Append($"{formattedRank}.png");
-
-		return GD.Load<Texture2D>(fileName.ToString());
-	}
 
 	public override void _PhysicsProcess(double delta)
 	{
@@ -90,8 +60,8 @@ public partial class CardScene : StaticBody3D
 	{
 		if (@event.IsActionPressed("left_mouse_button"))
 		{
-			GD.Print($"Clicked {Card}");
-			Clicked?.Invoke(this, EventArgs.Empty);
+			GD.Print($"Clicked {_card}");
+			EmitSignal(SignalName.Clicked, this);
 		}
 	}
 
@@ -125,5 +95,37 @@ public partial class CardScene : StaticBody3D
         {
             GlobalPosition = position;
         }
+    }
+
+    private static Texture2D GetTexture(Card card)
+    {
+        var fileName = new StringBuilder("res://art/cards/fronts/");
+
+        if (card.Suit == Suit.Clubs)
+        {
+            fileName.Append('c');
+        }
+        else if (card.Suit == Suit.Diamonds)
+        {
+            fileName.Append('d');
+        }
+        else if (card.Suit == Suit.Hearts)
+        {
+            fileName.Append('h');
+        }
+        else if (card.Suit == Suit.Spades)
+        {
+            fileName.Append('s');
+        }
+        else
+        {
+            throw new GameException($"Unknown card suit {card.Suit}");
+        }
+
+        var normalizedRank = card.Rank == 14 ? 1 : card.Rank;
+        var formattedRank = $"{normalizedRank:00}";
+        fileName.Append($"{formattedRank}.png");
+
+        return GD.Load<Texture2D>(fileName.ToString());
     }
 }

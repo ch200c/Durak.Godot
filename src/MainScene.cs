@@ -7,16 +7,22 @@ using System.Text;
 
 namespace Durak.Godot;
 
+public static class Constants
+{
+	public static readonly string Player1Id = "P1";
+	public static readonly string CardGroup = "cards";
+	public static readonly string TrumpCardGroup = "trumpCard";
+	public static readonly string TalonGroup = "talon";
+	public static readonly PackedScene CardScene = GD.Load<PackedScene>("res://scenes/card.tscn");
+}
+
 public partial class MainScene : Node3D
 {
-	private const string Player1Id = "P1";
-	private const string TrumpCardGroup = "trumpCard";
-	private const string CardGroup = "card";
-	private const string TalonGroup = "talon";
+	private const string PlayersGroup = "players";
+	private static readonly PackedScene _playerScene = GD.Load<PackedScene>("res://scenes/player.tscn");
 
-	private int _cardPhysicsCooldownIteration;
-	private readonly PackedScene _cardScene;
-	private readonly Dictionary<string, PlayerData> _playerData;
+	private int _cardPhysicsCooldownIteration = 0;
+
 	private TurnLogic? _turnLogic;
 	private IAttack? _currentAttack;
 	private Dealer? _dealer;
@@ -49,20 +55,21 @@ public partial class MainScene : Node3D
 	private IAttack Attack { get => _currentAttack ?? throw new GameException("Current attack not initialized"); }
 
 	private Node3D DiscardPile { get => GetNode<Node3D>("/root/Main/Table/GameSurface/DiscardPile"); }
-	
-	public MainScene()
-	{
-		_cardScene = GD.Load<PackedScene>("res://scenes/card.tscn");
-		_playerData = [];
-		_cardPhysicsCooldownIteration = 0;
-	}
+
+	private IEnumerable<PlayerScene> PlayerScenes => GetChildren().Where(c => c.IsInGroup(PlayersGroup)).Cast<PlayerScene>();
+
+	private IEnumerable<PlayerScene> OrderedPlayerScenes => PlayerScenes.OrderBy(p => p.Player.Id);
+
+	private PlayerScene MainPlayerScene => GetPlayerScene(Constants.Player1Id);
+
+	private PlayerScene GetPlayerScene(string id) => PlayerScenes.Single(p => p.Player.Id == id);
 
 	public override void _EnterTree()
 	{
 		GetNode<MarginContainer>("%HUD").Hide();
 	}
 
-	private void Camera_Moved(object? sender, EventArgs e)
+	private void Camera_Moved()
 	{
 		RearrangeMainPlayerCards();
 	}
@@ -72,15 +79,15 @@ public partial class MainScene : Node3D
 		var camera = GetNode<Camera>("%Camera");
 		var mainPlayerGlobalPosition = GetMainPlayerGlobalPosition(camera);
 
-		_playerData[Player1Id].GlobalPosition = mainPlayerGlobalPosition;
-		_playerData[Player1Id].RotationDegrees = new Vector3(camera.RotationDegrees.X, camera.RotationDegrees.Y, camera.RotationDegrees.Z);
+		MainPlayerScene.CardPosition = mainPlayerGlobalPosition;
+		MainPlayerScene.CardRotation = new Vector3(camera.RotationDegrees.X, camera.RotationDegrees.Y, camera.RotationDegrees.Z);
 
-		RearrangePlayerCards(Player1Id);
+		RearrangePlayerCards(Constants.Player1Id);
 	}
 
 	private void _on_end_attack_button_pressed()
 	{
-		if (Attack.NextToPlay().Id != Player1Id)
+		if (Attack.NextToPlay().Id != Constants.Player1Id)
 		{
 			GD.Print("Ignoring end attack");
 			return;
@@ -101,16 +108,19 @@ public partial class MainScene : Node3D
 		GetNode<MarginContainer>("%HUD").Show();
 
 		var opponentCount = GetNode<SpinBox>("%OpponentsSpinBox");
-		var players = CreatePlayers((int)opponentCount.Value + 1);
+		CreatePlayers((int)opponentCount.Value + 1);
 
 		var camera = GetNode<Camera>("%Camera");
 		camera.Moved -= Camera_Moved;
 		camera.Moved += Camera_Moved;
 
-		AddMainPlayerData(players[0], camera);
-		AddOpponentPlayerData(players);
-
+		var players = OrderedPlayerScenes.Select(p => p.Player).ToList();
+		
+		AddMainPlayerData(camera);
+		AddOpponentPlayerData();
+		
 		_deck = new Deck(new FrenchSuited36CardProvider(), new DefaultCardShuffler());
+		_deck.CardRemoved += _deck_CardRemoved;
 		_turnLogic = new TurnLogic(players, _deck.TrumpSuit);
 
 		_dealer = new Dealer(6, players, _deck);
@@ -120,6 +130,20 @@ public partial class MainScene : Node3D
 		CreateTalon();
 
 		StartAttack();
+	}
+
+	private void _deck_CardRemoved(object? sender, CardRemovedEventArgs e)
+	{
+		if (_deck!.Count == 1)
+		{
+			GD.Print("Hiding talon");
+			((CardScene)GetTree().GetFirstNodeInGroup(Constants.TalonGroup)).Hide();
+		}
+		else if (_deck!.Count == 0)
+		{
+			GD.Print("Hiding trump card");
+			((CardScene)GetTree().GetFirstNodeInGroup(Constants.TrumpCardGroup)).Hide();
+		}
 	}
 
 	private void CurrentAttack_AttackEnded(object? sender, EventArgs e)
@@ -157,11 +181,11 @@ public partial class MainScene : Node3D
 	{
 		GD.Print(tag);
 
-		foreach (var playerData in _playerData)
+		foreach (var playerScene in OrderedPlayerScenes)
 		{
-			var nonDiscardedCards = playerData.Value.CardScenes.Where(c => c.CardState != CardState.Discarded).Select(c => $"{c.Card} {c.CardState}");
-			var discardedCards = playerData.Value.CardScenes.Where(c => c.CardState == CardState.Discarded).Select(c => $"{c.Card}");
-			GD.Print($"{playerData.Key} {string.Join(", ", nonDiscardedCards)}, Discarded: {string.Join(", ", discardedCards)}");
+			var nonDiscardedCards = playerScene.CardScenes.Where(c => c.CardState != CardState.Discarded).Select(c => $"{c.Card} {c.CardState}");
+			var discardedCards = playerScene.CardScenes.Where(c => c.CardState == CardState.Discarded).Select(c => $"{c.Card}");
+			GD.Print($"{playerScene.Player.Id} {string.Join(", ", nonDiscardedCards)}, Discarded: {string.Join(", ", discardedCards)}");
 		}
 	}
 
@@ -178,7 +202,7 @@ public partial class MainScene : Node3D
 
 		GD.Print($"Starting attack as {Attack.PrincipalAttacker.Id}");
 
-		if (Attack.PrincipalAttacker.Id != Player1Id)
+		if (Attack.PrincipalAttacker.Id != Constants.Player1Id)
 		{
 			PlayAsNonMainPlayer();
 		}
@@ -186,43 +210,34 @@ public partial class MainScene : Node3D
 
 	private void Reset()
 	{
-		var noCardsLeftPlayerData = _playerData.Values.Where(p => p.Player.Cards.Count == 0).ToList();
-		if (noCardsLeftPlayerData.Count == _playerData.Count)
+		var noCardsLeftPlayerData = PlayerScenes.Where(p => p.Player.Cards.Count == 0).ToList();
+		if (noCardsLeftPlayerData.Count == PlayerScenes.Count())
 		{
 			GD.Print("Game ended in a draw!");
 		}
 		else
 		{
-			var loserPlayerData = _playerData.Values.Except(noCardsLeftPlayerData);
+			var loserPlayerData = PlayerScenes.Except(noCardsLeftPlayerData);
 			GD.Print($"{string.Join(',', loserPlayerData.Select(p => p.Player.Id))} lost");
 		}
 
-		foreach (var (key, value) in _playerData)
-		{
-			value.Player.CardsAdded -= Player_CardsAdded;
-		}
-
-		_playerData.Clear();
-
-		var cardScenes = GetTree().GetNodesInGroup(CardGroup);
-		foreach (var cardScene in cardScenes)
+		var scenes = GetTree().GetNodesInGroup(Constants.CardGroup).Union(GetTree().GetNodesInGroup(PlayersGroup));
+		foreach (var cardScene in scenes)
 		{
 			cardScene.QueueFree();
 		}
-
-		//Mediator.Send(new Reset()).GetAwaiter().GetResult();
 
 		GetTree().ReloadCurrentScene();
 	}
 
 	private void CurrentAttack_AttackCardAdded(object? sender, AttackCardAddedEventArgs e)
 	{
-		if (e.Card.Player.Id != Player1Id)
+		if (e.Card.Player.Id != Constants.Player1Id)
 		{
 			RearrangePlayerCards(e.Card.Player.Id);
 			//GD.Print($"Ending call stack after {e.Card.Player.Id} card added");
 
-			if (Attack.NextToPlay().Id != Player1Id)
+			if (Attack.NextToPlay().Id != Constants.Player1Id)
 			{
 				PlayAsNonMainPlayer();
 			}
@@ -248,7 +263,7 @@ public partial class MainScene : Node3D
 			if (Attack.CanPlay(player, player.Cards[cardIndex]))
 			{
 				GD.Print($"Playing {player.Cards[cardIndex]} as {player.Id}");
-				var cardScene = _playerData[player.Id].CardScenes.Single(c => c.Card == player.Cards[cardIndex]);
+				var cardScene = GetPlayerScene(player.Id).CardScenes.Single(c => c.Card == player.Cards[cardIndex]);
 
 				PlaceCardOnTable(cardScene);
 
@@ -266,25 +281,33 @@ public partial class MainScene : Node3D
 		return false;
 	}
 
-	private List<Player> CreatePlayers(int count)
+	private void CreatePlayers(int count)
 	{
-		var players = new List<Player>() { };
-
 		for (var i = 0; i < count; i++)
 		{
-			var player = new Player($"P{i + 1}");
-			player.CardsAdded += Player_CardsAdded;
-			players.Add(player);
+			var playerScene = _playerScene.Instantiate<PlayerScene>();
+			playerScene.AddToGroup(PlayersGroup);
+			playerScene.Initialize($"P{i + 1}", _isAnimationEnabled);
+			playerScene.CardSceneClicked += PlayerScene_CardSceneClicked;
+			playerScene.CardAdded += Player_CardsAdded;
+			AddChild(playerScene);
 		}
-
-		return players;
 	}
 
-	private void AddMainPlayerData(Player player, Camera3D camera)
+	private void Player_CardsAdded(CardScene cardScene)
 	{
+		if (_isAnimationEnabled)
+		{
+			AddPhysicsCooldown(cardScene);
+		}
+	}
+
+	private void AddMainPlayerData(Camera3D camera)
+	{
+		var playerScene = MainPlayerScene;
 		var globalPosition = GetMainPlayerGlobalPosition(camera);
-		var playerData = new PlayerData(player, globalPosition, new Vector3(camera.RotationDegrees.X, -90, 0), []);
-		_playerData.Add(playerData.Player.Id, playerData);
+		playerScene.CardPosition = globalPosition;
+		playerScene.CardRotation = new Vector3(camera.RotationDegrees.X, -90, 0);
 	}
 
 	private Vector3 GetMainPlayerGlobalPosition(Camera3D camera)
@@ -295,30 +318,32 @@ public partial class MainScene : Node3D
 		return camera.GlobalPosition + distancedInFrontOfCamera + lowered;
 	}
 
-	private void AddOpponentPlayerData(List<Player> players)
+	private void AddOpponentPlayerData()
 	{
-		var nodeName = players.Count switch
+		var nodeName = PlayerScenes.Count() switch
 		{
 			2 => "TwoPlayerGame",
 			3 => "ThreePlayerGame",
 			_ => throw new NotImplementedException()
 		};
-		// todo better skipping than index
+
 		var positions = GetNode<Node3D>($"/root/Main/Table/GameSurface/{nodeName}")
 			.GetChildren()
+			.Where(n => n.Name != "Player1Position")
 			.Cast<Node3D>()
 			.Select(n => n.GlobalPosition);
 
-		foreach (var (globalPosition, opponent) in positions.Skip(1).Zip(players.Skip(1)))
+		foreach (var (globalPosition, opponent) in positions.Zip(OrderedPlayerScenes.Except([MainPlayerScene])))
 		{
-			_playerData.Add(opponent.Id, new PlayerData(opponent, globalPosition, new Vector3(0, 90, 0), []));
+			opponent.CardPosition = globalPosition;
+			opponent.CardRotation = new Vector3(0, 90, 0);
 		}
 	}
 
 	private void CreateTrumpCard(Card card)
 	{
 		GD.Print($"Trump: {card}");
-		var cardScene = _cardScene.Instantiate<CardScene>();
+		var cardScene = Constants.CardScene.Instantiate<CardScene>();
 		cardScene.Initialize(card, CardState.InDeck);
 
 		AddChild(cardScene);
@@ -331,13 +356,13 @@ public partial class MainScene : Node3D
 		cardScene.IsAnimationEnabled = _isAnimationEnabled;
 		cardScene.SetPhysicsProcess(false);
 
-		cardScene.AddToGroup(TrumpCardGroup);
-		cardScene.AddToGroup(CardGroup);
+		cardScene.AddToGroup(Constants.TrumpCardGroup);
+		cardScene.AddToGroup(Constants.CardGroup);
 	}
 
 	private void CreateTalon()
 	{
-		var cardScene = _cardScene.Instantiate<CardScene>();
+		var cardScene = Constants.CardScene.Instantiate<CardScene>();
 
 		AddChild(cardScene);
 
@@ -350,137 +375,21 @@ public partial class MainScene : Node3D
 		cardScene.SetPhysicsProcess(false);
 
 		cardScene.GetNode<Sprite3D>("Back").SortingOffset = 1;
-		cardScene.AddToGroup(TalonGroup);
-		cardScene.AddToGroup(CardGroup);
+		cardScene.AddToGroup(Constants.TalonGroup);
+		cardScene.AddToGroup(Constants.CardGroup);
 	}
 
-	private sealed record AddedCardData(CardScene? CardScene, bool IsNewCard, bool IsPlayerCard);
-
-	private void Player_CardsAdded(object? sender, CardsAddedEventArgs e)
+	private void PlayerScene_CardSceneClicked(CardScene cardScene)
 	{
-		if (_deck!.Count == 1)
-		{
-			GD.Print("Hiding talon");
-			((CardScene)GetTree().GetFirstNodeInGroup(TalonGroup)).Hide();
-		}
-		else if (_deck!.Count == 0)
-		{
-			GD.Print("Hiding trump card");
-			((CardScene)GetTree().GetFirstNodeInGroup(TrumpCardGroup)).Hide();
-		}
-
-		var talon = GetNode<Node3D>("/root/Main/Table/GameSurface/Deck/Talon");
-		var playerData = _playerData[((Player)sender!).Id];
-
-		foreach (var card in e.Cards)
-		{
-			GD.Print($"{card} added for {playerData.Player.Id}");
-
-			var (cardScene, isNewCard, isPlayerCard) = GetAddedCardData(playerData, card);
-
-			GD.Print($"isNew: {isNewCard}, isPlayerCard: {isPlayerCard}");
-
-			if (isNewCard)
-			{
-				cardScene = InstantiateAndInitializeCardScene(card);
-			}
-
-			if (!isPlayerCard)
-			{
-				playerData.CardScenes.Add(cardScene!);
-			}
-
-			if (playerData.Player.Id == Player1Id)
-			{
-				cardScene!.Clicked -= CardScene_Clicked;
-				cardScene.Clicked += CardScene_Clicked;
-				cardScene.GetNode<MeshInstance3D>("MeshInstance3D").Hide();
-			}
-
-			cardScene!.CardState = CardState.InHand;
-
-			if (_isAnimationEnabled)
-			{
-				cardScene.TargetRotationDegrees = playerData.RotationDegrees;
-
-				if (isNewCard)
-				{
-					cardScene.RotationDegrees = talon.RotationDegrees;
-					cardScene.GlobalPosition = talon.GlobalPosition;
-				}
-			}
-			else
-			{
-				cardScene.RotationDegrees = playerData.RotationDegrees;
-			}
-
-			var inHandCards = playerData.CardScenes.Where(c => c.CardState == CardState.InHand).ToList();
-			var offsets = GetCardOffsets(inHandCards.Count);
-
-			foreach (var (existingCardScene, offset) in inHandCards.Zip(offsets))
-			{
-				var targetPosition = playerData.GlobalPosition + offset;
-				existingCardScene.MoveGlobally(targetPosition);
-			}
-
-			if (_isAnimationEnabled)
-			{
-				AddPhysicsCooldown(cardScene);
-			}
-		}
-	}
-
-	private CardScene InstantiateAndInitializeCardScene(Card card)
-	{
-		var cardScene = _cardScene.Instantiate<CardScene>();
-		cardScene.Initialize(card, CardState.InHand);
-		cardScene.IsAnimationEnabled = _isAnimationEnabled;
-
-		AddChild(cardScene);
-		cardScene.AddToGroup(CardGroup);
-		cardScene.SetPhysicsProcess(_isAnimationEnabled);
-		return cardScene;
-	}
-
-	private AddedCardData GetAddedCardData(PlayerData playerData, Card card)
-	{
-		CardScene? cardScene = null;
-		string? previousPlayerId = null;
-
-		foreach (var kvp in _playerData)
-		{
-			cardScene = kvp.Value.CardScenes.Find(c => c.Card == card);
-			if (cardScene != null)
-			{
-				previousPlayerId = kvp.Key;
-
-				break;
-			}
-		}
-
-		var isPlayerCard = previousPlayerId == playerData.Player.Id;
-		var isNewCard = cardScene == null;
-
-		if (!isPlayerCard && !isNewCard)
-		{
-			_playerData[previousPlayerId!].CardScenes.Remove(cardScene!);
-		}
-
-		return new AddedCardData(cardScene, isNewCard, isPlayerCard);
-	}
-
-	private void CardScene_Clicked(object? sender, EventArgs e)
-	{
-		var cardScene = (CardScene)sender!;
 		GD.Print($"Received click {cardScene.Card}");
 
-		if (Attack.NextToPlay() != _playerData[Player1Id].Player)
+		if (Attack.NextToPlay() != MainPlayerScene.Player)
 		{
 			GD.Print("Ignoring P1 as it is other player's turn");
 			return;
 		}
 
-		if (!_playerData[Player1Id].CardScenes.Contains(cardScene))
+		if (!MainPlayerScene.CardScenes.Contains(cardScene))
 		{
 			GD.Print("Ignoring P1 as it is not their card");
 			return;
@@ -492,7 +401,7 @@ public partial class MainScene : Node3D
 			return;
 		}
 
-		var canPlayResult = Attack.CanPlay(_playerData[Player1Id].Player, cardScene.Card!);
+		var canPlayResult = Attack.CanPlay(MainPlayerScene.Player, cardScene.Card!);
 
 		if (!canPlayResult)
 		{
@@ -505,12 +414,12 @@ public partial class MainScene : Node3D
 
 		GD.Print($"Playing {cardScene.Card!} as P1");
 
-		Attack.Play(_playerData[Player1Id].Player, cardScene.Card!);
+		Attack.Play(MainPlayerScene.Player, cardScene.Card!);
 
 		PrintCardScenes("P1 played");
 	}
 
-	private IEnumerable<Vector3> GetCardOffsets(int count)
+	public IEnumerable<Vector3> GetCardOffsets(int count)
 	{
 		if (count == 0)
 		{
@@ -589,7 +498,7 @@ public partial class MainScene : Node3D
 
 		foreach (var id in attackPlayerIds)
 		{
-			var tableCards = _playerData[id].CardScenes.Where(c => c.CardState == CardState.InAttack).ToList();
+			var tableCards = GetPlayerScene(id).CardScenes.Where(c => c.CardState == CardState.InAttack).ToList();
 
 			foreach (var tableCard in tableCards)
 			{
@@ -598,7 +507,6 @@ public partial class MainScene : Node3D
 				tableCard.MoveGlobally(DiscardPile.GlobalPosition);
 				tableCard.RotateDegrees(DiscardPile.RotationDegrees);
 				tableCard.CardState = CardState.Discarded;
-				_playerData[id].CardScenes.Remove(tableCard);
 			}
 		}
 
@@ -623,20 +531,22 @@ public partial class MainScene : Node3D
 
 	private void RearrangePlayerCards(string playerId)
 	{
-		var inHandCards = _playerData[playerId].CardScenes.Where(c => c.CardState == CardState.InHand).ToList();
+		var playerScene = GetPlayerScene(playerId);
+
+		var inHandCards = playerScene.CardScenes.Where(c => c.CardState == CardState.InHand).ToList();
 		GD.Print($"Rearranging {playerId} cards: {string.Join(',', inHandCards.Select(c => c.Card))}");
 
 		var cardOffsets = GetCardOffsets(inHandCards.Count);
 
 		foreach (var (cardScene, offset) in inHandCards.Zip(cardOffsets))
 		{
-			var targetPosition = _playerData[playerId].GlobalPosition + offset;
+			var targetPosition = playerScene.CardPosition + offset;
 
 			cardScene.TargetPosition = targetPosition;
 			cardScene.GlobalPosition = targetPosition;
 
-			cardScene.TargetRotationDegrees = _playerData[playerId].RotationDegrees;
-			cardScene.RotationDegrees = _playerData[playerId].RotationDegrees;
+			cardScene.TargetRotationDegrees = playerScene.CardRotation;
+			cardScene.RotationDegrees = playerScene.CardRotation;
 		}
 	}
 }
