@@ -51,6 +51,7 @@ public partial class PlayerNode : Node3D
 			}
 
 			GD.Print($"isNew: {isNewCard}, isPlayerCard: {isPlayerCard}");
+			cardNode!.CardState = CardState.InHand;
 
 			if (Player.Id == Constants.Player1Id)
 			{
@@ -59,7 +60,7 @@ public partial class PlayerNode : Node3D
 				cardNode.GetNode<MeshInstance3D>("MeshInstance3D").Hide();
 			}
 
-			cardNode!.CardState = CardState.InHand;
+			cardNode.UpdateSortingOffsets();
 
 			if (_isAnimationEnabled)
 			{

@@ -18,7 +18,7 @@ public static class Constants
 
 public partial class MainNode : Node3D
 {
-	private const string PlayersGroup = "players";
+	private const string _playersGroup = "players";
 	private static readonly PackedScene _playerScene = GD.Load<PackedScene>("res://scenes/player.tscn");
 
 	private int _cardPhysicsCooldownIteration = 0;
@@ -56,7 +56,7 @@ public partial class MainNode : Node3D
 
 	private Node3D DiscardPile { get => GetNode<Node3D>("/root/Main/Table/GameSurface/DiscardPile"); }
 
-	private IEnumerable<PlayerNode> PlayerNodes => GetChildren().Where(c => c.IsInGroup(PlayersGroup)).Cast<PlayerNode>();
+	private IEnumerable<PlayerNode> PlayerNodes => GetChildren().Where(c => c.IsInGroup(_playersGroup)).Cast<PlayerNode>();
 
 	private IEnumerable<PlayerNode> OrderedPlayerNodes => PlayerNodes.OrderBy(p => p.Player.Id);
 
@@ -221,7 +221,7 @@ public partial class MainNode : Node3D
 			GD.Print($"{string.Join(',', loserPlayerData.Select(p => p.Player.Id))} lost");
 		}
 
-		var nodes = GetTree().GetNodesInGroup(Constants.CardGroup).Union(GetTree().GetNodesInGroup(PlayersGroup));
+		var nodes = GetTree().GetNodesInGroup(Constants.CardGroup).Union(GetTree().GetNodesInGroup(_playersGroup));
 		foreach (var node in nodes)
 		{
 			node.QueueFree();
@@ -286,7 +286,7 @@ public partial class MainNode : Node3D
 		for (var i = 0; i < count; i++)
 		{
 			var playerNode = _playerScene.Instantiate<PlayerNode>();
-			playerNode.AddToGroup(PlayersGroup);
+			playerNode.AddToGroup(_playersGroup);
 			playerNode.Initialize($"P{i + 1}", _isAnimationEnabled);
 			playerNode.CardClicked += Player_CardClicked;
 			playerNode.CardAdded += Player_CardsAdded;
@@ -373,8 +373,8 @@ public partial class MainNode : Node3D
 
 		cardNode.IsAnimationEnabled = _isAnimationEnabled;
 		cardNode.SetPhysicsProcess(false);
-
-		cardNode.GetNode<Sprite3D>("Back").SortingOffset = 1;
+		cardNode.UpdateSortingOffsets();
+		
 		cardNode.AddToGroup(Constants.TalonGroup);
 		cardNode.AddToGroup(Constants.CardGroup);
 	}
@@ -519,13 +519,8 @@ public partial class MainNode : Node3D
 
 		cardNode.MoveGlobally(placement.GlobalPosition);
 		cardNode.RotateDegrees(placement.RotationDegrees);
-
-		if (Attack.IsDefending)
-		{
-			cardNode.GetNode<Sprite3D>("Front").SortingOffset = 1;
-		}
-
 		cardNode.CardState = CardState.InAttack;
+		cardNode.UpdateSortingOffsets(Attack);
 		cardNode.GetNode<MeshInstance3D>("MeshInstance3D").Show();
 	}
 

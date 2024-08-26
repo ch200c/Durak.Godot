@@ -24,7 +24,7 @@ public partial class CardNode : StaticBody3D
 
 	public Vector3 TargetRotationDegrees { get; set; }
 
-	public CardState CardState { get; set; }
+	public CardState CardState { get; set; } = CardState.InDeck;
 
 	public bool IsAnimationEnabled { get; set; }
 
@@ -37,12 +37,15 @@ public partial class CardNode : StaticBody3D
 	private DateTime _physicsCooldownExpiration = DateTime.UtcNow;
 	private Card? _card;
 
+	private const string _cardSpriteFront = "Front";
+	private const string _cardSpriteBack = "Back";
+
 	public void Initialize(Card card, CardState cardState)
 	{
 		_card = card;
-		
+
 		var texture = GetTexture(_card);
-		GetNode<Sprite3D>("Front").Texture = texture;
+		GetNode<Sprite3D>(_cardSpriteFront).Texture = texture;
 
 		CardState = cardState;
 	}
@@ -94,6 +97,47 @@ public partial class CardNode : StaticBody3D
 		else
 		{
 			GlobalPosition = position;
+		}
+	}
+
+	public void UpdateSortingOffsets(IAttack? attack = null)
+	{
+		if (attack != null)
+		{
+			if (attack.IsDefending)
+			{
+				GetNode<Sprite3D>(_cardSpriteFront).SortingOffset = 1;
+			}
+			else
+			{
+				GetNode<Sprite3D>(_cardSpriteFront).SortingOffset = 0;
+			}
+			return;
+		}
+
+		switch (CardState)
+		{
+			case CardState.InDeck:
+				{
+					GetNode<Sprite3D>(_cardSpriteBack).SortingOffset = 1;
+					break;
+				}
+			case CardState.InHand:
+				{
+					if (GetParent<PlayerNode>().Player.Id == Constants.Player1Id)
+					{
+						GetNode<Sprite3D>(_cardSpriteFront).SortingOffset = 2;
+					}
+					else
+					{
+						GetNode<Sprite3D>(_cardSpriteFront).SortingOffset = 0;
+					}
+					break;
+				}
+			default:
+				{
+					break;
+				}
 		}
 	}
 
