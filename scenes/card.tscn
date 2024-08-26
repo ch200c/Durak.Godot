@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=3 uid="uid://bwv6xntu6f842"]
 
-[ext_resource type="Script" path="res://src/CardScene.cs" id="1_01met"]
+[ext_resource type="Script" path="res://src/CardNode.cs" id="1_01met"]
 [ext_resource type="Texture2D" uid="uid://djcrbp7e4624q" path="res://art/cards/fronts/c01.png" id="2_tuwbn"]
 [ext_resource type="Texture2D" uid="uid://du8c6p7y0bpph" path="res://art/cards/backs/Card-Back-01.png" id="3_som6t"]
 
