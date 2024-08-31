@@ -27,6 +27,7 @@ public partial class MainNode : Node3D
 	private IAttack? _currentAttack;
 	private Dealer? _dealer;
 	private Deck? _deck;
+	private static string? _endScreenMessage;
 	
 	[Export]
 	private float _cardWidth = 0.06f;
@@ -67,6 +68,18 @@ public partial class MainNode : Node3D
 	public override void _EnterTree()
 	{
 		GetNode<MarginContainer>("%HUD").Hide();
+
+		if (_endScreenMessage == null)
+		{
+			GetNode<CenterContainer>("EndScreen").Hide();
+		}
+		else
+		{
+			GetNode<CenterContainer>("EndScreen").Show();
+		}
+
+		var endScreenLabel = GetNode<Label>("EndScreen/Label");
+		endScreenLabel.Text = _endScreenMessage;
 	}
 
 	private void Camera_Moved()
@@ -104,6 +117,7 @@ public partial class MainNode : Node3D
 
 		GD.Print($"Main node child count: {childCount}, total: {totalChildCount}");
 
+		GetNode<CenterContainer>("EndScreen").Hide();
 		GetNode<MarginContainer>("%Menu").Hide();
 		GetNode<MarginContainer>("%HUD").Show();
 
@@ -213,13 +227,15 @@ public partial class MainNode : Node3D
 		var noCardsLeftPlayerData = PlayerNodes.Where(p => p.Player.Cards.Count == 0).ToList();
 		if (noCardsLeftPlayerData.Count == PlayerNodes.Count())
 		{
-			GD.Print("Game ended in a draw!");
+			_endScreenMessage = "Game ended in a draw!";
 		}
 		else
 		{
 			var loserPlayerData = PlayerNodes.Except(noCardsLeftPlayerData);
-			GD.Print($"{string.Join(',', loserPlayerData.Select(p => p.Player.Id))} lost");
+			_endScreenMessage = $"{string.Join(',', loserPlayerData.Select(p => p.Player.Id))} lost";
 		}
+
+		GD.Print(_endScreenMessage);
 
 		var nodes = GetTree().GetNodesInGroup(Constants.CardGroup).Union(GetTree().GetNodesInGroup(_playersGroup));
 		foreach (var node in nodes)
