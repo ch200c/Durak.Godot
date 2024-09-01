@@ -23,3 +23,8 @@ A 3D Durak card game written in C# and using Godot game engine.
 7. More tests to fully cover all game scenarios
 8. Expose settings (animation, animation speed, etc.)
 9. Customization (tables, card backs)
+10. Return to menu button
+11. Add attacker button
+12. Improve computer play
+13. Improve debug logging (who is attacking, etc)
+14. Show current attack in text (P1 vs P2, etc)
