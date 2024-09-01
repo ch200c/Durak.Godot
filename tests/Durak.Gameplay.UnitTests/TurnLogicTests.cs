@@ -7,7 +7,7 @@ public class TurnLogicTests
     {
         // Arrange
         var trumpSuit = Suit.Hearts;
-        var players = new List<Player>() { new(), new() };
+        var players = new List<Player>() { new("P1"), new("P2") };
 
         players[0].PickUp([new Card(4, trumpSuit)]);
         players[1].PickUp([new Card(3, trumpSuit)]);
@@ -25,7 +25,7 @@ public class TurnLogicTests
     public void NextAttack_AfterSuccessfulAttack_TwoPlayers_PrincipalAttackerShouldBeNextAfterDefender()
     {
         // Arrange
-        var players = new List<Player>() { new(), new() };
+        var players = new List<Player>() { new("P1"), new("P2") };
         players[0].PickUp([new Card(2, Suit.Diamonds), new Card(3, Suit.Diamonds)]);
         players[1].PickUp([new Card(4, Suit.Diamonds), new Card(5, Suit.Diamonds)]);
 
@@ -49,7 +49,7 @@ public class TurnLogicTests
     public void NextAttack_AfterSuccessfulAttack_MoreThanTwoPlayers_PrincipalAttackerShouldBeNextAfterDefender()
     {
         // Arrange
-        var players = new List<Player>() { new(), new(), new() };
+        var players = new List<Player>() { new("P1"), new("P2"), new("P3") };
         players[0].PickUp([new Card(2, Suit.Diamonds), new Card(3, Suit.Diamonds)]);
         players[1].PickUp([new Card(4, Suit.Diamonds), new Card(5, Suit.Diamonds)]);
         players[2].PickUp([new Card(6, Suit.Diamonds), new Card(7, Suit.Diamonds)]);
@@ -74,7 +74,7 @@ public class TurnLogicTests
     public void NextAttack_AfterBeatenOffAttack_PrincipalAttackerShouldBeDefender()
     {
         // Arrange
-        var players = new List<Player>() { new(), new() };
+        var players = new List<Player>() { new("P1"), new("P2") };
         players[0].PickUp([new Card(2, Suit.Diamonds), new Card(3, Suit.Diamonds)]);
         players[1].PickUp([new Card(4, Suit.Diamonds), new Card(5, Suit.Diamonds)]);
 

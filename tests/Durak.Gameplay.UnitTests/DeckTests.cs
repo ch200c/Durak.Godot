@@ -3,7 +3,7 @@
 public class DeckTests
 {
     [Fact]
-    public void TryDequeue_AllExceptLast_ShouldNotBeTrumpCard()
+    public void TryDequeue_AllExceptLastCard_ShouldNotContainTrumpCard()
     {
         // Arrange
         var deck = new Deck(new FrenchSuited36CardProvider(), new DefaultCardShuffler());
@@ -21,7 +21,7 @@ public class DeckTests
     }
 
     [Fact]
-    public void TryDequeue_Last_ShouldBeTrumpCard()
+    public void TryDequeue_LastCard_ShouldBeTrumpCard()
     {
         // Arrange
         var deck = new Deck(new FrenchSuited36CardProvider(), new DefaultCardShuffler());

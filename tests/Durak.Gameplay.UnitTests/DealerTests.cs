@@ -7,7 +7,7 @@ public class DealerTests
     {
         // Arrange
         var requiredPlayerCardCount = 6;
-        var players = new List<Player>() { new() };
+        var players = new List<Player>() { new("P1") };
 
         var deck = new Deck(new FrenchSuited36CardProvider(), new DefaultCardShuffler());
         var sut = new Dealer(requiredPlayerCardCount, players, deck);

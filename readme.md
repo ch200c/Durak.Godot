@@ -5,6 +5,7 @@ A 3D Durak card game written in C# and using Godot game engine.
 
 ## Features
 - 2 player individual game
+- Card animations
 - Moveable camera
 
 ## Controls
@@ -20,3 +21,5 @@ A 3D Durak card game written in C# and using Godot game engine.
 5. Better card rotation centering when moving away from the initial starting position
 6. Fix and update tests
 7. More tests to fully cover all game scenarios
+8. Expose settings (animation, animation speed, etc.)
+9. Customization (tables, card backs)
