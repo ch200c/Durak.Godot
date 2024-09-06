@@ -84,18 +84,16 @@ public partial class MainNode : Node3D
 
 	private void Camera_Moved()
 	{
-		RearrangeMainPlayerCards();
+		UpdateMainPlayerCardsPositionAndRotation();
+		RepositionPlayerCards(Constants.Player1Id);
 	}
 
-	private void RearrangeMainPlayerCards()
+	private void UpdateMainPlayerCardsPositionAndRotation()
 	{
 		var camera = GetNode<Camera>("%Camera");
-		var mainPlayerGlobalPosition = GetMainPlayerGlobalPosition(camera);
 
-		MainPlayerNode.CardPosition = mainPlayerGlobalPosition;
-		MainPlayerNode.CardRotation = new Vector3(camera.RotationDegrees.X, camera.RotationDegrees.Y, camera.RotationDegrees.Z);
-
-		RearrangePlayerCards(Constants.Player1Id);
+		MainPlayerNode.CardsPosition = GetMainPlayerPosition(camera);
+		MainPlayerNode.CardsRotationDegrees = new Vector3(camera.RotationDegrees.X, camera.RotationDegrees.Y, camera.RotationDegrees.Z);
 	}
 
 	private void _on_end_attack_button_pressed()
@@ -130,7 +128,7 @@ public partial class MainNode : Node3D
 
 		var players = OrderedPlayerNodes.Select(p => p.Player).ToList();
 		
-		AddMainPlayerData(camera);
+		SetMainPlayerCardsPositionAndRotation(camera);
 		AddOpponentPlayerData();
 		
 		_deck = new Deck(new FrenchSuited36CardProvider(), new DefaultCardShuffler());
@@ -151,12 +149,20 @@ public partial class MainNode : Node3D
 		if (_deck!.Count == 1)
 		{
 			GD.Print("Hiding talon");
-			((CardNode)GetTree().GetFirstNodeInGroup(Constants.TalonGroup)).Hide();
+			var talonNode = GetTree().GetFirstNodeInGroup(Constants.TalonGroup);
+			if (talonNode != null)
+			{
+				((CardNode)talonNode).Hide();
+			}
 		}
 		else if (_deck!.Count == 0)
 		{
 			GD.Print("Hiding trump card");
-			((CardNode)GetTree().GetFirstNodeInGroup(Constants.TrumpCardGroup)).Hide();
+			var trumpCardNode = GetTree().GetFirstNodeInGroup(Constants.TrumpCardGroup);
+			if (trumpCardNode != null)
+			{
+				((CardNode)trumpCardNode).Hide();
+			}
 		}
 	}
 
@@ -250,7 +256,7 @@ public partial class MainNode : Node3D
 	{
 		if (e.Card.Player.Id != Constants.Player1Id)
 		{
-			RearrangePlayerCards(e.Card.Player.Id);
+			RepositionPlayerCards(e.Card.Player.Id);
 			//GD.Print($"Ending call stack after {e.Card.Player.Id} card added");
 
 			if (Attack.NextToPlay().Id != Constants.Player1Id)
@@ -261,7 +267,7 @@ public partial class MainNode : Node3D
 			return;
 		}
 
-		RearrangeMainPlayerCards();
+		RepositionPlayerCards(Constants.Player1Id);
 		PlayAsNonMainPlayer();
 	}
 
@@ -318,20 +324,18 @@ public partial class MainNode : Node3D
 		}
 	}
 
-	private void AddMainPlayerData(Camera3D camera)
+	private void SetMainPlayerCardsPositionAndRotation(Camera3D camera)
 	{
-		var playerNode = MainPlayerNode;
-		var globalPosition = GetMainPlayerGlobalPosition(camera);
-		playerNode.CardPosition = globalPosition;
-		playerNode.CardRotation = new Vector3(camera.RotationDegrees.X, -90, 0);
+		MainPlayerNode.CardsPosition = GetMainPlayerPosition(camera);
+		MainPlayerNode.CardsRotationDegrees = new Vector3(camera.RotationDegrees.X, -90, 0);
 	}
 
-	private Vector3 GetMainPlayerGlobalPosition(Camera3D camera)
+	private Vector3 GetMainPlayerPosition(Camera3D camera)
 	{
-		var inFrontOfCamera = -camera.GlobalTransform.Basis.Z;
+		var inFrontOfCamera = -camera.Transform.Basis.Z;
 		var distancedInFrontOfCamera = inFrontOfCamera * _mainPlayerCardDistanceMultiplier;
 		var lowered = new Vector3(0, -0.1f, 0);
-		return camera.GlobalPosition + distancedInFrontOfCamera + lowered;
+		return camera.Position + distancedInFrontOfCamera + lowered;
 	}
 
 	private void AddOpponentPlayerData()
@@ -340,7 +344,10 @@ public partial class MainNode : Node3D
 		{
 			2 => "TwoPlayerGame",
 			3 => "ThreePlayerGame",
-			_ => throw new NotImplementedException()
+			4 => "FourPlayerGame",
+			5 => "FivePlayerGame",
+			6 => "SixPlayerGame",
+			_ => throw new GameException("Cannot have other than 2-6 player nodes")
 		};
 
 		var positions = GetNode<Node3D>($"/root/Main/Table/GameSurface/{nodeName}")
@@ -351,8 +358,8 @@ public partial class MainNode : Node3D
 
 		foreach (var (globalPosition, opponent) in positions.Zip(OrderedPlayerNodes.Except([MainPlayerNode])))
 		{
-			opponent.CardPosition = globalPosition;
-			opponent.CardRotation = new Vector3(0, 90, 0);
+			opponent.CardsPosition = globalPosition;
+			opponent.CardsRotationDegrees = new Vector3(0, 90, 0);
 		}
 	}
 
@@ -540,7 +547,7 @@ public partial class MainNode : Node3D
 		cardNode.GetNode<MeshInstance3D>("MeshInstance3D").Show();
 	}
 
-	private void RearrangePlayerCards(string playerId)
+	private void RepositionPlayerCards(string playerId)
 	{
 		var playerNode = GetPlayerNode(playerId);
 
@@ -551,13 +558,13 @@ public partial class MainNode : Node3D
 
 		foreach (var (cardNode, offset) in inHandCards.Zip(cardOffsets))
 		{
-			var targetPosition = playerNode.CardPosition + offset;
+			var targetPosition = playerNode.CardsPosition + offset;
 
 			cardNode.TargetPosition = targetPosition;
 			cardNode.GlobalPosition = targetPosition;
 
-			cardNode.TargetRotationDegrees = playerNode.CardRotation;
-			cardNode.RotationDegrees = playerNode.CardRotation;
+			cardNode.TargetRotationDegrees = playerNode.CardsRotationDegrees;
+			cardNode.RotationDegrees = playerNode.CardsRotationDegrees;
 		}
 	}
 }

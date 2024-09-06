@@ -17,9 +17,9 @@ public partial class PlayerNode : Node3D
 
 	public IEnumerable<CardNode> CardNodes => GetChildren().Where(c => c.IsInGroup(Constants.CardGroup)).Cast<CardNode>();
 
-	public Vector3 CardPosition { get; set; }
+	public Vector3 CardsPosition { get; set; }
 
-	public Vector3 CardRotation { get; set; }
+	public Vector3 CardsRotationDegrees { get; set; }
 
 	private bool _isAnimationEnabled;
 	private Player? _player;
@@ -64,7 +64,7 @@ public partial class PlayerNode : Node3D
 
 			if (_isAnimationEnabled)
 			{
-				cardNode.TargetRotationDegrees = CardRotation;
+				cardNode.TargetRotationDegrees = CardsRotationDegrees;
 
 				if (isNewCard)
 				{
@@ -74,7 +74,7 @@ public partial class PlayerNode : Node3D
 			}
 			else
 			{
-				cardNode.RotationDegrees = CardRotation;
+				cardNode.RotationDegrees = CardsRotationDegrees;
 			}
 
 			var inHandCards = CardNodes.Where(c => c.CardState == CardState.InHand).ToList();
@@ -82,7 +82,7 @@ public partial class PlayerNode : Node3D
 
 			foreach (var (existingCardNode, offset) in inHandCards.Zip(offsets))
 			{
-				var targetPosition = CardPosition + offset;
+				var targetPosition = CardsPosition + offset;
 				existingCardNode.MoveGlobally(targetPosition);
 			}
 

@@ -4,7 +4,7 @@ A 3D Durak card game written in C# and using Godot game engine.
 ![gameplay image 2](images/gameplay2.png)
 
 ## Features
-- 2 player individual game
+- 2-6 player individual game
 - Card animations
 - Moveable camera
 
@@ -14,17 +14,18 @@ A 3D Durak card game written in C# and using Godot game engine.
 - Arrow up/down = go forwards/backwards into current direction
 
 ## TODO 
-1. 3-6 player individual game support
-2. Partnership game support
-3. Full screen mini map toggle
-4. Larger hand fitting in the screen
-5. Better card rotation centering when moving away from the initial starting position
-6. Fix and update tests
-7. More tests to fully cover all game scenarios
-8. Expose settings (animation, animation speed, etc.)
-9. Customization (tables, card backs)
-10. Return to menu button
-11. Add attacker button
-12. Improve computer play
-13. Improve debug logging (who is attacking, etc)
-14. Show current attack in text (P1 vs P2, etc)
+- Hide talon and trump on 6 player individual game
+- Full screen mini map toggle
+- Larger hand fitting in the screen
+- Show non main player animations
+- Better card rotation centering and positioning when moving away from the initial starting position
+- Fix and update tests
+- More tests to fully cover all game scenarios
+- Expose settings (animation, animation speed, etc.)
+- Customization (tables, card backs)
+- Return to menu button
+- Add attacker button
+- Improve computer play
+- Improve debug logging (who is attacking, etc)
+- Show current attack in text (P1 vs P2, etc)
+- Partnership game support

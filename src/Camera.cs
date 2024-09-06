@@ -51,19 +51,19 @@ public partial class Camera : Camera3D
 
         if (Input.IsActionPressed("f1"))
         {
-            GlobalRotationDegrees = _presetRotationDegrees1;
+            RotationDegrees = _presetRotationDegrees1;
             GlobalPosition = _presetPosition1;
             isMoving = true;
         }
         else if (Input.IsActionPressed("f2"))
         {
-            GlobalRotationDegrees = _presetRotationDegrees2;
+            RotationDegrees = _presetRotationDegrees2;
             GlobalPosition = _presetPosition2;
             isMoving = true;
         }
         else if (Input.IsActionPressed("f3"))
         {
-            GlobalRotationDegrees = _presetRotationDegrees3;
+            RotationDegrees = _presetRotationDegrees3;
             GlobalPosition = _presetPosition3;
             isMoving = true;
         }
@@ -77,18 +77,18 @@ public partial class Camera : Camera3D
     public override void _PhysicsProcess(double delta)
     {
         var isMoving = false;
-        var inFrontOfCamera = -GlobalTransform.Basis.Z;
+        var inFrontOfCamera = -Transform.Basis.Z;
         var movement = inFrontOfCamera * _movementSpeed * (float)delta;
 
         if (Input.IsActionPressed("ui_up"))
         {
-            GlobalPosition += movement;
+            Position += movement;
             isMoving = true;
         }
         
         if (Input.IsActionPressed("ui_down"))
         {
-            GlobalPosition -= movement;
+            Position -= movement;
             isMoving = true;
         }
 

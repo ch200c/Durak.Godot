@@ -32,10 +32,61 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.275, 0.1, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.275481, 0, 0)
 
 [node name="Player2Position" type="Node3D" parent="GameSurface/ThreePlayerGame"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.275, 0.1, -0.275)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.275, 0.1, -0.375)
 
 [node name="Player3Position" type="Node3D" parent="GameSurface/ThreePlayerGame"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.275, 0.1, 0.275)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.275, 0.1, 0.375)
+
+[node name="FourPlayerGame" type="Node3D" parent="GameSurface"]
+
+[node name="Player1Position" type="Node3D" parent="GameSurface/FourPlayerGame"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.275481, 0, 0)
+
+[node name="Player2Position" type="Node3D" parent="GameSurface/FourPlayerGame"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.12, 0.1, -0.375)
+
+[node name="Player3Position" type="Node3D" parent="GameSurface/FourPlayerGame"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.275, 0.1, 0)
+
+[node name="Player4Position" type="Node3D" parent="GameSurface/FourPlayerGame"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.12, 0.1, 0.375)
+
+[node name="FivePlayerGame" type="Node3D" parent="GameSurface"]
+
+[node name="Player1Position" type="Node3D" parent="GameSurface/FivePlayerGame"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.275481, 0, 0)
+
+[node name="Player2Position" type="Node3D" parent="GameSurface/FivePlayerGame"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 0.1, -0.375)
+
+[node name="Player3Position" type="Node3D" parent="GameSurface/FivePlayerGame"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.17, 0.1, -0.275)
+
+[node name="Player4Position" type="Node3D" parent="GameSurface/FivePlayerGame"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.17, 0.1, 0.275)
+
+[node name="Player5Position" type="Node3D" parent="GameSurface/FivePlayerGame"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 0.1, 0.375)
+
+[node name="SixPlayerGame" type="Node3D" parent="GameSurface"]
+
+[node name="Player1Position" type="Node3D" parent="GameSurface/SixPlayerGame"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.275481, 0, 0)
+
+[node name="Player2Position" type="Node3D" parent="GameSurface/SixPlayerGame"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 0.1, -0.375)
+
+[node name="Player3Position" type="Node3D" parent="GameSurface/SixPlayerGame"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.17, 0.1, -0.275)
+
+[node name="Player4Position" type="Node3D" parent="GameSurface/SixPlayerGame"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.275, 0.1, 0)
+
+[node name="Player5Position" type="Node3D" parent="GameSurface/SixPlayerGame"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.17, 0.1, 0.275)
+
+[node name="Player6Position" type="Node3D" parent="GameSurface/SixPlayerGame"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 0.1, 0.375)
 
 [node name="Deck" type="Node3D" parent="GameSurface"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.07, 0, 0.2)
