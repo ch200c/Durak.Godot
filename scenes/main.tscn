@@ -130,7 +130,7 @@ transform = Transform3D(-4.37114e-08, 1, 4.37114e-08, 0, -4.37114e-08, 1, 1, 4.3
 fov = 54.5
 size = 0.5
 
-[node name="HUD" type="MarginContainer" parent="."]
+[node name="HUD" type="VBoxContainer" parent="."]
 unique_name_in_owner = true
 anchors_preset = 2
 anchor_top = 1.0
@@ -142,7 +142,13 @@ grow_vertical = 0
 [node name="EndAttackButton" type="Button" parent="HUD"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "End Attack / Pick Up Cards"
+text = "End Attack / Pick up Cards"
+
+[node name="BackToMenuButton" type="Button" parent="HUD"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "Back to Menu"
 
 [node name="EndScreen" type="CenterContainer" parent="."]
 visible = false
@@ -170,3 +176,4 @@ text = "Someone lost"
 
 [connection signal="pressed" from="Menu/VBoxContainer/PlayButton" to="." method="_on_play_button_pressed"]
 [connection signal="pressed" from="HUD/EndAttackButton" to="." method="_on_end_attack_button_pressed"]
+[connection signal="pressed" from="HUD/BackToMenuButton" to="." method="_on_back_to_menu_button_pressed"]

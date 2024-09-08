@@ -71,7 +71,7 @@ public partial class MainNode : Node3D
 
 	public override void _EnterTree()
 	{
-		GetNode<MarginContainer>("%HUD").Hide();
+		GetNode<VBoxContainer>("%HUD").Hide();
 
 		if (_endScreenMessage == null)
 		{
@@ -121,7 +121,8 @@ public partial class MainNode : Node3D
 
 		GetNode<CenterContainer>("EndScreen").Hide();
 		GetNode<MarginContainer>("%Menu").Hide();
-		GetNode<MarginContainer>("%HUD").Show();
+		GetNode<VBoxContainer>("%HUD").Show();
+		GetNode<Button>("%BackToMenuButton").Show();
 
 		var opponentCount = GetNode<SpinBox>("%OpponentsSpinBox");
 		CreatePlayers((int)opponentCount.Value + 1);
@@ -211,7 +212,7 @@ public partial class MainNode : Node3D
 	{
 		if (!_turnLogic!.TryGetNextAttack(out _currentAttack))
 		{
-			Reset();
+			ResetAndUpdateEndScreenMessage();
 			return;
 		}
 
@@ -226,7 +227,7 @@ public partial class MainNode : Node3D
 		}
 	}
 
-	private void Reset()
+	private void ResetAndUpdateEndScreenMessage()
 	{
 		var noCardsLeftPlayerData = PlayerNodes.Where(p => p.Player.Cards.Count == 0).ToList();
 		if (noCardsLeftPlayerData.Count == PlayerNodes.Count())
@@ -240,7 +241,11 @@ public partial class MainNode : Node3D
 		}
 
 		GD.Print(_endScreenMessage);
+		Reset();
+	}
 
+	private void Reset()
+	{
 		var nodes = GetTree().GetNodesInGroup(Constants.CardGroup).Union(GetTree().GetNodesInGroup(_playersGroup));
 		foreach (var node in nodes)
 		{
@@ -554,5 +559,11 @@ public partial class MainNode : Node3D
 			cardNode.TargetRotationDegrees = playerNode.CardsRotationDegrees;
 			cardNode.RotationDegrees = playerNode.CardsRotationDegrees;
 		}
+	}
+
+	private void _on_back_to_menu_button_pressed()
+	{
+		Attack.End();
+		Reset();
 	}
 }
