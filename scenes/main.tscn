@@ -1,8 +1,9 @@
-[gd_scene load_steps=11 format=3 uid="uid://dejk8u7pdcg6e"]
+[gd_scene load_steps=12 format=3 uid="uid://dejk8u7pdcg6e"]
 
 [ext_resource type="PackedScene" uid="uid://dnubgd83nv0um" path="res://scenes/table1.tscn" id="1_sid60"]
 [ext_resource type="Script" path="res://src/MainNode.cs" id="1_ssbm5"]
 [ext_resource type="Script" path="res://src/Camera.cs" id="2_u08ue"]
+[ext_resource type="Script" path="res://src/MiniMap.cs" id="4_iebin"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wmgyb"]
 albedo_color = Color(0.439216, 0.301961, 0, 1)
@@ -118,6 +119,7 @@ offset_left = -0.504089
 offset_bottom = -0.168015
 grow_horizontal = 0
 stretch = true
+script = ExtResource("4_iebin")
 metadata/_edit_use_anchors_ = true
 
 [node name="SubViewport" type="SubViewport" parent="SubViewportContainer"]
@@ -175,5 +177,6 @@ theme_override_font_sizes/font_size = 32
 text = "Someone lost"
 
 [connection signal="pressed" from="Menu/VBoxContainer/PlayButton" to="." method="_on_play_button_pressed"]
+[connection signal="gui_input" from="SubViewportContainer" to="SubViewportContainer" method="_on_gui_input"]
 [connection signal="pressed" from="HUD/EndAttackButton" to="." method="_on_end_attack_button_pressed"]
 [connection signal="pressed" from="HUD/BackToMenuButton" to="." method="_on_back_to_menu_button_pressed"]
