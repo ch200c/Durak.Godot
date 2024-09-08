@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Durak.Godot;
 
@@ -52,6 +53,9 @@ public partial class MainNode : Node3D
 
 	[Export]
 	private bool _isAnimationEnabled = false;
+
+	[Export]
+	private int _nonMainPlayerDelayMs = 750;
 
 	private IAttack Attack { get => _currentAttack ?? throw new GameException("Current attack not initialized"); }
 
@@ -159,7 +163,7 @@ public partial class MainNode : Node3D
 		}
 	}
 
-	private void CurrentAttack_AttackEnded(object? sender, EventArgs e)
+	private async void CurrentAttack_AttackEnded(object? sender, EventArgs e)
 	{
 		Attack.AttackCardAdded -= CurrentAttack_AttackCardAdded;
 		Attack.AttackEnded -= CurrentAttack_AttackEnded;
@@ -185,8 +189,9 @@ public partial class MainNode : Node3D
 				}
 		}
 
+		await Task.Delay(TimeSpan.FromMilliseconds(_nonMainPlayerDelayMs));
 		_dealer!.Deal(Attack);
-
+		
 		StartAttack();
 	}
 
@@ -245,12 +250,13 @@ public partial class MainNode : Node3D
 		GetTree().ReloadCurrentScene();
 	}
 
-	private void CurrentAttack_AttackCardAdded(object? sender, AttackCardAddedEventArgs e)
+	private async void CurrentAttack_AttackCardAdded(object? sender, AttackCardAddedEventArgs e)
 	{
 		RepositionPlayerCards(e.Card.Player.Id);
 
 		if (Attack.NextToPlay().Id != Constants.Player1Id)
 		{
+			await Task.Delay(TimeSpan.FromMilliseconds(_nonMainPlayerDelayMs));
 			PlayAsNonMainPlayer();
 		}
 	}
