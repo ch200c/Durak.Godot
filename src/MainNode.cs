@@ -136,10 +136,11 @@ public partial class MainNode : Node3D
 		_turnLogic = new TurnLogic(players, _deck.TrumpSuit);
 
 		_dealer = new Dealer(6, players, _deck);
-		_dealer.Deal(null);
-
+		
 		CreateTrumpCard(_deck.TrumpCard);
 		CreateTalon();
+
+		_dealer.Deal(null);
 
 		StartAttack();
 	}
@@ -149,20 +150,12 @@ public partial class MainNode : Node3D
 		if (_deck!.Count == 1)
 		{
 			GD.Print("Hiding talon");
-			var talonNode = GetTree().GetFirstNodeInGroup(Constants.TalonGroup);
-			if (talonNode != null)
-			{
-				((CardNode)talonNode).Hide();
-			}
+			((CardNode)GetTree().GetFirstNodeInGroup(Constants.TalonGroup)).Hide();
 		}
 		else if (_deck!.Count == 0)
 		{
 			GD.Print("Hiding trump card");
-			var trumpCardNode = GetTree().GetFirstNodeInGroup(Constants.TrumpCardGroup);
-			if (trumpCardNode != null)
-			{
-				((CardNode)trumpCardNode).Hide();
-			}
+			((CardNode)GetTree().GetFirstNodeInGroup(Constants.TrumpCardGroup)).Hide();
 		}
 	}
 
@@ -254,27 +247,16 @@ public partial class MainNode : Node3D
 
 	private void CurrentAttack_AttackCardAdded(object? sender, AttackCardAddedEventArgs e)
 	{
-		if (e.Card.Player.Id != Constants.Player1Id)
+		RepositionPlayerCards(e.Card.Player.Id);
+
+		if (Attack.NextToPlay().Id != Constants.Player1Id)
 		{
-			RepositionPlayerCards(e.Card.Player.Id);
-			//GD.Print($"Ending call stack after {e.Card.Player.Id} card added");
-
-			if (Attack.NextToPlay().Id != Constants.Player1Id)
-			{
-				PlayAsNonMainPlayer();
-			}
-
-			return;
+			PlayAsNonMainPlayer();
 		}
-
-		RepositionPlayerCards(Constants.Player1Id);
-		PlayAsNonMainPlayer();
 	}
 
 	private bool PlayAsNonMainPlayer()
 	{
-		// todo click on mini map to make it full screen or keyboard shortcut
-
 		var player = Attack.NextToPlay();
 		var availableCardIndices = new Queue<int>(Enumerable.Range(0, player.Cards.Count));
 

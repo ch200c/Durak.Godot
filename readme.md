@@ -14,7 +14,6 @@ A 3D Durak card game written in C# and using Godot game engine.
 - Arrow up/down = go forwards/backwards into current direction
 
 ## TODO 
-- Hide talon and trump on 6 player individual game
 - Full screen mini map toggle
 - Larger hand fitting in the screen
 - Show non main player animations
