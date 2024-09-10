@@ -14,9 +14,13 @@ A 3D Durak card game written in C# and using Godot game engine.
 - Arrow up/down = go forwards/backwards into current direction
 
 ## TODO 
-- Full screen mini map toggle
 - Larger hand fitting in the screen
-- Show non main player animations
+- Show current attack in text (P1 vs P2, etc)
+- Test disabled animations still work
+- Keep order when picking up cards
+- Animation improvements (computer picks up and immediately places card on table isn't shown)
+- Show player names
+- Place non main player hands on the table
 - Better card rotation centering and positioning when moving away from the initial starting position
 - Fix and update tests
 - More tests to fully cover all game scenarios
@@ -25,6 +29,5 @@ A 3D Durak card game written in C# and using Godot game engine.
 - Add attacker button
 - Improve computer play
 - Improve debug logging (who is attacking, etc)
-- Show current attack in text (P1 vs P2, etc)
 - Partnership game support
 - Cleanup without exceptions on back to menu button press 

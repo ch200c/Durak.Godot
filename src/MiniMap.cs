@@ -14,25 +14,27 @@ public partial class MiniMap : SubViewportContainer
 
     public override void _Ready()
     {
-        Update();
-
-        GetViewport().SizeChanged += MiniMap_SizeChanged;
-    }
-
-    private void Update()
-    {
         _defaultAnchorLeft = AnchorLeft;
         _defaultAnchorBottom = AnchorBottom;
         _defaultAnchorTop = AnchorTop;
         _defaultAnchorRight = AnchorRight;
+
         _defaultSize = Size;
         _defaultPosition = Position;
+
+        GetViewport().SizeChanged += Viewport_SizeChanged;
     }
 
-    private void MiniMap_SizeChanged()
+    private void Viewport_SizeChanged()
     {
-
-
+        if (_isFullSize)
+        {
+            SetFullSize();
+        }
+        else
+        {
+            ResetOffsets();
+        }
     }
 
     private void _on_gui_input(InputEvent @event)
@@ -41,21 +43,36 @@ public partial class MiniMap : SubViewportContainer
         {
             if (_isFullSize)
             {
-                SetSize(_defaultSize);
                 AnchorLeft = _defaultAnchorLeft;
                 AnchorBottom = _defaultAnchorBottom;
                 AnchorRight = _defaultAnchorRight;
                 AnchorTop = _defaultAnchorTop;
+
+                SetSize(_defaultSize);
                 SetPosition(_defaultPosition);
+                ResetOffsets();
             }
             else
             {
-                var fullWindow = GetViewport().GetVisibleRect().Size;
-                SetSize(new Vector2(fullWindow.X, fullWindow.Y * 0.6f));
-                SetPosition(new Vector2(0, 0));
+                SetFullSize();
             }
 
             _isFullSize = !_isFullSize;
         }
+    }
+
+    private void SetFullSize()
+    {
+        var fullWindow = GetViewport().GetVisibleRect().Size;
+        SetSize(new Vector2(fullWindow.X, fullWindow.Y * 0.6f));
+        SetPosition(new Vector2(0, 0));
+    }
+
+    private void ResetOffsets()
+    {
+        OffsetBottom = 0;
+        OffsetTop = 0;
+        OffsetRight = 0;
+        OffsetLeft = 0;
     }
 }
