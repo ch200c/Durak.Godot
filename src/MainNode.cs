@@ -59,8 +59,6 @@ public partial class MainNode : Node3D
 
 	private IAttack Attack { get => _currentAttack ?? throw new GameException("Current attack not initialized"); }
 
-	private Node3D DiscardPile { get => GetNode<Node3D>("/root/Main/Table/GameSurface/DiscardPile"); }
-
 	private IEnumerable<PlayerNode> PlayerNodes => GetChildren().Where(c => c.IsInGroup(_playersGroup)).Cast<PlayerNode>();
 
 	private IEnumerable<PlayerNode> OrderedPlayerNodes => PlayerNodes.OrderBy(p => p.Player.Id);
@@ -518,11 +516,7 @@ public partial class MainNode : Node3D
 
 			foreach (var tableCard in tableCards)
 			{
-				GD.Print($"Discarding {tableCard.Card}");
-
-				tableCard.MoveGlobally(DiscardPile.GlobalPosition);
-				tableCard.RotateDegrees(DiscardPile.RotationDegrees);
-				tableCard.CardState = CardState.Discarded;
+				tableCard.Discard();
 			}
 		}
 
@@ -532,12 +526,7 @@ public partial class MainNode : Node3D
 	private void PlaceCardOnTable(CardNode cardNode)
 	{
 		var placement = GetCardPlacementOnTable();
-
-		cardNode.MoveGlobally(placement.GlobalPosition);
-		cardNode.RotateDegrees(placement.RotationDegrees);
-		cardNode.CardState = CardState.InAttack;
-		cardNode.UpdateSortingOffsets(Attack);
-		cardNode.GetNode<MeshInstance3D>("MeshInstance3D").Show();
+		cardNode.PlaceCardOnTable(placement, Attack);
 	}
 
 	private void RepositionPlayerCards(string playerId)

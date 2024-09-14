@@ -34,7 +34,9 @@ public partial class CardNode : StaticBody3D
 	[Export]
 	private float _rotationLerpWeight = 0.3f;
 
-	private DateTime _physicsCooldownExpiration = DateTime.UtcNow;
+    private Node3D DiscardPile { get => GetNode<Node3D>("/root/Main/Table/GameSurface/DiscardPile"); }
+
+    private DateTime _physicsCooldownExpiration = DateTime.UtcNow;
 	private Card? _card;
 
 	private const string _cardSpriteFront = "Front";
@@ -141,7 +143,25 @@ public partial class CardNode : StaticBody3D
 		}
 	}
 
-	private static Texture2D GetTexture(Card card)
+	public void Discard()
+	{
+        GD.Print($"Discarding {Card}");
+
+        MoveGlobally(DiscardPile.GlobalPosition);
+        RotateDegrees(DiscardPile.RotationDegrees);
+        CardState = CardState.Discarded;
+    }
+
+	public void PlaceCardOnTable(Node3D placement, IAttack attack)
+	{
+        MoveGlobally(placement.GlobalPosition);
+        RotateDegrees(placement.RotationDegrees);
+        CardState = CardState.InAttack;
+        UpdateSortingOffsets(attack);
+        GetNode<MeshInstance3D>("MeshInstance3D").Show();
+    }
+
+    private static Texture2D GetTexture(Card card)
 	{
 		var fileName = new StringBuilder("res://art/cards/fronts/");
 
