@@ -34,12 +34,11 @@ public partial class CardNode : StaticBody3D
 	[Export]
 	private float _rotationLerpWeight = 0.3f;
 
-    private Node3D DiscardPile { get => GetNode<Node3D>("/root/Main/Table/GameSurface/DiscardPile"); }
+	private Node3D DiscardPile { get => GetNode<Node3D>("/root/Main/Table/GameSurface/DiscardPile"); }
 
-    private DateTime _physicsCooldownExpiration = DateTime.UtcNow;
+	private DateTime _physicsCooldownExpiration = DateTime.UtcNow;
 	private Card? _card;
 
-	private const string _cardSpriteFront = "Front";
 	private const string _cardSpriteBack = "Back";
 
 	public void Initialize(Card card, CardState cardState)
@@ -47,7 +46,7 @@ public partial class CardNode : StaticBody3D
 		_card = card;
 
 		var texture = GetTexture(_card);
-		GetNode<Sprite3D>(_cardSpriteFront).Texture = texture;
+		GetNode<Sprite3D>(Constants.CardSpriteFront).Texture = texture;
 
 		CardState = cardState;
 	}
@@ -108,11 +107,11 @@ public partial class CardNode : StaticBody3D
 		{
 			if (attack.IsDefending)
 			{
-				GetNode<Sprite3D>(_cardSpriteFront).SortingOffset = 1;
+				GetNode<Sprite3D>(Constants.CardSpriteFront).SortingOffset = 1;
 			}
 			else
 			{
-				GetNode<Sprite3D>(_cardSpriteFront).SortingOffset = 0;
+				GetNode<Sprite3D>(Constants.CardSpriteFront).SortingOffset = 0;
 			}
 			return;
 		}
@@ -128,11 +127,11 @@ public partial class CardNode : StaticBody3D
 				{
 					if (GetParent<PlayerNode>().Player.Id == Constants.Player1Id)
 					{
-						GetNode<Sprite3D>(_cardSpriteFront).SortingOffset = 2;
+						GetNode<Sprite3D>(Constants.CardSpriteFront).SortingOffset = 2;
 					}
 					else
 					{
-						GetNode<Sprite3D>(_cardSpriteFront).SortingOffset = 0;
+						GetNode<Sprite3D>(Constants.CardSpriteFront).SortingOffset = 0;
 					}
 					break;
 				}
@@ -145,23 +144,23 @@ public partial class CardNode : StaticBody3D
 
 	public void Discard()
 	{
-        GD.Print($"Discarding {Card}");
+		GD.Print($"Discarding {Card}");
 
-        MoveGlobally(DiscardPile.GlobalPosition);
-        RotateDegrees(DiscardPile.RotationDegrees);
-        CardState = CardState.Discarded;
-    }
+		MoveGlobally(DiscardPile.GlobalPosition);
+		RotateDegrees(DiscardPile.RotationDegrees);
+		CardState = CardState.Discarded;
+	}
 
 	public void PlaceCardOnTable(Node3D placement, IAttack attack)
 	{
-        MoveGlobally(placement.GlobalPosition);
-        RotateDegrees(placement.RotationDegrees);
-        CardState = CardState.InAttack;
-        UpdateSortingOffsets(attack);
-        GetNode<MeshInstance3D>("MeshInstance3D").Show();
-    }
+		MoveGlobally(placement.GlobalPosition);
+		RotateDegrees(placement.RotationDegrees);
+		CardState = CardState.InAttack;
+		UpdateSortingOffsets(attack);
+		GetNode<MeshInstance3D>("MeshInstance3D").Show();
+	}
 
-    private static Texture2D GetTexture(Card card)
+	private static Texture2D GetTexture(Card card)
 	{
 		var fileName = new StringBuilder("res://art/cards/fronts/");
 

@@ -14,7 +14,8 @@ public static class Constants
 	public static readonly string CardGroup = "cards";
 	public static readonly string TrumpCardGroup = "trumpCard";
 	public static readonly string TalonGroup = "talon";
-	public static readonly PackedScene CardScene = GD.Load<PackedScene>("res://scenes/card.tscn");
+    public static readonly string CardSpriteFront = "Front";
+    public static readonly PackedScene CardScene = GD.Load<PackedScene>("res://scenes/card.tscn");
 }
 
 public partial class MainNode : Node3D
@@ -302,18 +303,20 @@ public partial class MainNode : Node3D
 			playerNode.AddToGroup(_playersGroup);
 			playerNode.Initialize($"P{i + 1}", _isAnimationEnabled);
 			playerNode.CardClicked += Player_CardClicked;
-			playerNode.CardAdded += Player_CardsAdded;
+			playerNode.CardAdded += Player_CardAdded;
 			AddChild(playerNode);
 		}
 	}
 
-	private void Player_CardsAdded(CardNode cardNode)
+	private void Player_CardAdded(CardNode cardNode)
 	{
-		if (_isAnimationEnabled)
+        RepositionPlayerCards(cardNode.GetParent<PlayerNode>().Player.Id);
+
+        if (_isAnimationEnabled)
 		{
 			AddPhysicsCooldown(cardNode);
 		}
-	}
+    }
 
 	private void SetMainPlayerCardsPositionAndRotation(Camera3D camera)
 	{
@@ -440,7 +443,7 @@ public partial class MainNode : Node3D
 			return [];
 		}
 
-		var increment = _cardWidth + _cardPaddingX;
+		var increment = (_cardWidth + _cardPaddingX) / 2;
 		var isEven = count % 2 == 0;
 		var middleX = (_minMainPlayerHandX + _maxMainPlayerHandX) / 2.0f;
 
@@ -464,7 +467,7 @@ public partial class MainNode : Node3D
 			positions.Add(positionRight);
 		}
 
-		return positions.Select(p => new Vector3(0, 0, p));
+		return positions.Order().Select((p, i) => new Vector3(0, 0 + (i / 10000f), p));
 	}
 
 	private void AddPhysicsCooldown(CardNode cardNode)
@@ -537,16 +540,14 @@ public partial class MainNode : Node3D
 		GD.Print($"Rearranging {playerId} cards: {string.Join(',', inHandCards.Select(c => c.Card))}");
 
 		var cardOffsets = GetCardOffsets(inHandCards.Count);
-
+		var sortingOffset = 0;
 		foreach (var (cardNode, offset) in inHandCards.Zip(cardOffsets))
 		{
 			var targetPosition = playerNode.CardsPosition + offset;
-
-			cardNode.TargetPosition = targetPosition;
-			cardNode.GlobalPosition = targetPosition;
-
-			cardNode.TargetRotationDegrees = playerNode.CardsRotationDegrees;
-			cardNode.RotationDegrees = playerNode.CardsRotationDegrees;
+			cardNode.MoveGlobally(targetPosition);
+			cardNode.RotateDegrees(playerNode.CardsRotationDegrees);
+			cardNode.GetNode<Sprite3D>(Constants.CardSpriteFront).SortingOffset = sortingOffset;
+			sortingOffset++;
 		}
 	}
 
