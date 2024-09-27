@@ -28,6 +28,8 @@ public partial class CardNode : StaticBody3D
 
 	public bool IsAnimationEnabled { get; set; }
 
+	public int OrderInHand { get; set; } = -1;
+
 	[Export]
 	private float _positionLerpWeight = 0.3f;
 

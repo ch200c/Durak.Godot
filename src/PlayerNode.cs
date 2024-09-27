@@ -13,7 +13,10 @@ public partial class PlayerNode : Node3D
 	[Signal]
 	public delegate void CardAddedEventHandler(CardNode cardNode);
 
-	public Player Player => _player ?? throw new GameException("Player not initialized");
+    [Signal]
+    public delegate void CardsAddedEventHandler(string playerId);
+
+    public Player Player => _player ?? throw new GameException("Player not initialized");
 
 	public IEnumerable<CardNode> CardNodes => GetChildren().Where(c => c.IsInGroup(Constants.CardGroup)).Cast<CardNode>();
 
@@ -23,6 +26,7 @@ public partial class PlayerNode : Node3D
 
 	private bool _isAnimationEnabled;
 	private Player? _player;
+	private readonly SortedList<int, Card> _order = [];
 
 	public void Initialize(string id, bool isAnimationEnabled)
 	{
@@ -49,6 +53,8 @@ public partial class PlayerNode : Node3D
 			{
 				cardNode!.Reparent(this);
 			}
+
+			UpdateOrder(cardNode!);
 
 			GD.Print($"isNew: {isNewCard}, isPlayerCard: {isPlayerCard}");
 			cardNode!.CardState = CardState.InHand;
@@ -88,6 +94,8 @@ public partial class PlayerNode : Node3D
 
 			EmitSignal(SignalName.CardAdded, cardNode);
 		}
+
+		EmitSignal(SignalName.CardsAdded, Player.Id);
 	}
 
 	private void Card_Clicked(CardNode cardNode)
@@ -127,6 +135,19 @@ public partial class PlayerNode : Node3D
 		AddChild(cardNode);
 		cardNode.AddToGroup(Constants.CardGroup);
 		cardNode.SetPhysicsProcess(_isAnimationEnabled);
+
 		return cardNode;
 	}
+
+	private void UpdateOrder(CardNode cardNode)
+	{
+        var orderKey = _order.Count == 0 ? 0 : _order.Last().Key + 1;
+        _order.Add(orderKey, cardNode.Card);
+        cardNode.OrderInHand = orderKey;
+    }
+
+    public void RemoveCardFromOrder(Card card)
+    {
+        _order.Remove(_order.IndexOfValue(card));
+    }
 }

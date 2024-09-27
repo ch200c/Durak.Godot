@@ -304,14 +304,18 @@ public partial class MainNode : Node3D
 			playerNode.Initialize($"P{i + 1}", _isAnimationEnabled);
 			playerNode.CardClicked += Player_CardClicked;
 			playerNode.CardAdded += Player_CardAdded;
+            playerNode.CardsAdded += PlayerNode_CardsAdded;
 			AddChild(playerNode);
 		}
 	}
 
-	private void Player_CardAdded(CardNode cardNode)
-	{
-        RepositionPlayerCards(cardNode.GetParent<PlayerNode>().Player.Id);
+    private void PlayerNode_CardsAdded(string playerId)
+    {
+        RepositionPlayerCards(playerId);
+    }
 
+    private void Player_CardAdded(CardNode cardNode)
+	{
         if (_isAnimationEnabled)
 		{
 			AddPhysicsCooldown(cardNode);
@@ -530,14 +534,15 @@ public partial class MainNode : Node3D
 	{
 		var placement = GetCardPlacementOnTable();
 		cardNode.PlaceCardOnTable(placement, Attack);
+		cardNode.GetParent<PlayerNode>().RemoveCardFromOrder(cardNode.Card);
 	}
 
 	private void RepositionPlayerCards(string playerId)
 	{
 		var playerNode = GetPlayerNode(playerId);
 
-		var inHandCards = playerNode.CardNodes.Where(c => c.CardState == CardState.InHand).ToList();
-		GD.Print($"Rearranging {playerId} cards: {string.Join(',', inHandCards.Select(c => c.Card))}");
+		var inHandCards = playerNode.CardNodes.Where(c => c.CardState == CardState.InHand).OrderBy(c => c.OrderInHand).ToList();
+		GD.Print($"Rearranging {playerId} cards: {string.Join(',', inHandCards.Select(c => $"{c.Card} {c.OrderInHand}"))}");
 
 		var cardOffsets = GetCardOffsets(inHandCards.Count);
 		var sortingOffset = 0;
@@ -549,7 +554,7 @@ public partial class MainNode : Node3D
 			cardNode.GetNode<Sprite3D>(Constants.CardSpriteFront).SortingOffset = sortingOffset;
 			sortingOffset++;
 		}
-	}
+    }
 
 	private void _on_back_to_menu_button_pressed()
 	{
