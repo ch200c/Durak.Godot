@@ -7,11 +7,12 @@ A 3D Durak card game written in C# and using Godot game engine.
 - 2-6 player individual game
 - Card animations
 - Moveable camera
+- Expandable mini-map
 
 ## Controls
-- Left mouse button = play the card or interact with the menu buttons
-- Middle mouse button = look around
-- Arrow up/down = go forwards/backwards into current direction
+- Left mouse button = Play the card or interact with the menu buttons. Also used to expand and collapse the mini-map.
+- Middle mouse button = Look around
+- Arrow up/down = Go forwards/backwards into current direction
 
 ## TODO 
 - Test disabled animations still work
