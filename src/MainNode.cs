@@ -14,8 +14,8 @@ public static class Constants
 	public static readonly string CardGroup = "cards";
 	public static readonly string TrumpCardGroup = "trumpCard";
 	public static readonly string TalonGroup = "talon";
-    public static readonly string CardSpriteFront = "Front";
-    public static readonly PackedScene CardScene = GD.Load<PackedScene>("res://scenes/card.tscn");
+	public static readonly string CardSpriteFront = "Front";
+	public static readonly PackedScene CardScene = GD.Load<PackedScene>("res://scenes/card.tscn");
 }
 
 public partial class MainNode : Node3D
@@ -140,13 +140,38 @@ public partial class MainNode : Node3D
 		_turnLogic = new TurnLogic(players, _deck.TrumpSuit);
 
 		_dealer = new Dealer(6, players, _deck);
-		
+
+		GetNode<Label>("%TrumpSuit").Text = $" Trump suit: {GetUserFriendlyTrumpSuitName(_deck.TrumpSuit)}";
 		CreateTrumpCard(_deck.TrumpCard);
 		CreateTalon();
 
 		_dealer.Deal(null);
 
 		StartAttack();
+	}
+
+	private static string GetUserFriendlyTrumpSuitName(char trumpSuit)
+	{
+		if (trumpSuit == Suit.Clubs)
+		{
+			return "Clubs";
+		}
+		else if (trumpSuit == Suit.Diamonds)
+		{
+			return "Diamonds";
+		}
+		else if (trumpSuit == Suit.Hearts)
+		{
+			return "Hearts";
+		}
+		else if (trumpSuit == Suit.Spades)
+		{
+			return "Spades";
+		}
+		else
+		{
+			throw new GameException($"Unknown card suit {trumpSuit}");
+		}
 	}
 
 	private void _deck_CardRemoved(object? sender, CardRemovedEventArgs e)
@@ -163,14 +188,26 @@ public partial class MainNode : Node3D
 		}
 	}
 
+	private void ResetCurrentAttackLabel()
+	{
+		GetNode<Label>("%CurrentAttack").Text = "";
+	}
+
+	private string GetAttackTitle()
+	{
+		var attackerIds = Attack.Attackers.Select(a => a.Id);
+		return $"{string.Join(',', attackerIds)} vs {Attack.Defender.Id}";
+	}
+
 	private async void CurrentAttack_AttackEnded(object? sender, EventArgs e)
 	{
+		ResetCurrentAttackLabel();
+
 		Attack.AttackCardAdded -= CurrentAttack_AttackCardAdded;
 		Attack.AttackEnded -= CurrentAttack_AttackEnded;
 
-		var attackerIds = Attack.Attackers.Select(a => a.Id);
 		var attackCards = Attack.Cards.Select(c => c.Card);
-		GD.Print($"Attack state: {Attack.State} | {string.Join(',', attackerIds)} vs {Attack.Defender.Id} | {string.Join(',', attackCards)}");
+		GD.Print($"Attack state: {Attack.State} | {GetAttackTitle()} | {string.Join(',', attackCards)}");
 
 		switch (Attack.State)
 		{
@@ -214,6 +251,8 @@ public partial class MainNode : Node3D
 			ResetAndUpdateEndScreenMessage();
 			return;
 		}
+
+		GetNode<Label>("%CurrentAttack").Text = $" {GetAttackTitle()}";
 
 		Attack.AttackCardAdded += CurrentAttack_AttackCardAdded;
 		Attack.AttackEnded += CurrentAttack_AttackEnded;
@@ -304,23 +343,23 @@ public partial class MainNode : Node3D
 			playerNode.Initialize($"P{i + 1}", _isAnimationEnabled);
 			playerNode.CardClicked += Player_CardClicked;
 			playerNode.CardAdded += Player_CardAdded;
-            playerNode.CardsAdded += PlayerNode_CardsAdded;
+			playerNode.CardsAdded += PlayerNode_CardsAdded;
 			AddChild(playerNode);
 		}
 	}
 
-    private void PlayerNode_CardsAdded(string playerId)
-    {
-        RepositionPlayerCards(playerId);
-    }
-
-    private void Player_CardAdded(CardNode cardNode)
+	private void PlayerNode_CardsAdded(string playerId)
 	{
-        if (_isAnimationEnabled)
+		RepositionPlayerCards(playerId);
+	}
+
+	private void Player_CardAdded(CardNode cardNode)
+	{
+		if (_isAnimationEnabled)
 		{
 			AddPhysicsCooldown(cardNode);
 		}
-    }
+	}
 
 	private void SetMainPlayerCardsPositionAndRotation(Camera3D camera)
 	{
@@ -554,7 +593,7 @@ public partial class MainNode : Node3D
 			cardNode.GetNode<Sprite3D>(Constants.CardSpriteFront).SortingOffset = sortingOffset;
 			sortingOffset++;
 		}
-    }
+	}
 
 	private void _on_back_to_menu_button_pressed()
 	{

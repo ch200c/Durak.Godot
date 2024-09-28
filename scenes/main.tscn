@@ -141,6 +141,22 @@ offset_top = -31.0
 offset_right = 211.0
 grow_vertical = 0
 
+[node name="CurrentAttack" type="Label" parent="HUD"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+text = "Current attack"
+
+[node name="TrumpSuit" type="Label" parent="HUD"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+text = "Trump suit"
+
 [node name="EndAttackButton" type="Button" parent="HUD"]
 unique_name_in_owner = true
 layout_mode = 2
