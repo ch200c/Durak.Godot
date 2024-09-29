@@ -24,6 +24,8 @@ public partial class PlayerNode : Node3D
 
 	public Vector3 CardsRotationDegrees { get; set; }
 
+	public Path3D? CardsPath { get; set; }
+
 	private bool _isAnimationEnabled;
 	private Player? _player;
 	private readonly SortedList<int, Card> _order = [];

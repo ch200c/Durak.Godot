@@ -17,8 +17,6 @@ A 3D Durak card game written in C# and using Godot game engine.
 ## TODO 
 - Test disabled animations still work
 - Animation improvements (computer picks up and immediately places card on table isn't shown)
-- Show player names
-- Place non main player hands on the table
 - Fix and update tests
 - More tests to fully cover all game scenarios
 - Expose settings (animation, animation speed, etc.)

@@ -3,7 +3,6 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Durak.Godot;
@@ -68,7 +67,9 @@ public partial class MainNode : Node3D
 
 	private PlayerNode GetPlayerNode(string id) => PlayerNodes.Single(p => p.Player.Id == id);
 
-	public override void _EnterTree()
+	private Table Table => GetNode<Table>("/root/Main/Table");
+
+    public override void _EnterTree()
 	{
 		GetNode<VBoxContainer>("%HUD").Hide();
 
@@ -131,11 +132,12 @@ public partial class MainNode : Node3D
 		camera.Moved += Camera_Moved;
 
 		var players = OrderedPlayerNodes.Select(p => p.Player).ToList();
-		
+        Table.Initialize(players.Select(p => p.Id).ToList());
+        
 		SetMainPlayerCardsPositionAndRotation(camera);
 		AddOpponentPlayerData();
-		
-		_deck = new Deck(new FrenchSuited36CardProvider(), new DefaultCardShuffler());
+
+        _deck = new Deck(new FrenchSuited36CardProvider(), new DefaultCardShuffler());
 		_deck.CardRemoved += _deck_CardRemoved;
 		_turnLogic = new TurnLogic(players, _deck.TrumpSuit);
 
@@ -377,26 +379,21 @@ public partial class MainNode : Node3D
 
 	private void AddOpponentPlayerData()
 	{
-		var nodeName = PlayerNodes.Count() switch
-		{
-			2 => "TwoPlayerGame",
-			3 => "ThreePlayerGame",
-			4 => "FourPlayerGame",
-			5 => "FivePlayerGame",
-			6 => "SixPlayerGame",
-			_ => throw new GameException("Cannot have other than 2-6 player nodes")
-		};
+		var paths = Table.GetPaths();
 
-		var positions = GetNode<Node3D>($"/root/Main/Table/GameSurface/{nodeName}")
-			.GetChildren()
-			.Where(n => n.Name != "Player1Position")
-			.Cast<Node3D>()
-			.Select(n => n.GlobalPosition);
-
-		foreach (var (globalPosition, opponent) in positions.Zip(OrderedPlayerNodes.Except([MainPlayerNode])))
+        foreach (var (path, opponent) in paths.Zip(OrderedPlayerNodes.Except([MainPlayerNode])))
 		{
-			opponent.CardsPosition = globalPosition;
-			opponent.CardsRotationDegrees = new Vector3(0, 90, 0);
+			opponent.CardsPath = path;
+			opponent.CardsPosition = path.GlobalPosition;
+		
+			var angle = Mathf.RadToDeg(MainPlayerNode.CardsPosition.SignedAngleTo(path.GlobalPosition, Vector3.Left));
+			if (angle < 0) 
+			{ 
+				angle += 180.0f;
+			}
+
+			GD.Print("angle ", angle);
+			opponent.CardsRotationDegrees = new Vector3(90, 0, angle);
 		}
 	}
 
@@ -526,30 +523,6 @@ public partial class MainNode : Node3D
 		}
 	}
 
-	private Node3D GetCardPlacementOnTable()
-	{
-		var path = new StringBuilder("/root/Main/Table/GameSurface/AttackingAndDefending/");
-		var position = Attack.Cards.Count switch
-		{
-			0 => "AttackingCard1",
-			1 => "DefendingCard1",
-			2 => "AttackingCard2",
-			3 => "DefendingCard2",
-			4 => "AttackingCard3",
-			5 => "DefendingCard3",
-			6 => "AttackingCard4",
-			7 => "DefendingCard4",
-			8 => "AttackingCard5",
-			9 => "DefendingCard5",
-			10 => "AttackingCard6",
-			11 => "DefendingCard6",
-			_ => throw new GameException("Invalid amount of cards in current attack")
-		};
-
-		path.Append(position);
-		return GetNode<Node3D>(path.ToString());
-	}
-
 	private void HandleBeatenOffAttack()
 	{
 		GD.Print("HandleBeatenOffAttack");
@@ -571,7 +544,7 @@ public partial class MainNode : Node3D
 
 	private void PlaceCardOnTable(CardNode cardNode)
 	{
-		var placement = GetCardPlacementOnTable();
+        var placement = Table.GetCardPlacementOnTable(Attack.Cards.Count);
 		cardNode.PlaceCardOnTable(placement, Attack);
 		cardNode.GetParent<PlayerNode>().RemoveCardFromOrder(cardNode.Card);
 	}
@@ -583,17 +556,41 @@ public partial class MainNode : Node3D
 		var inHandCards = playerNode.CardNodes.Where(c => c.CardState == CardState.InHand).OrderBy(c => c.OrderInHand).ToList();
 		GD.Print($"Rearranging {playerId} cards: {string.Join(',', inHandCards.Select(c => $"{c.Card} {c.OrderInHand}"))}");
 
-		var cardOffsets = GetCardOffsets(inHandCards.Count);
 		var sortingOffset = 0;
-		foreach (var (cardNode, offset) in inHandCards.Zip(cardOffsets))
+
+		if (playerId != Constants.Player1Id)
+		{
+			var sampling = 0.0f;
+			var sampleStep = playerNode.CardsPath!.Curve.GetBakedLength() / inHandCards.Count;
+			foreach (var cardNode in inHandCards)
+			{
+				var targetPosition = playerNode.CardsPath!.Curve.SampleBaked(sampling);
+				targetPosition = playerNode.CardsPath!.ToGlobal(targetPosition);
+			
+                MoveRotateAndSetSortingOffset(cardNode, targetPosition, playerNode, sortingOffset);
+
+                sortingOffset++;
+				sampling += sampleStep;
+			}
+
+			return;
+		}
+
+        var cardOffsets = GetCardOffsets(inHandCards.Count);
+        foreach (var (cardNode, offset) in inHandCards.Zip(cardOffsets))
 		{
 			var targetPosition = playerNode.CardsPosition + offset;
-			cardNode.MoveGlobally(targetPosition);
-			cardNode.RotateDegrees(playerNode.CardsRotationDegrees);
-			cardNode.GetNode<Sprite3D>(Constants.CardSpriteFront).SortingOffset = sortingOffset;
-			sortingOffset++;
+			MoveRotateAndSetSortingOffset(cardNode, targetPosition, playerNode, sortingOffset);
+            sortingOffset++;
 		}
 	}
+
+	private static void MoveRotateAndSetSortingOffset(CardNode cardNode, Vector3 targetPosition, PlayerNode playerNode, int sortingOffset)
+	{
+        cardNode.MoveGlobally(targetPosition);
+        cardNode.RotateDegrees(playerNode.CardsRotationDegrees);
+        cardNode.GetNode<Sprite3D>(Constants.CardSpriteFront).SortingOffset = sortingOffset;
+    }
 
 	private void _on_back_to_menu_button_pressed()
 	{
