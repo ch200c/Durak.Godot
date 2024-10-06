@@ -2,6 +2,7 @@
 A 3D Durak card game written in C# and using Godot game engine.
 ![gameplay image 1](images/gameplay1.png)
 ![gameplay image 2](images/gameplay2.png)
+![gameplay image 3](images/gameplay3.png)
 
 ## Features
 - 2-6 player individual game

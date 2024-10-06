@@ -69,7 +69,7 @@ public partial class MainNode : Node3D
 
 	private Table Table => GetNode<Table>("/root/Main/Table");
 
-    public override void _EnterTree()
+	public override void _EnterTree()
 	{
 		GetNode<VBoxContainer>("%HUD").Hide();
 
@@ -132,12 +132,12 @@ public partial class MainNode : Node3D
 		camera.Moved += Camera_Moved;
 
 		var players = OrderedPlayerNodes.Select(p => p.Player).ToList();
-        Table.Initialize(players.Select(p => p.Id).ToList());
-        
+		Table.Initialize(players.Select(p => p.Id).ToList());
+		
 		SetMainPlayerCardsPositionAndRotation(camera);
 		AddOpponentPlayerData();
 
-        _deck = new Deck(new FrenchSuited36CardProvider(), new DefaultCardShuffler());
+		_deck = new Deck(new FrenchSuited36CardProvider(), new DefaultCardShuffler());
 		_deck.CardRemoved += _deck_CardRemoved;
 		_turnLogic = new TurnLogic(players, _deck.TrumpSuit);
 
@@ -381,7 +381,7 @@ public partial class MainNode : Node3D
 	{
 		var paths = Table.GetPaths();
 
-        foreach (var (path, opponent) in paths.Zip(OrderedPlayerNodes.Except([MainPlayerNode])))
+		foreach (var (path, opponent) in paths.Zip(OrderedPlayerNodes.Except([MainPlayerNode])))
 		{
 			opponent.CardsPath = path;
 			opponent.CardsPosition = path.GlobalPosition;
@@ -544,7 +544,7 @@ public partial class MainNode : Node3D
 
 	private void PlaceCardOnTable(CardNode cardNode)
 	{
-        var placement = Table.GetCardPlacementOnTable(Attack.Cards.Count);
+		var placement = Table.GetCardPlacementOnTable(Attack.Cards.Count);
 		cardNode.PlaceCardOnTable(placement, Attack);
 		cardNode.GetParent<PlayerNode>().RemoveCardFromOrder(cardNode.Card);
 	}
@@ -567,30 +567,30 @@ public partial class MainNode : Node3D
 				var targetPosition = playerNode.CardsPath!.Curve.SampleBaked(sampling);
 				targetPosition = playerNode.CardsPath!.ToGlobal(targetPosition);
 			
-                MoveRotateAndSetSortingOffset(cardNode, targetPosition, playerNode, sortingOffset);
+				MoveRotateAndSetSortingOffset(cardNode, targetPosition, playerNode, sortingOffset);
 
-                sortingOffset++;
+				sortingOffset++;
 				sampling += sampleStep;
 			}
 
 			return;
 		}
 
-        var cardOffsets = GetCardOffsets(inHandCards.Count);
-        foreach (var (cardNode, offset) in inHandCards.Zip(cardOffsets))
+		var cardOffsets = GetCardOffsets(inHandCards.Count);
+		foreach (var (cardNode, offset) in inHandCards.Zip(cardOffsets))
 		{
 			var targetPosition = playerNode.CardsPosition + offset;
 			MoveRotateAndSetSortingOffset(cardNode, targetPosition, playerNode, sortingOffset);
-            sortingOffset++;
+			sortingOffset++;
 		}
 	}
 
 	private static void MoveRotateAndSetSortingOffset(CardNode cardNode, Vector3 targetPosition, PlayerNode playerNode, int sortingOffset)
 	{
-        cardNode.MoveGlobally(targetPosition);
-        cardNode.RotateDegrees(playerNode.CardsRotationDegrees);
-        cardNode.GetNode<Sprite3D>(Constants.CardSpriteFront).SortingOffset = sortingOffset;
-    }
+		cardNode.MoveGlobally(targetPosition);
+		cardNode.RotateDegrees(playerNode.CardsRotationDegrees);
+		cardNode.GetNode<Sprite3D>(Constants.CardSpriteFront).SortingOffset = sortingOffset;
+	}
 
 	private void _on_back_to_menu_button_pressed()
 	{

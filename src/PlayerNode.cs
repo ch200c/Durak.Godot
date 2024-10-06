@@ -13,10 +13,10 @@ public partial class PlayerNode : Node3D
 	[Signal]
 	public delegate void CardAddedEventHandler(CardNode cardNode);
 
-    [Signal]
-    public delegate void CardsAddedEventHandler(string playerId);
+	[Signal]
+	public delegate void CardsAddedEventHandler(string playerId);
 
-    public Player Player => _player ?? throw new GameException("Player not initialized");
+	public Player Player => _player ?? throw new GameException("Player not initialized");
 
 	public IEnumerable<CardNode> CardNodes => GetChildren().Where(c => c.IsInGroup(Constants.CardGroup)).Cast<CardNode>();
 
@@ -143,13 +143,13 @@ public partial class PlayerNode : Node3D
 
 	private void UpdateOrder(CardNode cardNode)
 	{
-        var orderKey = _order.Count == 0 ? 0 : _order.Last().Key + 1;
-        _order.Add(orderKey, cardNode.Card);
-        cardNode.OrderInHand = orderKey;
-    }
+		var orderKey = _order.Count == 0 ? 0 : _order.Last().Key + 1;
+		_order.Add(orderKey, cardNode.Card);
+		cardNode.OrderInHand = orderKey;
+	}
 
-    public void RemoveCardFromOrder(Card card)
-    {
-        _order.Remove(_order.IndexOfValue(card));
-    }
+	public void RemoveCardFromOrder(Card card)
+	{
+		_order.Remove(_order.IndexOfValue(card));
+	}
 }
