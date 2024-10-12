@@ -36,6 +36,9 @@ public partial class CardNode : StaticBody3D
 	[Export]
 	private float _rotationLerpWeight = 0.3f;
 
+	[Export]
+	private Texture2D? _texture;
+
 	private Node3D DiscardPile { get => GetNode<Node3D>("/root/Main/Table/GameSurface/DiscardPile"); }
 
 	private DateTime _physicsCooldownExpiration = DateTime.UtcNow;
@@ -47,7 +50,7 @@ public partial class CardNode : StaticBody3D
 	{
 		_card = card;
 
-		var texture = GetTexture(_card);
+		var texture = _texture ?? GetTexture(_card);
 		GetNode<Sprite3D>(Constants.CardSpriteFront).Texture = texture;
 
 		CardState = cardState;
