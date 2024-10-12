@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://if75xsxqmq4s"]
+[gd_scene load_steps=54 format=3 uid="uid://if75xsxqmq4s"]
 
 [ext_resource type="PackedScene" uid="uid://bwv6xntu6f842" path="res://scenes/card.tscn" id="1_s4j6x"]
 [ext_resource type="Texture2D" uid="uid://djcrbp7e4624q" path="res://art/cards/fronts/c01.png" id="2_1omts"]
@@ -14,6 +14,45 @@
 [ext_resource type="Texture2D" uid="uid://cwqj3521eg7e2" path="res://art/cards/fronts/c11.png" id="12_cr4qs"]
 [ext_resource type="Texture2D" uid="uid://clbqs58eeokd3" path="res://art/cards/fronts/c12.png" id="13_2jr2e"]
 [ext_resource type="Texture2D" uid="uid://cna61g0s055pg" path="res://art/cards/fronts/c13.png" id="14_vqkt3"]
+[ext_resource type="Texture2D" uid="uid://cypow8o2nwqta" path="res://art/cards/fronts/d01.png" id="15_hln86"]
+[ext_resource type="Texture2D" uid="uid://cy04fclshuq8t" path="res://art/cards/fronts/d02.png" id="16_p7tgg"]
+[ext_resource type="Texture2D" uid="uid://dijgrijbca0av" path="res://art/cards/fronts/d03.png" id="17_tmd8b"]
+[ext_resource type="Texture2D" uid="uid://cmrn7la2i3kmc" path="res://art/cards/fronts/d04.png" id="18_comft"]
+[ext_resource type="Texture2D" uid="uid://cva5q8wc2sh4j" path="res://art/cards/fronts/d05.png" id="19_mjjf5"]
+[ext_resource type="Texture2D" uid="uid://b6hkvm02wlkyb" path="res://art/cards/fronts/d06.png" id="20_0top0"]
+[ext_resource type="Texture2D" uid="uid://bsldgynujpr4d" path="res://art/cards/fronts/d07.png" id="21_vfsph"]
+[ext_resource type="Texture2D" uid="uid://dcpvskseoryhc" path="res://art/cards/fronts/d08.png" id="22_c4oi0"]
+[ext_resource type="Texture2D" uid="uid://d3hg1mgin3rk4" path="res://art/cards/fronts/d09.png" id="23_r7v6y"]
+[ext_resource type="Texture2D" uid="uid://c761jyhocrpfp" path="res://art/cards/fronts/d10.png" id="24_b8f57"]
+[ext_resource type="Texture2D" uid="uid://c2k34kk6xbtf7" path="res://art/cards/fronts/d11.png" id="25_l68st"]
+[ext_resource type="Texture2D" uid="uid://bul0p1ex7coea" path="res://art/cards/fronts/d12.png" id="26_m7qm2"]
+[ext_resource type="Texture2D" uid="uid://6r38xs7n67k6" path="res://art/cards/fronts/d13.png" id="27_4qtno"]
+[ext_resource type="Texture2D" uid="uid://37ony1rumqc6" path="res://art/cards/fronts/h01.png" id="28_4hf7y"]
+[ext_resource type="Texture2D" uid="uid://b0rqt3r0pdcxc" path="res://art/cards/fronts/h02.png" id="29_82bpo"]
+[ext_resource type="Texture2D" uid="uid://b0mqpbwoxl3js" path="res://art/cards/fronts/h03.png" id="30_w3vms"]
+[ext_resource type="Texture2D" uid="uid://cpsjmxm5wq648" path="res://art/cards/fronts/h04.png" id="31_xhptt"]
+[ext_resource type="Texture2D" uid="uid://dtvskg5l3pkxg" path="res://art/cards/fronts/h05.png" id="32_rctju"]
+[ext_resource type="Texture2D" uid="uid://dn5lrwq6pgpm3" path="res://art/cards/fronts/h06.png" id="33_ku8os"]
+[ext_resource type="Texture2D" uid="uid://b5i2gnkwdms3" path="res://art/cards/fronts/h07.png" id="34_1ukq5"]
+[ext_resource type="Texture2D" uid="uid://ctb01mjnbfox6" path="res://art/cards/fronts/h08.png" id="35_smyum"]
+[ext_resource type="Texture2D" uid="uid://b3jkt036veqb4" path="res://art/cards/fronts/h09.png" id="36_wf5yw"]
+[ext_resource type="Texture2D" uid="uid://b7is80a84bsjk" path="res://art/cards/fronts/h10.png" id="37_ymwwr"]
+[ext_resource type="Texture2D" uid="uid://bdj5dhkehxsit" path="res://art/cards/fronts/h11.png" id="38_34ewo"]
+[ext_resource type="Texture2D" uid="uid://deudhp2tk8jac" path="res://art/cards/fronts/h12.png" id="39_r4l64"]
+[ext_resource type="Texture2D" uid="uid://c3nj158f1s4nm" path="res://art/cards/fronts/h13.png" id="40_v7ndo"]
+[ext_resource type="Texture2D" uid="uid://12l0664i1ec2" path="res://art/cards/fronts/s01.png" id="41_we34e"]
+[ext_resource type="Texture2D" uid="uid://bpewten3iqg7g" path="res://art/cards/fronts/s02.png" id="42_k85qx"]
+[ext_resource type="Texture2D" uid="uid://c1fqdfl5qdfe7" path="res://art/cards/fronts/s03.png" id="43_hkp10"]
+[ext_resource type="Texture2D" uid="uid://bh6tmkm5vtnad" path="res://art/cards/fronts/s04.png" id="44_sfngf"]
+[ext_resource type="Texture2D" uid="uid://ccojr5g706b2l" path="res://art/cards/fronts/s05.png" id="45_b0rin"]
+[ext_resource type="Texture2D" uid="uid://rqut0yemjmf7" path="res://art/cards/fronts/s06.png" id="46_6cm8l"]
+[ext_resource type="Texture2D" uid="uid://crkedkj35yhl7" path="res://art/cards/fronts/s07.png" id="47_ldop3"]
+[ext_resource type="Texture2D" uid="uid://dpscimy2undth" path="res://art/cards/fronts/s08.png" id="48_7d5ca"]
+[ext_resource type="Texture2D" uid="uid://b8uetk6ns8cqo" path="res://art/cards/fronts/s09.png" id="49_yf22g"]
+[ext_resource type="Texture2D" uid="uid://dvci7u77xf25a" path="res://art/cards/fronts/s10.png" id="50_x87at"]
+[ext_resource type="Texture2D" uid="uid://dh05mugxrpj5w" path="res://art/cards/fronts/s11.png" id="51_b6m1h"]
+[ext_resource type="Texture2D" uid="uid://d2v2nnkvvtkpa" path="res://art/cards/fronts/s12.png" id="52_votgg"]
+[ext_resource type="Texture2D" uid="uid://dycshhbbam7v5" path="res://art/cards/fronts/s13.png" id="53_y8m8p"]
 
 [node name="Deck" type="Node3D"]
 
@@ -67,3 +106,159 @@ _texture = ExtResource("13_2jr2e")
 [node name="Node3D13" parent="." instance=ExtResource("1_s4j6x")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.84, 0, 0)
 _texture = ExtResource("14_vqkt3")
+
+[node name="Node3D14" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.103742, 0)
+_texture = ExtResource("15_hln86")
+
+[node name="Node3D15" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.07, -0.103742, 0)
+_texture = ExtResource("16_p7tgg")
+
+[node name="Node3D16" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.14, -0.103742, 0)
+_texture = ExtResource("17_tmd8b")
+
+[node name="Node3D17" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.21, -0.103742, 0)
+_texture = ExtResource("18_comft")
+
+[node name="Node3D18" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28, -0.103742, 0)
+_texture = ExtResource("19_mjjf5")
+
+[node name="Node3D19" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.35, -0.103742, 0)
+_texture = ExtResource("20_0top0")
+
+[node name="Node3D20" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.42, -0.103742, 0)
+_texture = ExtResource("21_vfsph")
+
+[node name="Node3D21" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.49, -0.103742, 0)
+_texture = ExtResource("22_c4oi0")
+
+[node name="Node3D22" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.56, -0.103742, 0)
+_texture = ExtResource("23_r7v6y")
+
+[node name="Node3D23" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.63, -0.103742, 0)
+_texture = ExtResource("24_b8f57")
+
+[node name="Node3D24" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, -0.103742, 0)
+_texture = ExtResource("25_l68st")
+
+[node name="Node3D25" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.77, -0.103742, 0)
+_texture = ExtResource("26_m7qm2")
+
+[node name="Node3D26" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.84, -0.103742, 0)
+_texture = ExtResource("27_4qtno")
+
+[node name="Node3D27" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.212518, 0)
+_texture = ExtResource("28_4hf7y")
+
+[node name="Node3D28" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.07, -0.212518, 0)
+_texture = ExtResource("29_82bpo")
+
+[node name="Node3D29" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.14, -0.212518, 0)
+_texture = ExtResource("30_w3vms")
+
+[node name="Node3D30" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.21, -0.212518, 0)
+_texture = ExtResource("31_xhptt")
+
+[node name="Node3D31" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28, -0.212518, 0)
+_texture = ExtResource("32_rctju")
+
+[node name="Node3D32" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.35, -0.212518, 0)
+_texture = ExtResource("33_ku8os")
+
+[node name="Node3D33" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.42, -0.212518, 0)
+_texture = ExtResource("34_1ukq5")
+
+[node name="Node3D34" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.49, -0.212518, 0)
+_texture = ExtResource("35_smyum")
+
+[node name="Node3D35" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.56, -0.212518, 0)
+_texture = ExtResource("36_wf5yw")
+
+[node name="Node3D36" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.63, -0.212518, 0)
+_texture = ExtResource("37_ymwwr")
+
+[node name="Node3D37" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, -0.212518, 0)
+_texture = ExtResource("38_34ewo")
+
+[node name="Node3D38" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.77, -0.212518, 0)
+_texture = ExtResource("39_r4l64")
+
+[node name="Node3D39" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.84, -0.212518, 0)
+_texture = ExtResource("40_v7ndo")
+
+[node name="Node3D40" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.323769, 0)
+_texture = ExtResource("41_we34e")
+
+[node name="Node3D41" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.07, -0.323769, 0)
+_texture = ExtResource("42_k85qx")
+
+[node name="Node3D42" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.14, -0.323769, 0)
+_texture = ExtResource("43_hkp10")
+
+[node name="Node3D43" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.21, -0.323769, 0)
+_texture = ExtResource("44_sfngf")
+
+[node name="Node3D44" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28, -0.323769, 0)
+_texture = ExtResource("45_b0rin")
+
+[node name="Node3D45" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.35, -0.323769, 0)
+_texture = ExtResource("46_6cm8l")
+
+[node name="Node3D46" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.42, -0.323769, 0)
+_texture = ExtResource("47_ldop3")
+
+[node name="Node3D47" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.49, -0.323769, 0)
+_texture = ExtResource("48_7d5ca")
+
+[node name="Node3D48" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.56, -0.323769, 0)
+_texture = ExtResource("49_yf22g")
+
+[node name="Node3D49" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.63, -0.323769, 0)
+_texture = ExtResource("50_x87at")
+
+[node name="Node3D50" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, -0.323769, 0)
+_texture = ExtResource("51_b6m1h")
+
+[node name="Node3D51" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.77, -0.323769, 0)
+_texture = ExtResource("52_votgg")
+
+[node name="Node3D52" parent="." instance=ExtResource("1_s4j6x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.84, -0.323769, 0)
+_texture = ExtResource("53_y8m8p")
